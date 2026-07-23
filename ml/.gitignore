@@ -1,0 +1,20 @@
+# Generated corpora and reports are never committed (size + licensing).
+datasets/
+runs/
+evaluation/reports/
+
+# Heavy model artifacts are ignored; lightweight JSON sidecars (metadata,
+# provenance, and training history) ARE tracked for reproducibility.
+checkpoints/*
+!checkpoints/.gitkeep
+!checkpoints/*.metadata.json
+!checkpoints/*.provenance.json
+!checkpoints/*.history.json
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.safetensors
+
+__pycache__/
+*.pyc

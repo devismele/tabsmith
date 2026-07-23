@@ -1,0 +1,77 @@
+{
+  "modelVersion": "temporal-baseline-v0",
+  "featureVersion": "numpy-chroma-v1",
+  "trainingConfig": {
+    "configVersion": 1,
+    "modelName": "temporal-baseline-v0",
+    "productionBaseline": "2026-07-harmonic-context-v3-reduced-latency",
+    "seed": 20260723,
+    "splitSeeds": {
+      "training": 1000,
+      "development": 2000,
+      "synthetic_test": 3000
+    },
+    "data": {
+      "trainingTracks": 48,
+      "developmentTracks": 12,
+      "syntheticTestTracks": 12,
+      "durationSeconds": 20.0,
+      "tempoRange": [
+        72,
+        140
+      ]
+    },
+    "features": {
+      "inputDim": 25,
+      "pipelineVersion": "numpy-chroma-v1"
+    },
+    "labels": {
+      "roots": 12,
+      "qualities": [
+        "maj",
+        "min",
+        "7"
+      ],
+      "boundaryToleranceSeconds": 0.12
+    },
+    "model": {
+      "channels": 48,
+      "kernelSize": 3,
+      "dilations": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "dropout": 0.1
+    },
+    "training": {
+      "epochs": 25,
+      "batchSize": 8,
+      "learningRate": 0.003,
+      "weightDecay": 0.0001,
+      "earlyStoppingPatience": 6,
+      "gradClip": 5.0,
+      "boundaryLossWeight": 2.0,
+      "boundaryPosWeight": 8.0,
+      "noChordLossWeight": 1.0
+    }
+  },
+  "datasetManifestHash": "d5006d33aa8737db20b3b3646770ef898a3ece8a72eab802846e2b4afa8f2471",
+  "trainingSeed": 20260723,
+  "chordVocabulary": {
+    "roots": 12,
+    "qualities": [
+      "maj",
+      "min",
+      "7"
+    ],
+    "noChord": true
+  },
+  "inputDim": 25,
+  "gitCommit": "unknown",
+  "parameterCount": 58529,
+  "checksum": "bdf1aabb507aa3ff4a0ab372c5dabfbf8eac35cb1d74588d53cbf9254bac8f25",
+  "createdAt": "2026-07-23T16:24:25.844611+00:00",
+  "disclaimer": "Synthetic pipeline-validation model. Not representative of commercial music."
+}

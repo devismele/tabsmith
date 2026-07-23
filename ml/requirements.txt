@@ -1,0 +1,8 @@
+# learned-harmony-v1 — foundation pass (dev-only, NOT shipped in the app).
+# Deliberately minimal so the pipeline runs and is testable without a GPU or
+# heavy native wheels. The neural model / training / export land in a later pass
+# under an ml[train] extra (torch, librosa, onnx) — see models/README.md.
+numpy>=1.26
+# Optional: nicer WAV/FLAC I/O. The synthetic generator falls back to the
+# stdlib `wave` module if soundfile is unavailable.
+soundfile>=0.12

@@ -1,0 +1,186 @@
+[
+  {
+    "artist": "Eagles",
+    "title": "Hotel California",
+    "audioPath": "",
+    "recordingNotes": "The 2:10–2:45 development section was manually aligned to the same 6:31 official-audio studio recording that exposed the Tabsmith failure.",
+    "referenceUrl": "https://tabs.ultimate-guitar.com/tab/eagles/hotel-california-chords-46190",
+    "difficultyTags": ["multiple-guitars", "sevenths", "inversions"],
+    "split": "development",
+    "status": "evaluated-section",
+    "sections": [
+      {
+        "id": "hotel-california-2m10-2m45",
+        "startSeconds": 130,
+        "endSeconds": 165,
+        "status": "manually-verified",
+        "localReferenceId": "65f01496-ee0d-4ad9-b301-8995c5d68842",
+        "referenceSelection": {
+          "type": "Chords",
+          "version": 1,
+          "ratingCount": 39604,
+          "averageRating": 4.9,
+          "selectionReason": "Largest review count among the seven Chords versions and matched to the exact 6:31 studio recording."
+        },
+        "normalization": {
+          "capo": 2,
+          "tuning": "Standard",
+          "displayKey": "A minor",
+          "soundingKey": "B minor"
+        },
+        "normalizedChordSequence": [
+          "Bm",
+          "F#7",
+          "A",
+          "E",
+          "G",
+          "D",
+          "Em",
+          "F#7",
+          "Bm",
+          "F#7",
+          "A"
+        ],
+        "manualStartSeconds": [
+          130,
+          132.702,
+          135.953,
+          139.227,
+          142.245,
+          145.775,
+          149.026,
+          152.253,
+          155.713,
+          158.801,
+          162.052
+        ],
+        "notes": "The first and last regions are clipped to the requested evaluation interval. No lyrics or page body are retained.",
+        "latestEvaluation": {
+          "pipeline": "2026-07-harmonic-context-v3-reduced-latency",
+          "chordAnalysisVersion": 4,
+          "rootAccuracy": 0.7501,
+          "majorMinorAccuracy": 0.7501,
+          "medianBoundaryErrorMs": 565,
+          "meanSignedBoundaryErrorMs": 120.4,
+          "falseSevenths": 0,
+          "falseNoChord": 0,
+          "missingReferenceChords": 0,
+          "extraDetectedChords": 3,
+          "fragmentationRate": 0.7273,
+          "jsonReport": "local/hotel-california-2m10-2m45-reduced-latency-final.json",
+          "markdownReport": "local/hotel-california-2m10-2m45-reduced-latency-final.md"
+        }
+      }
+    ]
+  },
+  {
+    "artist": "The Beatles",
+    "title": "Let It Be",
+    "audioPath": "",
+    "recordingNotes": "Verify the exact album/single recording before alignment.",
+    "referenceUrl": "",
+    "difficultyTags": ["simple-progression", "major-pop", "academic-annotation-available"],
+    "split": "development",
+    "status": "pending"
+  },
+  {
+    "artist": "Bill Withers",
+    "title": "Ain't No Sunshine",
+    "audioPath": "",
+    "recordingNotes": "Use an authorized copy of the original studio recording.",
+    "referenceUrl": "",
+    "difficultyTags": ["minor-key", "sparse-harmony", "quiet-passages"],
+    "split": "development",
+    "status": "pending"
+  },
+  {
+    "artist": "Oasis",
+    "title": "Wonderwall",
+    "audioPath": "",
+    "recordingNotes": "Record displayed shapes and capo before concert-pitch normalization.",
+    "referenceUrl": "",
+    "difficultyTags": ["capo", "sustained-common-tones", "multiple-guitars"],
+    "split": "development",
+    "status": "pending"
+  },
+  {
+    "artist": "Green Day",
+    "title": "Boulevard of Broken Dreams",
+    "audioPath": "",
+    "recordingNotes": "Use the original studio recording.",
+    "referenceUrl": "",
+    "difficultyTags": ["distorted-guitars", "power-chords", "minor-key"],
+    "split": "development",
+    "status": "pending"
+  },
+  {
+    "artist": "Tracy Chapman",
+    "title": "Fast Car",
+    "audioPath": "",
+    "recordingNotes": "Use the original studio recording and preserve repeating-section identity.",
+    "referenceUrl": "",
+    "difficultyTags": ["acoustic", "repeated-progression", "incomplete-voicings"],
+    "split": "development",
+    "status": "pending"
+  },
+  {
+    "artist": "Queen",
+    "title": "Crazy Little Thing Called Love",
+    "audioPath": "",
+    "recordingNotes": "Use the album recording; verify short dominant transitions manually.",
+    "referenceUrl": "",
+    "difficultyTags": ["dominant-sevenths", "fast-harmonic-rhythm"],
+    "split": "validation",
+    "status": "pending"
+  },
+  {
+    "artist": "The Cranberries",
+    "title": "Zombie",
+    "audioPath": "",
+    "recordingNotes": "Use the original studio recording.",
+    "referenceUrl": "",
+    "difficultyTags": ["four-chord", "distortion", "stable-loop"],
+    "split": "validation",
+    "status": "pending"
+  },
+  {
+    "artist": "Bob Dylan",
+    "title": "Knockin' on Heaven's Door",
+    "audioPath": "",
+    "recordingNotes": "Match the selected reference to the exact Dylan recording, not a cover.",
+    "referenceUrl": "",
+    "difficultyTags": ["simple-acoustic", "major-key"],
+    "split": "validation",
+    "status": "pending"
+  },
+  {
+    "artist": "The Beatles",
+    "title": "Something",
+    "audioPath": "",
+    "recordingNotes": "Use the original album recording; keep this set untouched until final evaluation.",
+    "referenceUrl": "",
+    "difficultyTags": ["inversions", "chromatic-harmony", "academic-annotation-available"],
+    "split": "test",
+    "status": "pending"
+  },
+  {
+    "artist": "Queen",
+    "title": "We Are the Champions",
+    "audioPath": "",
+    "recordingNotes": "Use the original studio recording; keep this set untouched until final evaluation.",
+    "referenceUrl": "",
+    "difficultyTags": ["piano-harmony", "extensions", "section-changes"],
+    "split": "test",
+    "status": "pending"
+  },
+  {
+    "artist": "Fleetwood Mac",
+    "title": "Dreams",
+    "audioPath": "",
+    "recordingNotes": "Use the original studio recording; keep this set untouched until final evaluation.",
+    "referenceUrl": "",
+    "difficultyTags": ["ambiguous-two-chord-loop", "multiple-guitars", "quiet-harmony"],
+    "split": "test",
+    "status": "pending"
+  }
+]

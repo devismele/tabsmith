@@ -1,0 +1,52 @@
+# Dependencies and build output
+node_modules/
+dist/
+out/
+coverage/
+benchmark-results/
+*.log
+
+# Python environments
+.venv/
+venv/
+
+# Local runtime and processing data
+runtime/
+.runtime/
+models/cache/
+.models/
+processing-cache/
+temp/
+uploads/
+.cache/
+
+# ML artifacts and private datasets.
+# NOTE: ml/checkpoints is handled in ml/.gitignore so the lightweight JSON
+# metadata/provenance/history sidecars stay tracked while weights are ignored.
+ml/datasets/
+ml/runs/
+ml/exports/*.pt
+ml/exports/*.pth
+ml/exports/*.onnx
+ml/exports/*.ckpt
+
+# Evaluation data containing local paths or user-supplied references
+evaluation/private/
+evaluation/audio/
+evaluation/imports/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
+*.key
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/

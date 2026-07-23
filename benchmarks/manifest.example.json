@@ -1,0 +1,10 @@
+{
+  "onsetTolerance": 0.08,
+  "songs": [
+    {
+      "name": "Clean guitar example",
+      "reference": "references/clean-guitar.json",
+      "prediction": "predictions/clean-guitar.tabsmith.json"
+    }
+  ]
+}

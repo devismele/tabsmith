@@ -1,0 +1,11 @@
+{
+  "transcriptionCacheSchemaVersion": 3,
+  "transcriptionPipelineVersion": "2026-07-harmonic-context-v3-reduced-latency",
+  "noteCleanupVersion": 1,
+  "arrangementVersion": 1,
+  "fretboardMapperVersion": 2,
+  "chordAnalysisVersion": 4,
+  "tempoQuantizationVersion": 1,
+  "basicPitchModelVersion": "spotify-basic-pitch-1.0.1",
+  "sourceSeparationModelVersion": "htdemucs_6s-harmonic-v1"
+}

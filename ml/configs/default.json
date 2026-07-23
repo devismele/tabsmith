@@ -1,0 +1,27 @@
+{
+  "configVersion": 1,
+  "modelName": "learned-harmony-v1",
+  "productionBaseline": "2026-07-harmonic-context-v3-reduced-latency",
+  "seed": 20260723,
+  "audio": {
+    "sampleRate": 22050,
+    "hopSeconds": 0.09288,
+    "frameSeconds": 0.371
+  },
+  "features": {
+    "chromaBins": 12,
+    "includeBassChroma": true,
+    "includeSpectralEnergy": true,
+    "bassMaxHz": 320.0,
+    "tuningReferenceHz": 440.0
+  },
+  "labels": {
+    "vocabulary": ["12 major", "12 minor", "12 dominant7", "N", "X"],
+    "boundaryToleranceSeconds": [0.1, 0.25, 0.5]
+  },
+  "synthetic": {
+    "trackCount": 6,
+    "durationSeconds": 24.0,
+    "tempoRange": [72, 132]
+  }
+}

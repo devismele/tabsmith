@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-07-23T11:20:07.230Z",
+  "songCount": 0,
+  "averages": {
+    "rootAccuracy": null,
+    "majorMinorAccuracy": null,
+    "detailedAccuracy": null,
+    "bassInversionAccuracy": null,
+    "chordSymbolRecall": null,
+    "weightedChordSymbolRecall": null,
+    "noChordPrecision": null,
+    "noChordRecall": null,
+    "falseNoChordDurationPercent": null,
+    "meanBoundaryErrorMs": null,
+    "medianBoundaryErrorMs": null
+  },
+  "rootConfusions": [],
+  "genreResults": [],
+  "recurringErrors": [],
+  "rankedFixes": [],
+  "ablations": [
+    {
+      "id": "simple-harmonic-context-v2",
+      "label": "Simple chords + harmonic-context-v2",
+      "overrides": {
+        "chordDisplayMode": "simple"
+      }
+    },
+    {
+      "id": "detailed-harmonic-context-v2",
+      "label": "Detailed chords + harmonic-context-v2",
+      "overrides": {
+        "chordDisplayMode": "detailed"
+      }
+    },
+    {
+      "id": "without-bass-root-prior",
+      "label": "Without bass-root prior",
+      "overrides": {
+        "rootSupportWeight": 0,
+        "bassAgreementWeight": 0
+      }
+    },
+    {
+      "id": "without-key-prior",
+      "label": "Without key prior",
+      "overrides": {
+        "keyCompatibilityWeight": 0
+      }
+    },
+    {
+      "id": "without-transition-prior",
+      "label": "Without transition prior",
+      "overrides": {
+        "commonTransitionBonus": 0
+      }
+    },
+    {
+      "id": "without-repeated-section-consistency",
+      "label": "Without repeated-section consistency",
+      "overrides": {
+        "repeatedSectionConsistencyWeight": 0
+      }
+    }
+  ],
+  "songs": [],
+  "ablationResults": [],
+  "ablationSummary": []
+}

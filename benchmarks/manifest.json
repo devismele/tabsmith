@@ -1,0 +1,10 @@
+{
+  "onsetTolerance": 0.08,
+  "songs": [
+    {
+      "name": "Synthetic E–A–E smoke fixture",
+      "reference": "references/synthetic-e-a-e.json",
+      "prediction": "predictions/synthetic-e-a-e.tabsmith.json"
+    }
+  ]
+}

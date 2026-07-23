@@ -1,0 +1,16 @@
+# OPTIONAL development-only extra for the learned-harmony-v1 experimental
+# training smoke pass. NEVER add these to the Tabsmith application dependencies
+# (package.json / requirements.txt) — the app ships an exported model + runtime,
+# not a training stack.
+#
+#   pip install -r ml/requirements-training.txt
+#
+# The foundation pass (schema, importers, synthetic generator, features, splits,
+# evaluation, chroma-template baseline) runs with numpy alone and must keep
+# working without any of the packages below installed.
+torch>=2.2
+onnx>=1.15
+onnxruntime>=1.17
+# librosa is intentionally omitted: the numpy feature pipeline
+# (ml/preprocessing/features.py) supplies the required features. Add it here only
+# if a future feature genuinely needs it.

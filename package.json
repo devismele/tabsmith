@@ -1,0 +1,56 @@
+{
+  "name": "tabsmith",
+  "productName": "Tabsmith",
+  "description": "Local guitar stem separation, chord recognition, and tablature transcription.",
+  "author": "Tabsmith",
+  "private": true,
+  "version": "0.1.3",
+  "type": "module",
+  "main": "desktop/main.mjs",
+  "scripts": {
+    "dev": "node server.mjs",
+    "dev:vite": "vite",
+    "start": "node server.mjs --production",
+    "build": "tsc && vite build",
+    "test": "vitest run && node --test tests/*.node.mjs",
+    "test:ml-smoke": "node scripts/ml-smoke.mjs",
+    "test:youtube-smoke": "node scripts/ml-smoke.mjs --youtube",
+    "test:demo-smoke": "node scripts/ml-smoke.mjs --demo",
+    "test:evaluation-smoke": "node scripts/ml-smoke.mjs --demo --evaluation-ui",
+    "test:separation-smoke": "node scripts/ml-smoke.mjs --separation",
+    "test:cancel-smoke": "node scripts/job-cancel-smoke.mjs",
+    "assets:icons": "node scripts/generate-icons.mjs",
+    "assets:demo": "node scripts/generate-demo-song.mjs",
+    "runtime:prepare": "node scripts/prepare-runtime.mjs",
+    "runtime:verify": "node scripts/verify-portable-runtime.mjs",
+    "desktop:dev": "npm run build && electron .",
+    "desktop:smoke": "npm run build && electron . --smoke-test",
+    "desktop:package": "npm run assets:icons && npm run assets:demo && npm run runtime:prepare && npm run build && electron-forge package",
+    "desktop:make": "npm run assets:icons && npm run assets:demo && npm run runtime:prepare && npm run build && node scripts/forge-make.mjs",
+    "benchmark": "node scripts/benchmark.mjs benchmarks/manifest.json",
+    "evaluate:chords": "node scripts/chord-evaluation.mjs evaluation/chord-reference-songs.json",
+    "evaluate:chord-section": "vite-node scripts/chord-section-ablation.ts",
+    "evaluate:chord-redecode": "vite-node scripts/chord-section-redecode.ts"
+  },
+  "config": {
+    "forge": "./forge.config.cjs"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.2",
+    "@electron-forge/maker-squirrel": "^7.11.2",
+    "@electron-forge/maker-zip": "^7.11.2",
+    "archiver": "^8.0.0",
+    "electron": "^43.2.0",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.3",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-static-copy": "^4.1.1",
+    "vitest": "^3.1.4"
+  },
+  "dependencies": {
+    "@spotify/basic-pitch": "^1.0.1",
+    "express": "^5.1.0",
+    "extract-zip": "^2.0.1"
+  }
+}

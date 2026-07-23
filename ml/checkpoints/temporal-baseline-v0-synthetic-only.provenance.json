@@ -1,0 +1,73 @@
+{
+  "label": "temporal-baseline-v0-synthetic-only",
+  "syntheticOnly": true,
+  "warning": "SYNTHETIC-ONLY pipeline-validation model. NEVER a release model. Trained on generated audio; not representative of commercial music. Must not be bundled into Tabsmith or promoted over harmonic-context-v3-reduced-latency.",
+  "productionEngine": "2026-07-harmonic-context-v3-reduced-latency",
+  "contractVersion": 1,
+  "featureVersion": "numpy-chroma-v1",
+  "trainingSeed": 20260723,
+  "datasetManifestHash": "d5006d33aa8737db20b3b3646770ef898a3ece8a72eab802846e2b4afa8f2471",
+  "trainingConfig": {
+    "configVersion": 1,
+    "modelName": "temporal-baseline-v0",
+    "productionBaseline": "2026-07-harmonic-context-v3-reduced-latency",
+    "seed": 20260723,
+    "splitSeeds": {
+      "training": 1000,
+      "development": 2000,
+      "synthetic_test": 3000
+    },
+    "data": {
+      "trainingTracks": 48,
+      "developmentTracks": 12,
+      "syntheticTestTracks": 12,
+      "durationSeconds": 20.0,
+      "tempoRange": [
+        72,
+        140
+      ]
+    },
+    "features": {
+      "inputDim": 25,
+      "pipelineVersion": "numpy-chroma-v1"
+    },
+    "labels": {
+      "roots": 12,
+      "qualities": [
+        "maj",
+        "min",
+        "7"
+      ],
+      "boundaryToleranceSeconds": 0.12
+    },
+    "model": {
+      "channels": 48,
+      "kernelSize": 3,
+      "dilations": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "dropout": 0.1
+    },
+    "training": {
+      "epochs": 25,
+      "batchSize": 8,
+      "learningRate": 0.003,
+      "weightDecay": 0.0001,
+      "earlyStoppingPatience": 6,
+      "gradClip": 5.0,
+      "boundaryLossWeight": 2.0,
+      "boundaryPosWeight": 8.0,
+      "noChordLossWeight": 1.0
+    }
+  },
+  "stateDictChecksum": "bdf1aabb507aa3ff4a0ab372c5dabfbf8eac35cb1d74588d53cbf9254bac8f25",
+  "checkpointFileSha256": "28dce215d3459bf050eb26a6346049e4ed75f0432eb7a9b1581e80637122cc5e",
+  "onnxSha256": "c8c651d71cebad67a106dcb46a73e28e009911d9f4d5bfee1b09e34afed8b233",
+  "parameterCount": 58529,
+  "bestEpoch": 22,
+  "bestDevLoss": 1.08077,
+  "labeledAt": "2026-07-23T18:05:08.293132+00:00"
+}

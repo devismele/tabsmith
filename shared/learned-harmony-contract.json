@@ -1,0 +1,33 @@
+{
+  "contractVersion": 1,
+  "featureVersion": "harmony-features-v1",
+  "hybridDecoderVersion": 1,
+  "engines": {
+    "ruleBased": "rule-based",
+    "learned": "learned-experimental",
+    "hybrid": "hybrid-experimental"
+  },
+  "vocabulary": {
+    "roots": 12,
+    "qualities": ["maj", "min", "7"],
+    "hasNoChordHead": true,
+    "hasBoundaryHead": true
+  },
+  "limits": {
+    "maxFrames": 200000,
+    "maxSectionSeconds": 1800,
+    "inferenceTimeoutMs": 5000,
+    "chromaBins": 12,
+    "maxProbabilitySumError": 0.001
+  },
+  "requiredFeatures": ["frameTimes", "harmonicChroma", "bassChroma", "onsetStrength"],
+  "optionalFeatures": [
+    "beatPhase",
+    "downbeatProbability",
+    "melodyPitchClass",
+    "melodyConfidence",
+    "keyContext"
+  ],
+  "productionEngine": "2026-07-harmonic-context-v3-reduced-latency",
+  "note": "Experimental learned-harmony integration contract. The production chord engine is unchanged and remains the only user-facing engine. No model is bundled."
+}
