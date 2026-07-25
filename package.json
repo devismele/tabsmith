@@ -29,6 +29,7 @@
     "desktop:make": "npm run assets:icons && npm run assets:demo && npm run runtime:prepare && npm run build && node scripts/forge-make.mjs",
     "benchmark": "node scripts/benchmark.mjs benchmarks/manifest.json",
     "evaluate:chords": "node scripts/chord-evaluation.mjs evaluation/chord-reference-songs.json",
+    "evaluate:hybrid": "vite-node evaluation/run-hybrid-comparison.ts --config evaluation/hybrid-accuracy-config.json",
     "evaluate:chord-section": "vite-node scripts/chord-section-ablation.ts",
     "evaluate:chord-redecode": "vite-node scripts/chord-section-redecode.ts"
   },
