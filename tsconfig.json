@@ -13,5 +13,5 @@
     "noEmit": true,
     "strict": true
   },
-  "include": ["src", "tests", "vite.config.ts"]
+  "include": ["src", "tests", "evaluation", "vite.config.ts"]
 }
