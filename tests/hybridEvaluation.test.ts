@@ -25,6 +25,13 @@ import {
   buildHybridAccuracyReport,
   hybridAccuracyPerTrackCsv,
 } from "../evaluation/hybridReport";
+import {
+  audioBasenameForCapture,
+  reportFileNames,
+  resolveDatasetPaths,
+  resolveOutputTag,
+} from "../evaluation/hybridEvaluationConfig";
+import { buildCrossCaptureSummary } from "../evaluation/hybridCrossCapture";
 
 const MODEL: EvaluationModelIdentity = {
   modelVersion: "evaluation-test-model",
@@ -254,6 +261,11 @@ describe("TypeScript hybrid parity evaluation", () => {
       createdAt: "2026-07-25T00:00:00.000Z",
       datasets: [{
         datasetIdentifier: "test-solo-guitar",
+        officialDistributionRecord: "zenodo-test",
+        datasetVersion: "1.0",
+        annotationArchiveMd5: "annotation-md5",
+        audioArchiveMd5: "audio-md5",
+        captureType: "audio_mono-mic",
         manifestChecksum: "manifest-checksum",
         annotationChecksum: "annotation-checksum",
         splitName: "validation",
@@ -263,6 +275,15 @@ describe("TypeScript hybrid parity evaluation", () => {
         totalEvaluatedDurationSeconds: 3,
         trackIds: ["held-out-track"],
         splitLeakageWarnings: [],
+        leakageAudit: {
+          heldOutPerformers: ["held-out-player"],
+          heldOutPerformerSplits: {
+            "held-out-player": "validation",
+          },
+          heldOutPerformersExcludedFromTraining: true,
+          duplicateTrackIds: 0,
+          notes: ["Held-out performer is excluded from training."],
+        },
       }],
       scoredTracks: [scored],
       modelIdentity: MODEL,
@@ -288,6 +309,20 @@ describe("TypeScript hybrid parity evaluation", () => {
     expect(() => assertNoAbsolutePaths(report)).not.toThrow();
     expect(() => assertNoAbsolutePaths({ path: "C:\\private\\audio.wav" }))
       .toThrow(/Absolute path/);
+
+    const pickup = structuredClone(report);
+    pickup.datasets[0].captureType = "audio_mono-pickup_mix";
+    pickup.datasets[0].audioArchiveMd5 = "pickup-md5";
+    const crossCapture = buildCrossCaptureSummary(
+      report,
+      pickup,
+      "2026-07-25T01:00:00.000Z",
+    );
+    expect(crossCapture.dataset.trackCount).toBe(1);
+    expect(crossCapture.methodology.alternateCapturesNotCombinedAsIndependentTracks)
+      .toBe(true);
+    expect(crossCapture.conclusions.evidenceLevel).toBe("held-out-validation");
+    expect(() => assertNoAbsolutePaths(crossCapture)).not.toThrow();
   });
 
   it("produces deterministic paired bootstrap intervals", () => {
@@ -298,5 +333,50 @@ describe("TypeScript hybrid parity evaluation", () => {
 
     expect(first).toEqual(second);
     expect(first).not.toEqual(differentSeed);
+  });
+
+  it("resolves local GuitarSet overrides without putting them in report names", () => {
+    const configPath = "C:\\portable\\hybrid-config.json";
+    const resolved = resolveDatasetPaths({
+      datasetIdentifier: "guitarset-zenodo-1492449",
+      manifestPath: "../fallback/manifest.json",
+      annotationDirectory: "../fallback/annotations",
+      captureType: "audio_mono-mic",
+    }, configPath, {
+      TABSMITH_GUITARSET_MANIFEST: "D:\\datasets\\prepared\\manifest.json",
+      TABSMITH_GUITARSET_ANNOTATIONS: "D:\\datasets\\prepared\\annotations",
+      TABSMITH_GUITARSET_AUDIO: "D:\\datasets\\audio_mono-pickup_mix",
+      TABSMITH_HYBRID_EVAL_CAPTURE: "audio_mono-pickup_mix",
+      TABSMITH_HYBRID_EVAL_OUTPUT_TAG: "pickup-mix",
+    });
+
+    expect(resolved.manifestPath).toBe(
+      "D:\\datasets\\prepared\\manifest.json",
+    );
+    expect(resolved.annotationDirectory).toBe(
+      "D:\\datasets\\prepared\\annotations",
+    );
+    expect(resolved.audioRoot).toBe(
+      "D:\\datasets\\audio_mono-pickup_mix",
+    );
+    expect(resolved.captureType).toBe("audio_mono-pickup_mix");
+    expect(audioBasenameForCapture(
+      "00_BN1-129-Eb_comp_mic.wav",
+      resolved.captureType,
+    )).toBe("00_BN1-129-Eb_comp_mix.wav");
+    expect(reportFileNames(resolveOutputTag(undefined, {
+      TABSMITH_HYBRID_EVAL_OUTPUT_TAG: "pickup-mix",
+    }))).toEqual({
+      json: "hybrid-accuracy-pickup-mix.json",
+      markdown: "hybrid-accuracy-pickup-mix.md",
+      perTrackCsv: "hybrid-accuracy-pickup-mix-per-track.csv",
+      disagreements: "hybrid-accuracy-pickup-mix-disagreements.json",
+    });
+  });
+
+  it("rejects path-like output tags", () => {
+    expect(() => resolveOutputTag(undefined, {
+      TABSMITH_HYBRID_EVAL_OUTPUT_TAG: "C:\\private\\report",
+    })).toThrow(/portable label/);
   });
 });

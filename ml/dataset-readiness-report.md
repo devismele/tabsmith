@@ -12,7 +12,7 @@ No scraping, no auto-download (workspace policy).
 
 | Field | GuitarSet | McGill Billboard | Isophonics |
 |---|---|---|---|
-| Source | Zenodo record 1492449 (NYU MARL) | DDMAL, McGill | Centre for Digital Music, QMUL |
+| Source | File distribution: Zenodo record 3371780, v1.1.0 (NYU MARL); paper: record 1492449 | DDMAL, McGill | Centre for Digital Music, QMUL |
 | **License & permitted uses** | **CC-BY 4.0 — commercial use OK with attribution** | Derived data (annotations + features) **CC0**; cite ISMIR paper | **Not clearly documented** on the reference page; research-oriented, ambiguous for a shipped product |
 | **Audio availability** | **`audio`** — real recorded audio included (raw-audio-trainable) | **`features`** — NNLS-chroma + tuning (Chordino) distributed; **audio NOT distributed** | **`annotations`** only; you must legally own the CDs |
 | Timed chord annotations | Yes — chords + string/fret, time-aligned | Yes — expert harmony + form, high reliability | Yes — high reliability (Beatles best-checked) |
@@ -212,7 +212,7 @@ Concrete paths to close #1 (each needs a data/licensing decision, not more code)
    `prepare_dataset` via `--guitarset-dir`, tests in `ml/tests/test_import_guitarset.py`).
    CC-BY 4.0, real audio through the existing `numpy-chroma-v1` audio path (no frozen-
    contract change), player-separated splits, genre tagged in notes. **Next:** acquire
-   Zenodo 1492449 locally → `prepare_dataset --guitarset-dir <path>` → confirm class
+   Zenodo 3371780 locally → `prepare_dataset --guitarset-dir <path>` → confirm class
    distribution → train + three-way offline compare (rule / ML-only / hybrid) on a
    held-out player split.
 2. **Add McGill Billboard *features* (CC0)** — the remaining production-diversity work.

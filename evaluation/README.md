@@ -49,19 +49,32 @@ that exact response object to both ML-only and hybrid, and calls production
 `runHybridHarmony()` / `decodeHarmonyObservations()` for the hybrid result. It
 does not use `ml/evaluation/adapters.py` as a hybrid result.
 
-The committed configuration expects the locally imported GuitarSet validation
-split and held-out performer `guitarset-p00` under ignored `ml/datasets/`.
-Neither audio nor local absolute paths belong in Git. Import or restore the
-licensed local dataset first, then run:
+The committed configuration keeps the historical internal identifier
+`guitarset-zenodo-1492449`, but records the actual file distribution separately
+as Zenodo record `3371780`, GuitarSet `1.1.0`. Local paths are supplied only at
+runtime. After importing the normalized annotation JSON outside the repository,
+run the microphone capture with:
 
 ```powershell
+$env:TABSMITH_GUITARSET_MANIFEST = "<local prepared dataset>/dataset_manifest.json"
+$env:TABSMITH_GUITARSET_ANNOTATIONS = "<local prepared dataset>/guitarset/annotations"
+$env:TABSMITH_GUITARSET_AUDIO = "<local GuitarSet>/audio_mono-mic"
+$env:TABSMITH_HYBRID_EVAL_CAPTURE = "audio_mono-mic"
+$env:TABSMITH_HYBRID_EVAL_OUTPUT_TAG = "mono-mic"
 npm run evaluate:hybrid
 ```
 
-Reports are written under ignored `evaluation/reports/` only after at least one
-track completes real learned inference and the production TypeScript temporal
-decoder. A missing dataset, all-fallback run, synthetic-only run, or failed run
-does not create an accuracy report.
+For the paired pickup capture, keep the same manifest, annotations, split,
+model, and settings; point `TABSMITH_GUITARSET_AUDIO` to
+`audio_mono-pickup_mix`, set the capture to `audio_mono-pickup_mix`, and use
+the output tag `pickup-mix`. Output tags must be portable labels and create
+capture-specific filenames without embedding any local path.
+
+Reports are written under `evaluation/reports/` only after at least one track
+completes real learned inference and the production TypeScript temporal decoder.
+Only completed, validated real-data reports are eligible for commit. A missing
+dataset, all-fallback run, synthetic-only run, or failed run does not create an
+accuracy report.
 
 To use a private full-band raw-audio corpus, copy the configuration outside
 Git, add a `full-band` dataset entry with timed annotations and a frozen split,

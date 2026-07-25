@@ -40,9 +40,22 @@ import {
   hybridDisagreementReport,
   type DatasetReportIdentity,
 } from "./hybridReport";
+import {
+  audioBasenameForCapture,
+  reportFileNames,
+  resolveDatasetPaths,
+  resolveOutputTag,
+  type EvaluationEnvironment,
+  type ResolvedDatasetPaths,
+} from "./hybridEvaluationConfig";
 
 interface DatasetConfig {
   datasetIdentifier: string;
+  officialDistributionRecord?: string;
+  datasetVersion?: string;
+  annotationArchiveMd5?: string;
+  audioArchiveMd5ByCapture?: Record<string, string>;
+  captureType?: string;
   manifestPath: string;
   annotationDirectory: string;
   splitName: "development" | "validation" | "test";
@@ -52,6 +65,8 @@ interface DatasetConfig {
   sourceType: SourceType;
   sourceMode: "full-mix" | "guitar-focused";
   audioRoot?: string;
+  expectedAnnotationCount?: number;
+  expectedTrackCount?: number;
   trackLimit?: number;
   runAblations?: boolean;
 }
@@ -60,6 +75,7 @@ interface EvaluationConfig {
   schemaVersion: 1;
   sampleRate: number;
   outputDirectory: string;
+  outputTag?: string;
   includeLegacyRegionHybrid: boolean;
   combineSourceTypes: boolean;
   timeoutMs?: number;
@@ -250,16 +266,18 @@ function bpmFromBeats(beats: number[]): number | null {
 function resolveAudioPath(
   annotationPath: string,
   annotation: AnnotationTrack,
-  dataset: DatasetConfig,
-  configPath: string,
+  resolvedPaths: ResolvedDatasetPaths,
 ): string {
   if (!annotation.audio_path) {
     throw new Error(`${annotation.track_id}: annotation does not reference audio`);
   }
-  if (dataset.audioRoot) {
+  if (resolvedPaths.audioRoot) {
     return path.join(
-      resolveFromConfig(configPath, dataset.audioRoot),
-      path.basename(annotation.audio_path),
+      resolvedPaths.audioRoot,
+      audioBasenameForCapture(
+        annotation.audio_path,
+        resolvedPaths.captureType,
+      ),
     );
   }
   return path.isAbsolute(annotation.audio_path)
@@ -298,12 +316,10 @@ async function loadDataset(
   dataset: DatasetConfig,
   configPath: string,
   sampleRate: number,
+  environment: EvaluationEnvironment,
 ): Promise<LoadedDataset> {
-  const manifestPath = resolveFromConfig(configPath, dataset.manifestPath);
-  const annotationDirectory = resolveFromConfig(
-    configPath,
-    dataset.annotationDirectory,
-  );
+  const resolvedPaths = resolveDatasetPaths(dataset, configPath, environment);
+  const { manifestPath, annotationDirectory } = resolvedPaths;
   if (!await exists(manifestPath)) {
     throw new Error(
       `${dataset.datasetIdentifier}: dataset manifest is missing at the configured relative path`,
@@ -337,6 +353,21 @@ async function loadDataset(
       annotation: JSON.parse(buffer.toString("utf8")) as AnnotationTrack,
     };
   }));
+  if (dataset.expectedAnnotationCount !== undefined
+    && loadedAnnotations.length !== dataset.expectedAnnotationCount) {
+    throw new Error(
+      `${dataset.datasetIdentifier}: expected ${dataset.expectedAnnotationCount}`
+        + ` annotations but loaded ${loadedAnnotations.length}`,
+    );
+  }
+  const duplicateTrackIds = loadedAnnotations.length
+    - new Set(loadedAnnotations.map(({ annotation }) => annotation.track_id)).size;
+  if (duplicateTrackIds) {
+    throw new Error(
+      `${dataset.datasetIdentifier}: ${duplicateTrackIds} duplicate track IDs`
+        + " were found in the annotation input",
+    );
+  }
   const splitMap = manifest.splitAssignment?.trackSplit ?? {};
   const splitFor = (annotation: AnnotationTrack): string =>
     dataset.splitStrategy === "artist-hash"
@@ -356,6 +387,13 @@ async function loadDataset(
           ? ` and held-out artist(s) ${[...heldOutArtists].join(", ")}`
           : "")
         + ".",
+    );
+  }
+  if (dataset.expectedTrackCount !== undefined
+    && selected.length !== dataset.expectedTrackCount) {
+    throw new Error(
+      `${dataset.datasetIdentifier}: expected ${dataset.expectedTrackCount}`
+        + ` held-out tracks but selected ${selected.length}`,
     );
   }
   const artistSplits = new Map<string, Set<string>>();
@@ -400,8 +438,7 @@ async function loadDataset(
     const audioPath = resolveAudioPath(
       annotationPath,
       annotation,
-      dataset,
-      configPath,
+      resolvedPaths,
     );
     if (!await exists(audioPath)) {
       throw new Error(
@@ -458,11 +495,27 @@ async function loadDataset(
     );
   }
   const totalDuration = tracks.reduce((sum, track) => sum + track.duration, 0);
+  const heldOutPerformerSplits = Object.fromEntries(
+    [...heldOutArtists].map((artist) => [
+      artist,
+      [...(artistSplits.get(artist) ?? new Set<string>())].join(",") || "absent",
+    ]),
+  );
+  const heldOutPerformersExcludedFromTraining = Object.values(
+    heldOutPerformerSplits,
+  ).every((split) => split !== "training" && split !== "absent");
   return {
     config: dataset,
     tracks,
     identity: {
       datasetIdentifier: dataset.datasetIdentifier,
+      officialDistributionRecord: dataset.officialDistributionRecord ?? null,
+      datasetVersion: dataset.datasetVersion ?? null,
+      annotationArchiveMd5: dataset.annotationArchiveMd5 ?? null,
+      audioArchiveMd5: resolvedPaths.captureType
+        ? dataset.audioArchiveMd5ByCapture?.[resolvedPaths.captureType] ?? null
+        : null,
+      captureType: resolvedPaths.captureType,
       manifestChecksum: sha256(manifestBuffer),
       annotationChecksum: sha256(annotationHashes.sort().join("\n")),
       splitName: dataset.splitName,
@@ -474,6 +527,23 @@ async function loadDataset(
       totalEvaluatedDurationSeconds: totalDuration,
       trackIds: tracks.map((track) => track.trackId),
       splitLeakageWarnings: leakageWarnings,
+      leakageAudit: {
+        heldOutPerformers: [...heldOutArtists],
+        heldOutPerformerSplits,
+        heldOutPerformersExcludedFromTraining,
+        duplicateTrackIds,
+        notes: [
+          heldOutPerformersExcludedFromTraining
+            ? "All configured held-out performers are excluded from training by the recorded artist-level split."
+            : "One or more configured held-out performers are absent or assigned to training.",
+          dataset.splitStrategy === "artist-hash"
+            ? "The deterministic artist-hash split has training, development, and validation partitions; it does not create an untouched test partition."
+            : "The dataset manifest supplies the split assignment.",
+          resolvedPaths.captureType
+            ? `Capture ${resolvedPaths.captureType} is one alternate recording of each performance and is not treated as an independent track.`
+            : "No portable capture label was supplied.",
+        ],
+      },
     },
   };
 }
@@ -523,6 +593,7 @@ function validateBundledModel(weights: TcnWeights): void {
 export async function runHybridComparison(
   configPath: string,
   outputOverride?: string,
+  environment: EvaluationEnvironment = process.env,
 ): Promise<ReturnType<typeof buildHybridAccuracyReport>> {
   const config = JSON.parse(await readFile(configPath, "utf8")) as EvaluationConfig;
   validateConfig(config);
@@ -530,7 +601,12 @@ export async function runHybridComparison(
   validateBundledModel(weights);
   const loadedDatasets: LoadedDataset[] = [];
   for (const dataset of config.datasets) {
-    loadedDatasets.push(await loadDataset(dataset, configPath, config.sampleRate));
+    loadedDatasets.push(await loadDataset(
+      dataset,
+      configPath,
+      config.sampleRate,
+      environment,
+    ));
   }
   const provider = new LearnedTcnProvider(weights);
   const modelIdentity = {
@@ -562,10 +638,33 @@ export async function runHybridComparison(
         runAblations: item.runAblations,
       },
     );
-    scoredTracks.push(scoreTrackComparison(
+    if (!comparison.execution.actualHybridDecoderInvoked) {
+      throw new Error(
+        `${item.track.trackId}: actual TypeScript hybrid path was not invoked`,
+      );
+    }
+    const learnedOnly = comparison.predictions["ml-only"];
+    const hybrid = comparison.predictions["observation-hybrid"];
+    if (hybrid?.usedLearned
+      && (!learnedOnly
+        || !comparison.execution.sharedLearnedResponseObject
+        || learnedOnly.probabilitySourceId !== hybrid.probabilitySourceId)) {
+      throw new Error(
+        `${item.track.trackId}: ML-only and hybrid did not share one learned response`,
+      );
+    }
+    const scored = scoreTrackComparison(
       comparison,
       config.shortRegionThresholdSeconds ?? 0.5,
-    ));
+    );
+    const evaluatedDurations = Object.values(scored.engineMetrics)
+      .flatMap((metrics) => metrics ? [metrics.evaluatedDurationSeconds] : []);
+    if (new Set(evaluatedDurations.map((duration) => duration.toFixed(9))).size !== 1) {
+      throw new Error(
+        `${item.track.trackId}: engine evaluation durations do not match`,
+      );
+    }
+    scoredTracks.push(scored);
   }
   const successful = scoredTracks.filter((track) =>
     track.comparison.predictions["observation-hybrid"]?.usedLearned
@@ -582,6 +681,11 @@ export async function runHybridComparison(
   const hasFullBand = loadedDatasets.some(
     (dataset) => dataset.identity.sourceType === "full-band",
   );
+  const hasReferenceNoChord = allTracks.some(({ track }) =>
+    track.referenceRegions.some((region) => {
+      const label = region.label.trim().toUpperCase();
+      return label === "N" || label === "NO_CHORD" || label === "NO CHORD";
+    }));
   const usesP00 = loadedDatasets.some((dataset) =>
     dataset.config.heldOutArtists?.includes("guitarset-p00"));
   const limitations = [
@@ -593,6 +697,9 @@ export async function runHybridComparison(
     ...(!hasFullBand ? [
       "No legally available representative full-band raw-audio dataset was configured, so the production promotion gate remains open.",
       "Billboard precomputed-feature results are intentionally excluded from this raw-audio app comparison.",
+    ] : []),
+    ...(!hasReferenceNoChord ? [
+      "The selected lead-sheet references contain no annotated no-chord intervals; no-chord precision, recall, and F1 are therefore not informative for this run.",
     ] : []),
   ];
   const ablationDatasets = loadedDatasets.filter(
@@ -623,22 +730,11 @@ export async function runHybridComparison(
     ? path.resolve(outputOverride)
     : resolveFromConfig(configPath, config.outputDirectory);
   await mkdir(outputDirectory, { recursive: true });
-  const jsonPath = path.join(
-    outputDirectory,
-    "hybrid-accuracy-comparison.json",
-  );
-  const markdownPath = path.join(
-    outputDirectory,
-    "hybrid-accuracy-comparison.md",
-  );
-  const csvPath = path.join(
-    outputDirectory,
-    "hybrid-accuracy-per-track.csv",
-  );
-  const disagreementPath = path.join(
-    outputDirectory,
-    "hybrid-disagreements.json",
-  );
+  const names = reportFileNames(resolveOutputTag(config.outputTag, environment));
+  const jsonPath = path.join(outputDirectory, names.json);
+  const markdownPath = path.join(outputDirectory, names.markdown);
+  const csvPath = path.join(outputDirectory, names.perTrackCsv);
+  const disagreementPath = path.join(outputDirectory, names.disagreements);
   const disagreement = hybridDisagreementReport(report, scoredTracks);
   assertNoAbsolutePaths(disagreement);
   await Promise.all([

@@ -154,7 +154,10 @@ export interface EngineAggregate {
 
 export interface PairedDifference {
   metric: MainMetricName;
-  comparison: "hybrid-minus-rule" | "hybrid-minus-ml-only";
+  comparison:
+    | "hybrid-minus-rule"
+    | "hybrid-minus-ml-only"
+    | "hybrid-minus-legacy-region-hybrid";
   meanDifference: number | null;
   medianDifference: number | null;
   bootstrap95ConfidenceInterval: [number, number] | null;
@@ -977,7 +980,7 @@ function improvementDirection(metric: MainMetricName): 1 | -1 {
 
 export function pairedMetricDifference(
   tracks: ScoredTrackComparison[],
-  comparator: "rule-only" | "ml-only",
+  comparator: "rule-only" | "ml-only" | "legacy-region-hybrid",
   metric: MainMetricName,
   seed: number,
   bootstrapIterations: number,
@@ -1004,7 +1007,9 @@ export function pairedMetricDifference(
     metric,
     comparison: comparator === "rule-only"
       ? "hybrid-minus-rule"
-      : "hybrid-minus-ml-only",
+      : comparator === "ml-only"
+        ? "hybrid-minus-ml-only"
+        : "hybrid-minus-legacy-region-hybrid",
     meanDifference: differences.length ? round(mean(differences)) : null,
     medianDifference: differences.length ? round(median(differences)!) : null,
     bootstrap95ConfidenceInterval: bootstrapMeanConfidenceInterval(
@@ -1092,9 +1097,11 @@ export function aggregateComparison(
       }
     }
   }
-  const pairedDifferences = (
-    ["rule-only", "ml-only"] as const
-  ).flatMap((comparator) => MAIN_METRICS.map((metric) =>
+  const comparators = (
+    ["rule-only", "ml-only", "legacy-region-hybrid"] as const
+  ).filter((comparator) => comparator !== "legacy-region-hybrid"
+    || common.some((track) => Boolean(track.engineMetrics[comparator])));
+  const pairedDifferences = comparators.flatMap((comparator) => MAIN_METRICS.map((metric) =>
     pairedMetricDifference(
       common,
       comparator,

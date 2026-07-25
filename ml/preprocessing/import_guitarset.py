@@ -9,7 +9,7 @@ the first real multi-genre source. Production style is uniform (solo acoustic
 guitar), so it broadens *musical* genre but not full-band production diversity;
 McGill Billboard features cover that later.
 
-Layout expected (as distributed on Zenodo record 1492449)::
+Layout expected (as distributed in GuitarSet 1.1.0 on Zenodo record 3371780)::
 
     <root>/annotation/<track_id>.jams          # standard JAMS JSON
     <root>/audio_mono-mic/<track_id>_mic.wav   # mono reference mic recording
@@ -100,7 +100,7 @@ def import_guitarset_track(
     split: str = "development",
     audio_dir: str | Path | None = None,
     prefer: str = "leadsheet",
-    dataset_version: str = "guitarset-zenodo-1492449",
+    dataset_version: str = "guitarset-zenodo-3371780-v1.1.0",
 ) -> Track:
     jams_path = Path(jams_path)
     jams = json.loads(jams_path.read_text(encoding="utf-8", errors="ignore"))
@@ -128,7 +128,7 @@ def import_guitarset_track(
         audio_availability="audio" if audio_path else "annotations",
         split=split,
         license="CC-BY-4.0",
-        source_url="https://zenodo.org/records/1492449",
+        source_url="https://zenodo.org/records/3371780",
         audio_path=audio_path,
         beats=beats,
         downbeats=downbeats,

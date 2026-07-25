@@ -19,6 +19,11 @@ import {
 
 export interface DatasetReportIdentity {
   datasetIdentifier: string;
+  officialDistributionRecord: string | null;
+  datasetVersion: string | null;
+  annotationArchiveMd5: string | null;
+  audioArchiveMd5: string | null;
+  captureType: string | null;
   manifestChecksum: string;
   annotationChecksum: string;
   splitName: string;
@@ -28,6 +33,13 @@ export interface DatasetReportIdentity {
   totalEvaluatedDurationSeconds: number;
   trackIds: string[];
   splitLeakageWarnings: string[];
+  leakageAudit: {
+    heldOutPerformers: string[];
+    heldOutPerformerSplits: Record<string, string>;
+    heldOutPerformersExcludedFromTraining: boolean;
+    duplicateTrackIds: number;
+    notes: string[];
+  };
 }
 
 export interface HybridReportInput {
@@ -51,9 +63,12 @@ export interface RepresentativeExample {
   category:
     | "hybrid-fixes-ml-flicker"
     | "hybrid-corrects-uncertain-rule"
-    | "hybrid-worsens-rule"
-    | "rule-protection"
-    | "learned-boundary-timing";
+     | "hybrid-worsens-rule"
+     | "rule-protection"
+     | "learned-boundary-timing"
+     | "adaptive-weighting-blocks-correct-ml"
+     | "incorrect-no-chord"
+     | "quality-confusion";
   trackId: string;
   startSeconds: number;
   endSeconds: number;
@@ -255,12 +270,45 @@ function representativeExamples(
           "The hybrid changed a rule candidate that matched the annotation.",
         ));
       }
-      if (rule !== learned && hybridLabel === rule) {
+      if (rule === reference && learned !== reference && hybridLabel === rule) {
         add(exampleFromWindow(
           "rule-protection",
           track,
           window,
           "Rule/ML disagreement was resolved in favor of the protected rule result.",
+        ));
+      }
+      if (rule !== reference
+        && learned === reference
+        && hybridLabel !== reference) {
+        add(exampleFromWindow(
+          "adaptive-weighting-blocks-correct-ml",
+          track,
+          window,
+          "The learned top candidate matched the annotation, but conservative fusion and temporal decoding retained a different label.",
+        ));
+      }
+      if (reference !== "N"
+        && (learned === "N" || hybridLabel === "N")) {
+        add(exampleFromWindow(
+          "incorrect-no-chord",
+          track,
+          window,
+          hybridLabel === "N"
+            ? "The final hybrid emitted no-chord over an annotated chord."
+            : "The learned head favored no-chord, but the hybrid decoder retained a chord.",
+        ));
+      }
+      const root = (label: string | null): string | null =>
+        label?.match(/^([A-G](?:#|b)?)/)?.[1] ?? null;
+      if (reference && reference !== "N"
+        && learned !== reference
+        && root(learned) === root(reference)) {
+        add(exampleFromWindow(
+          "quality-confusion",
+          track,
+          window,
+          "The learned candidate had the annotated root but a different chord quality.",
         ));
       }
     }
@@ -272,14 +320,21 @@ function representativeExamples(
       (ablation) => ablation.id === "hybrid-without-boundary",
     );
     if (full && noBoundary) {
-      const candidate = full.regions.slice(1).find((region) =>
-        noBoundary.regions.slice(1).some((without) =>
-          canonicalChordLabel(without.name) === canonicalChordLabel(region.name)
-            && Math.abs(without.start - region.start) >= 0.001));
-      if (candidate) {
-        const without = noBoundary.regions.slice(1).find((region) =>
-          canonicalChordLabel(region.name) === canonicalChordLabel(candidate.name)
-            && Math.abs(region.start - candidate.start) >= 0.001)!;
+      const boundaryPair = full.regions.slice(1).flatMap((candidate) => {
+        const matching = noBoundary.regions.slice(1)
+          .filter((without) =>
+            canonicalChordLabel(without.name) === canonicalChordLabel(candidate.name))
+          .map((without) => ({
+            candidate,
+            without,
+            difference: Math.abs(without.start - candidate.start),
+          }))
+          .filter(({ difference }) => difference >= 0.001 && difference <= 1)
+          .sort((left, right) => left.difference - right.difference)[0];
+        return matching ? [matching] : [];
+      }).sort((left, right) => left.difference - right.difference)[0];
+      if (boundaryPair) {
+        const { candidate, without } = boundaryPair;
         add({
           category: "learned-boundary-timing",
           trackId: track.comparison.track.trackId,
@@ -382,6 +437,9 @@ export function buildHybridAccuracyReport(
     "hybrid-worsens-rule",
     "rule-protection",
     "learned-boundary-timing",
+    "adaptive-weighting-blocks-correct-ml",
+    "incorrect-no-chord",
+    "quality-confusion",
   ];
   const sharedResponses = input.scoredTracks
     .filter((track) =>
@@ -554,8 +612,14 @@ export function hybridAccuracyReportMarkdown(
       + ` ${dataset.trackCount} tracks,`
       + ` ${(dataset.totalEvaluatedDurationSeconds / 60).toFixed(1)} minutes,`
       + ` source type \`${dataset.sourceType}\`,`
+      + ` capture \`${dataset.captureType ?? "unspecified"}\`,`
+      + ` official distribution \`${dataset.officialDistributionRecord ?? "unspecified"}\``
+      + ` version \`${dataset.datasetVersion ?? "unspecified"}\`,`
+      + ` annotation MD5 \`${dataset.annotationArchiveMd5 ?? "unspecified"}\`,`
+      + ` audio MD5 \`${dataset.audioArchiveMd5 ?? "unspecified"}\`,`
       + ` split definition \`${dataset.splitDefinition}\`,`
-      + ` manifest SHA-256 \`${dataset.manifestChecksum}\`.`);
+      + ` manifest SHA-256 \`${dataset.manifestChecksum}\`.`
+      + ` Leakage audit: ${dataset.leakageAudit.notes.join(" ")}`);
   const pairedRows = report.aggregate.pairedDifferences.map((difference) => {
     const interval = difference.bootstrap95ConfidenceInterval
       ? `[${difference.bootstrap95ConfidenceInterval[0].toFixed(4)},`
