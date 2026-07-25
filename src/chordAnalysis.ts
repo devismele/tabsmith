@@ -437,6 +437,34 @@ export function chromaForChordFrame(frame: Float32Array, sampleRate: number): nu
   return spectralChroma(frame, sampleRate).chroma;
 }
 
+/**
+ * Per-frame harmony features (harmony-features-v1) for the learned engine: the
+ * same treble chroma, low-band root chroma, and RMS energy the ML model trained
+ * on. Frame size and 0.25 s hop match the training pipeline (ml app_features.py),
+ * so the learned provider receives exactly the representation it expects.
+ */
+export function extractHarmonyFrames(
+  samples: Float32Array,
+  sampleRate: number,
+  hopSeconds = 0.25,
+): { frameTimes: number[]; harmonicChroma: number[][]; bassChroma: number[][]; onsetStrength: number[] } {
+  const hop = Math.max(1, Math.round(hopSeconds * sampleRate));
+  const frameTimes: number[] = [];
+  const harmonicChroma: number[][] = [];
+  const bassChroma: number[][] = [];
+  const onsetStrength: number[] = [];
+  for (let start = 0; start < samples.length; start += hop) {
+    const frame = new Float32Array(FRAME_SIZE);
+    frame.set(samples.subarray(start, Math.min(samples.length, start + FRAME_SIZE)));
+    const spectral = spectralChroma(frame, sampleRate);
+    frameTimes.push(start / sampleRate);
+    harmonicChroma.push(spectral.chroma);
+    bassChroma.push(spectral.rootChroma);
+    onsetStrength.push(frameRms(frame));  // the model's energy channel
+  }
+  return { frameTimes, harmonicChroma, bassChroma, onsetStrength };
+}
+
 function strongestPitchClass(chroma: number[]): { pitchClass: number | null; confidence: number } {
   const ranked = chroma
     .map((value, pitchClass) => ({ value, pitchClass }))

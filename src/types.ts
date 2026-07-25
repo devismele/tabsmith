@@ -317,6 +317,9 @@ export type AnalysisResult = {
   chordAnalysis: ChordAnalysisResult;
   engine: "basic-pitch" | "dsp";
   separation: "guitar" | "none";
+  /** Present when the experimental learned chord engine ran; reports whether it
+   *  was actually used or fell back to the rule-based regions. */
+  learnedEngine?: { usedLearned: boolean; fallbackReason?: string };
 };
 
 export type HarmonyResult = Omit<AnalysisResult, "notes" | "noteAnalysis" | "engine" | "separation">;

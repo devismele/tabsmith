@@ -92,8 +92,12 @@ def serialize_model(model, metadata: dict, sample_frames: int = 20) -> dict:
     return payload
 
 
-def export(checkpoint_path: Path, out_path: Path) -> dict:
+def export(checkpoint_path: Path, out_path: Path, feature_version: str | None = None) -> dict:
     model, metadata = load_checkpoint(checkpoint_path)
+    # The config's pipelineVersion can lag the CLI --audio-features actually used
+    # to train; stamp the true feature version so the app version-check matches.
+    if feature_version:
+        metadata = {**metadata, "featureVersion": feature_version}
     payload = serialize_model(model, metadata)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload), encoding="utf-8")
@@ -104,8 +108,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Export a TCN checkpoint to JSON weights for the TS provider.")
     parser.add_argument("--checkpoint", default=str(ML_ROOT / "checkpoints" / "temporal-baseline-app-v0.pt"))
     parser.add_argument("--out", default=str(ML_ROOT / "exports" / "temporal-baseline-app-v0.weights.json"))
+    parser.add_argument("--feature-version", default=None,
+                        help="Override the stamped featureVersion (e.g. harmony-features-v1).")
     args = parser.parse_args()
-    payload = export(Path(args.checkpoint), Path(args.out))
+    payload = export(Path(args.checkpoint), Path(args.out), args.feature_version)
     size = Path(args.out).stat().st_size
     print(f"Exported {payload['modelVersion']} ({payload['config']['channels']}ch, "
           f"{len(payload['blocks'])} blocks) -> {args.out} ({size/1e6:.2f} MB)")

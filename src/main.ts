@@ -193,7 +193,7 @@ app.innerHTML = `
         <select id="chord-engine-select" aria-label="Chord detection engine">
           <option value="rule" selected>Rule-based (default)</option>
           <option value="learned">Learned model (experimental)</option>
-          <option value="onehotchord">OneHotChord (experimental)</option>
+          <option value="onehotchord" disabled>OneHotChord (coming soon)</option>
         </select>
       </div>
       <label class="separation-row">
@@ -1247,6 +1247,7 @@ function runAnalysisWorker<T>(
   noteOptions?: NoteProcessingOptions,
   harmonyOptions?: HarmonyEvidenceOptions & {
     chordSettings?: Partial<typeof BALANCED_CHORD_SMOOTHING_SETTINGS>;
+    audioHash?: string;
   },
 ): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -1266,6 +1267,8 @@ function runAnalysisWorker<T>(
       bassSamples: bassCopy,
       harmonySource: harmonyOptions?.source,
       chordSettings: harmonyOptions?.chordSettings,
+      chordEngine: byId<HTMLSelectElement>("chord-engine-select").value,
+      audioHash: harmonyOptions?.audioHash,
     }, transfer);
     worker.onmessage = (event: MessageEvent<{ type: string; result?: T; message?: string }>) => {
       signal?.removeEventListener("abort", abort);
@@ -1323,6 +1326,11 @@ function renderResult(file: File, analysis: AnalysisResult): void {
   const sourceName = analysis.separation === "guitar" ? "isolated guitar · Demucs 6-stem" : "full mix";
   const setupName = `${analysis.tuning.join(" ")}${analysis.capo ? ` · capo ${analysis.capo}` : ""}`;
   const countLabels = analysisCountLabels(analysis);
+  const chordEngineLabel = analysis.learnedEngine
+    ? (analysis.learnedEngine.usedLearned
+      ? "chords: learned (experimental)"
+      : `chords: rule-based (learned unavailable: ${analysis.learnedEngine.fallbackReason ?? "unknown"})`)
+    : null;
   byId("metadata").innerHTML = [
     `<strong>${countLabels.main}</strong>`,
     countLabels.raw,
@@ -1333,6 +1341,7 @@ function renderResult(file: File, analysis: AnalysisResult): void {
     escapeHtml(setupName),
     escapeHtml(sourceName),
     escapeHtml(engineName),
+    ...(chordEngineLabel ? [escapeHtml(chordEngineLabel)] : []),
   ].join(" · ");
   const requestedMode = analysis.noteAnalysis.requestedMode === "automatic"
     ? `Automatic → ${analysis.noteAnalysis.resolvedMode}`
