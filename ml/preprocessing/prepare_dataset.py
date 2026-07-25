@@ -20,6 +20,7 @@ from pathlib import Path
 
 from .features import FEATURE_PIPELINE_VERSION
 from .import_billboard import scan_billboard_dir
+from .import_guitarset import scan_guitarset_dir
 from .import_isophonics import scan_isophonics_dir
 from .import_tabsmith_ref import import_tabsmith_references
 from .synth_generator import render_dataset
@@ -59,7 +60,8 @@ def _availability_breakdown(tracks: list[Track]) -> dict:
     return counts
 
 
-def prepare(out_dir: Path, config: dict, isophonics_dir: str | None, billboard_dir: str | None) -> dict:
+def prepare(out_dir: Path, config: dict, isophonics_dir: str | None, billboard_dir: str | None,
+            guitarset_dir: str | None = None) -> dict:
     seed = int(config.get("seed", 20260723))
     synth = config.get("synthetic", {})
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -95,6 +97,7 @@ def prepare(out_dir: Path, config: dict, isophonics_dir: str | None, billboard_d
     for name, directory, scanner in (
         ("isophonics", isophonics_dir, scan_isophonics_dir),
         ("billboard", billboard_dir, scan_billboard_dir),
+        ("guitarset", guitarset_dir, scan_guitarset_dir),
     ):
         if not directory:
             datasets.append({"name": name, "version": "not-supplied", "trackCount": 0,
@@ -141,10 +144,12 @@ def main() -> None:
     parser.add_argument("--config", default=str(ML_ROOT / "configs" / "default.json"))
     parser.add_argument("--isophonics-dir", default=None)
     parser.add_argument("--billboard-dir", default=None)
+    parser.add_argument("--guitarset-dir", default=None)
     args = parser.parse_args()
 
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    manifest = prepare(Path(args.out), config, args.isophonics_dir, args.billboard_dir)
+    manifest = prepare(Path(args.out), config, args.isophonics_dir, args.billboard_dir,
+                       args.guitarset_dir)
 
     print(f"Tracks: {manifest['trackCount']} "
           f"({manifest['audioTrainableTracks']} audio-trainable)")

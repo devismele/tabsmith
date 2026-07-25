@@ -46,7 +46,9 @@ def import_billboard_entry(
     if not rows:
         raise ValueError(f"No chord rows parsed from {lab_path}")
     chords = [ChordRegion(round(s, 4), round(e, 4), label) for s, e, label in rows]
-    has_features = (entry_dir / "bothchroma.csv").exists() or (entry_dir / "echonest.json").exists()
+    bothchroma = entry_dir / "bothchroma.csv"
+    feature_path = str(bothchroma) if bothchroma.exists() else ""
+    has_features = bool(feature_path)
 
     return Track(
         track_id=f"billboard-{entry_dir.name}",
@@ -56,11 +58,12 @@ def import_billboard_entry(
         source="billboard",
         audio_availability="features" if has_features else "annotations",
         split=split,
-        license="ddmal-research",
+        license="ddmal-cc0-features",
         source_url="https://ddmal.music.mcgill.ca/research/The_McGill_Billboard_Project",
+        feature_path=feature_path,
         chords=chords,
         notes=f"Imported from McGill Billboard ({dataset_version}); "
-              f"{'chroma features present' if has_features else 'annotations only'}.",
+              f"{'NNLS-chroma features (billboard-bothchroma-v1)' if has_features else 'annotations only'}.",
     ).validate()
 
 

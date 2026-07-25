@@ -67,18 +67,46 @@ class FrameSample:
     boundary: np.ndarray
 
 
+def _sample_from_features(track: Track, features, tolerance_seconds: float) -> FrameSample | None:
+    if len(features.times) == 0:
+        return None
+    targets = build_frame_targets(track, features, tolerance_seconds)
+    return FrameSample(
+        features=features.stacked().astype(np.float32),
+        root=targets["root"], quality=targets["quality"],
+        nochord=targets["nochord"], boundary=targets["boundary"],
+    )
+
+
 def make_samples(tracks_with_audio: list[tuple[Track, np.ndarray, int]], tolerance_seconds: float) -> list[FrameSample]:
+    """Assemble samples from in-memory (Track, audio, sr) tuples (synthetic path)."""
     samples: list[FrameSample] = []
     for track, audio, sr in tracks_with_audio:
-        features = extract_features(audio, sr)
-        if len(features.times) == 0:
+        sample = _sample_from_features(track, extract_features(audio, sr), tolerance_seconds)
+        if sample is not None:
+            samples.append(sample)
+    return samples
+
+
+def make_samples_from_tracks(tracks: list[Track], tolerance_seconds: float) -> list[FrameSample]:
+    """Assemble samples from real Track objects — audio *or* precomputed features.
+
+    Skips tracks that are neither audio- nor feature-trainable, and any whose
+    source can't be read, so a partial local acquisition still trains.
+    """
+    from ..preprocessing.feature_source import frames_for_track
+
+    samples: list[FrameSample] = []
+    for track in tracks:
+        if not track.is_trainable():
             continue
-        targets = build_frame_targets(track, features, tolerance_seconds)
-        samples.append(FrameSample(
-            features=features.stacked().astype(np.float32),
-            root=targets["root"], quality=targets["quality"],
-            nochord=targets["nochord"], boundary=targets["boundary"],
-        ))
+        try:
+            features = frames_for_track(track)
+        except Exception:
+            continue
+        sample = _sample_from_features(track, features, tolerance_seconds)
+        if sample is not None:
+            samples.append(sample)
     return samples
 
 
