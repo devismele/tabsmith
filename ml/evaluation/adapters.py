@@ -7,11 +7,11 @@ the existing metrics score them identically:
                 which lives in JS; the real hybrid wires ML probabilities into
                 that decoder in-app later)
 * ml-only     : temporal-baseline-v0 argmax decode
-* hybrid       : ML chord/boundary probabilities blended with the bass-chroma
-                root evidence already in the feature pipeline
+* hybrid proxy : ML root probabilities blended with existing bass-chroma evidence
 
-The hybrid adapter is exercised offline on synthetic data only; it is NOT a
-user-facing engine yet.
+This Python hybrid is a lightweight evaluation proxy, not an implementation-
+parity copy of the TypeScript observation fusion and Tabsmith temporal decoder.
+ML-only remains internal evaluation support and is not a product engine.
 """
 from __future__ import annotations
 
