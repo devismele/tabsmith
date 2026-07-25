@@ -1,0 +1,1976 @@
+{
+  "schemaVersion": 1,
+  "status": "completed-valid-cross-capture-summary",
+  "createdAt": "2026-07-25T23:35:07.876Z",
+  "methodology": {
+    "alternateCapturesNotCombinedAsIndependentTracks": true,
+    "identicalTrackIds": true,
+    "identicalReferenceChecksums": true,
+    "identicalEvaluatedDurations": true,
+    "bootstrapSeed": 20260725,
+    "bootstrapIterations": 2000
+  },
+  "dataset": {
+    "internalDatasetId": "guitarset-zenodo-1492449",
+    "officialDistributionRecord": "zenodo-3371780",
+    "datasetVersion": "1.1.0",
+    "splitName": "validation",
+    "heldOutPerformers": [
+      "guitarset-p00"
+    ],
+    "trackCount": 60,
+    "evaluatedDurationSeconds": 1828.0731972789117
+  },
+  "model": {
+    "modelVersion": "temporal-baseline-real-v1",
+    "modelChecksum": "a8719a40942eb8afe700fd7ff003353abbc1444344a0eb4c74e2a35a8b51cb34",
+    "featureVersion": "harmony-features-v1",
+    "hybridDecoderVersion": 2
+  },
+  "captures": {
+    "microphone": {
+      "captureType": "audio_mono-mic",
+      "audioArchiveMd5": "275966d6610ac34999b58426beb119c3",
+      "fallbackCount": 0,
+      "engines": {
+        "rule-only": {
+          "trackCount": 60,
+          "totalEvaluatedDurationSeconds": 1828.072649,
+          "durationWeighted": {
+            "rootAccuracy": 0.368367,
+            "majorMinorAccuracy": 0.331671,
+            "detailedAccuracy": 0.317457,
+            "weightedChordSymbolRecall": 0.317457,
+            "noChordPrecision": 0,
+            "noChordRecall": 0,
+            "noChordF1": 0,
+            "fragmentationRate": 0.545833,
+            "meanAbsoluteBoundaryErrorMs": 1319.105,
+            "medianAbsoluteBoundaryErrorMs": 618.151,
+            "meanSignedBoundaryErrorMs": -182.868,
+            "boundariesWithin100ms": 0.10303030303030303,
+            "boundariesWithin250ms": 0.2636363636363636,
+            "boundariesWithin500ms": 0.45,
+            "boundariesWithin1000ms": 0.5924242424242424,
+            "predictedRegionCount": 553,
+            "extraChordRegions": 50,
+            "missingChordRegions": 217,
+            "regionsPerMinute": 18.150263,
+            "oneWindowRegionRate": 0,
+            "veryShortRegionRate": 0,
+            "flickerEventCount": 0,
+            "averageChordRegionDurationSeconds": 3.305737,
+            "runtimePerAudioMinuteSeconds": 0.924271
+          },
+          "trackLevel": {
+            "rootAccuracy": {
+              "mean": 0.356414,
+              "median": 0.314678,
+              "bootstrap95ConfidenceInterval": [
+                0.289619,
+                0.422496
+              ],
+              "trackCount": 60
+            },
+            "majorMinorAccuracy": {
+              "mean": 0.321705,
+              "median": 0.280909,
+              "bootstrap95ConfidenceInterval": [
+                0.253611,
+                0.390283
+              ],
+              "trackCount": 60
+            },
+            "detailedAccuracy": {
+              "mean": 0.308666,
+              "median": 0.275675,
+              "bootstrap95ConfidenceInterval": [
+                0.239132,
+                0.379252
+              ],
+              "trackCount": 60
+            },
+            "noChordF1": {
+              "mean": 0,
+              "median": 0,
+              "bootstrap95ConfidenceInterval": [
+                0,
+                0
+              ],
+              "trackCount": 60
+            },
+            "fragmentationRate": {
+              "mean": 0.568651,
+              "median": 0.571429,
+              "bootstrap95ConfidenceInterval": [
+                0.520635,
+                0.616589
+              ],
+              "trackCount": 60
+            },
+            "meanAbsoluteBoundaryErrorMs": {
+              "mean": 1287.293883,
+              "median": 1094.848,
+              "bootstrap95ConfidenceInterval": [
+                1048.699445,
+                1539.002118
+              ],
+              "trackCount": 60
+            }
+          },
+          "diagnostics": {
+            "mlOverrideCountVsRule": 0,
+            "percentRuleWindowsChangedByMl": null,
+            "ruleMlAgreementRate": null,
+            "averageEffectiveLearnedWeight": null,
+            "averageLearnedEntropy": null,
+            "peakMemoryMiB": 419.52
+          },
+          "errorTaxonomy": {
+            "wrongRoot": {
+              "occurrences": 326,
+              "durationSeconds": 1074.537499
+            },
+            "majorMinorConfusion": {
+              "occurrences": 34,
+              "durationSeconds": 67.082721
+            },
+            "seventhQualityConfusion": {
+              "occurrences": 14,
+              "durationSeconds": 25.983499
+            },
+            "falseNoChord": {
+              "occurrences": 26,
+              "durationSeconds": 80.134194
+            },
+            "missedNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "earlyBoundary": {
+              "occurrences": 359,
+              "durationSeconds": 0
+            },
+            "lateBoundary": {
+              "occurrences": 250,
+              "durationSeconds": 0
+            },
+            "excessiveFragmentation": {
+              "occurrences": 393,
+              "durationSeconds": 1089.561354
+            },
+            "missedShortChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "incorrectMlOverride": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "ruleProtectionBlockedCorrectMl": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            }
+          }
+        },
+        "ml-only": {
+          "trackCount": 60,
+          "totalEvaluatedDurationSeconds": 1828.072649,
+          "durationWeighted": {
+            "rootAccuracy": 0.552902,
+            "majorMinorAccuracy": 0.480422,
+            "detailedAccuracy": 0.448716,
+            "weightedChordSymbolRecall": 0.448716,
+            "noChordPrecision": 0,
+            "noChordRecall": 0,
+            "noChordF1": 0,
+            "fragmentationRate": 0.631944,
+            "meanAbsoluteBoundaryErrorMs": 1054.731,
+            "medianAbsoluteBoundaryErrorMs": 416.977,
+            "meanSignedBoundaryErrorMs": 335.776,
+            "boundariesWithin100ms": 0.16666666666666666,
+            "boundariesWithin250ms": 0.33484848484848484,
+            "boundariesWithin500ms": 0.5545454545454546,
+            "boundariesWithin1000ms": 0.7196969696969697,
+            "predictedRegionCount": 607,
+            "extraChordRegions": 40,
+            "missingChordRegions": 153,
+            "regionsPerMinute": 19.922622,
+            "oneWindowRegionRate": 0.004942,
+            "veryShortRegionRate": 0.001647,
+            "flickerEventCount": 0,
+            "averageChordRegionDurationSeconds": 3.011652,
+            "runtimePerAudioMinuteSeconds": 0.490909
+          },
+          "trackLevel": {
+            "rootAccuracy": {
+              "mean": 0.548019,
+              "median": 0.528848,
+              "bootstrap95ConfidenceInterval": [
+                0.472683,
+                0.622773
+              ],
+              "trackCount": 60
+            },
+            "majorMinorAccuracy": {
+              "mean": 0.474998,
+              "median": 0.45994,
+              "bootstrap95ConfidenceInterval": [
+                0.394451,
+                0.552995
+              ],
+              "trackCount": 60
+            },
+            "detailedAccuracy": {
+              "mean": 0.438551,
+              "median": 0.45994,
+              "bootstrap95ConfidenceInterval": [
+                0.356092,
+                0.522716
+              ],
+              "trackCount": 60
+            },
+            "noChordF1": {
+              "mean": 0,
+              "median": 0,
+              "bootstrap95ConfidenceInterval": [
+                0,
+                0
+              ],
+              "trackCount": 60
+            },
+            "fragmentationRate": {
+              "mean": 0.652728,
+              "median": 0.666667,
+              "bootstrap95ConfidenceInterval": [
+                0.602922,
+                0.698117
+              ],
+              "trackCount": 60
+            },
+            "meanAbsoluteBoundaryErrorMs": {
+              "mean": 953.9581,
+              "median": 750.342,
+              "bootstrap95ConfidenceInterval": [
+                645.668723,
+                1468.175413
+              ],
+              "trackCount": 60
+            }
+          },
+          "diagnostics": {
+            "mlOverrideCountVsRule": 0,
+            "percentRuleWindowsChangedByMl": null,
+            "ruleMlAgreementRate": null,
+            "averageEffectiveLearnedWeight": null,
+            "averageLearnedEntropy": null,
+            "peakMemoryMiB": 424.438
+          },
+          "errorTaxonomy": {
+            "wrongRoot": {
+              "occurrences": 426,
+              "durationSeconds": 817.327227
+            },
+            "majorMinorConfusion": {
+              "occurrences": 76,
+              "durationSeconds": 132.499037
+            },
+            "seventhQualityConfusion": {
+              "occurrences": 37,
+              "durationSeconds": 57.961646
+            },
+            "falseNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "missedNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "earlyBoundary": {
+              "occurrences": 207,
+              "durationSeconds": 0
+            },
+            "lateBoundary": {
+              "occurrences": 362,
+              "durationSeconds": 0
+            },
+            "excessiveFragmentation": {
+              "occurrences": 455,
+              "durationSeconds": 1205.036896
+            },
+            "missedShortChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "incorrectMlOverride": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "ruleProtectionBlockedCorrectMl": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            }
+          }
+        },
+        "observation-hybrid": {
+          "trackCount": 60,
+          "totalEvaluatedDurationSeconds": 1828.072649,
+          "durationWeighted": {
+            "rootAccuracy": 0.440876,
+            "majorMinorAccuracy": 0.400493,
+            "detailedAccuracy": 0.387603,
+            "weightedChordSymbolRecall": 0.387603,
+            "noChordPrecision": 0,
+            "noChordRecall": 0,
+            "noChordF1": 0,
+            "fragmentationRate": 0.576389,
+            "meanAbsoluteBoundaryErrorMs": 1193.618,
+            "medianAbsoluteBoundaryErrorMs": 500.392,
+            "meanSignedBoundaryErrorMs": -173.318,
+            "boundariesWithin100ms": 0.12878787878787878,
+            "boundariesWithin250ms": 0.3090909090909091,
+            "boundariesWithin500ms": 0.5,
+            "boundariesWithin1000ms": 0.646969696969697,
+            "predictedRegionCount": 575,
+            "extraChordRegions": 42,
+            "missingChordRegions": 187,
+            "regionsPerMinute": 18.872335,
+            "oneWindowRegionRate": 0,
+            "veryShortRegionRate": 0,
+            "flickerEventCount": 0,
+            "averageChordRegionDurationSeconds": 3.179257,
+            "runtimePerAudioMinuteSeconds": 1.579107
+          },
+          "trackLevel": {
+            "rootAccuracy": {
+              "mean": 0.427952,
+              "median": 0.346645,
+              "bootstrap95ConfidenceInterval": [
+                0.351849,
+                0.506876
+              ],
+              "trackCount": 60
+            },
+            "majorMinorAccuracy": {
+              "mean": 0.390311,
+              "median": 0.346645,
+              "bootstrap95ConfidenceInterval": [
+                0.30676,
+                0.472073
+              ],
+              "trackCount": 60
+            },
+            "detailedAccuracy": {
+              "mean": 0.378007,
+              "median": 0.346645,
+              "bootstrap95ConfidenceInterval": [
+                0.299599,
+                0.45704
+              ],
+              "trackCount": 60
+            },
+            "noChordF1": {
+              "mean": 0,
+              "median": 0,
+              "bootstrap95ConfidenceInterval": [
+                0,
+                0
+              ],
+              "trackCount": 60
+            },
+            "fragmentationRate": {
+              "mean": 0.591766,
+              "median": 0.666667,
+              "bootstrap95ConfidenceInterval": [
+                0.541962,
+                0.639189
+              ],
+              "trackCount": 60
+            },
+            "meanAbsoluteBoundaryErrorMs": {
+              "mean": 1213.9783,
+              "median": 906.573,
+              "bootstrap95ConfidenceInterval": [
+                961.002431,
+                1484.800028
+              ],
+              "trackCount": 60
+            }
+          },
+          "diagnostics": {
+            "mlOverrideCountVsRule": 428,
+            "percentRuleWindowsChangedByMl": 0.113689,
+            "ruleMlAgreementRate": 0.294956,
+            "averageEffectiveLearnedWeight": 0.059719,
+            "averageLearnedEntropy": 0.328669,
+            "peakMemoryMiB": 424.438
+          },
+          "errorTaxonomy": {
+            "wrongRoot": {
+              "occurrences": 368,
+              "durationSeconds": 941.985999
+            },
+            "majorMinorConfusion": {
+              "occurrences": 37,
+              "durationSeconds": 73.82233
+            },
+            "seventhQualityConfusion": {
+              "occurrences": 14,
+              "durationSeconds": 23.563536
+            },
+            "falseNoChord": {
+              "occurrences": 26,
+              "durationSeconds": 80.134194
+            },
+            "missedNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "earlyBoundary": {
+              "occurrences": 355,
+              "durationSeconds": 0
+            },
+            "lateBoundary": {
+              "occurrences": 238,
+              "durationSeconds": 0
+            },
+            "excessiveFragmentation": {
+              "occurrences": 415,
+              "durationSeconds": 1132.757865
+            },
+            "missedShortChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "incorrectMlOverride": {
+              "occurrences": 8,
+              "durationSeconds": 3.918658
+            },
+            "ruleProtectionBlockedCorrectMl": {
+              "occurrences": 208,
+              "durationSeconds": 104.711955
+            }
+          }
+        },
+        "legacy-region-hybrid": {
+          "trackCount": 60,
+          "totalEvaluatedDurationSeconds": 1828.072649,
+          "durationWeighted": {
+            "rootAccuracy": 0.408497,
+            "majorMinorAccuracy": 0.368192,
+            "detailedAccuracy": 0.356058,
+            "weightedChordSymbolRecall": 0.356058,
+            "noChordPrecision": 0,
+            "noChordRecall": 0,
+            "noChordF1": 0,
+            "fragmentationRate": 0.545833,
+            "meanAbsoluteBoundaryErrorMs": 1319.105,
+            "medianAbsoluteBoundaryErrorMs": 618.151,
+            "meanSignedBoundaryErrorMs": -182.868,
+            "boundariesWithin100ms": 0.10303030303030303,
+            "boundariesWithin250ms": 0.2636363636363636,
+            "boundariesWithin500ms": 0.45,
+            "boundariesWithin1000ms": 0.5924242424242424,
+            "predictedRegionCount": 553,
+            "extraChordRegions": 46,
+            "missingChordRegions": 213,
+            "regionsPerMinute": 18.150263,
+            "oneWindowRegionRate": 0,
+            "veryShortRegionRate": 0,
+            "flickerEventCount": 0,
+            "averageChordRegionDurationSeconds": 3.305737,
+            "runtimePerAudioMinuteSeconds": 1.036019
+          },
+          "trackLevel": {
+            "rootAccuracy": {
+              "mean": 0.397905,
+              "median": 0.323121,
+              "bootstrap95ConfidenceInterval": [
+                0.326834,
+                0.470089
+              ],
+              "trackCount": 60
+            },
+            "majorMinorAccuracy": {
+              "mean": 0.360397,
+              "median": 0.323121,
+              "bootstrap95ConfidenceInterval": [
+                0.288027,
+                0.441595
+              ],
+              "trackCount": 60
+            },
+            "detailedAccuracy": {
+              "mean": 0.347733,
+              "median": 0.323121,
+              "bootstrap95ConfidenceInterval": [
+                0.275611,
+                0.426978
+              ],
+              "trackCount": 60
+            },
+            "noChordF1": {
+              "mean": 0,
+              "median": 0,
+              "bootstrap95ConfidenceInterval": [
+                0,
+                0
+              ],
+              "trackCount": 60
+            },
+            "fragmentationRate": {
+              "mean": 0.568651,
+              "median": 0.571429,
+              "bootstrap95ConfidenceInterval": [
+                0.521031,
+                0.616917
+              ],
+              "trackCount": 60
+            },
+            "meanAbsoluteBoundaryErrorMs": {
+              "mean": 1287.293883,
+              "median": 1094.848,
+              "bootstrap95ConfidenceInterval": [
+                1037.039721,
+                1557.054961
+              ],
+              "trackCount": 60
+            }
+          },
+          "diagnostics": {
+            "mlOverrideCountVsRule": 0,
+            "percentRuleWindowsChangedByMl": null,
+            "ruleMlAgreementRate": null,
+            "averageEffectiveLearnedWeight": null,
+            "averageLearnedEntropy": null,
+            "peakMemoryMiB": 424.438
+          },
+          "errorTaxonomy": {
+            "wrongRoot": {
+              "occurrences": 340,
+              "durationSeconds": 1001.175553
+            },
+            "majorMinorConfusion": {
+              "occurrences": 36,
+              "durationSeconds": 73.68092
+            },
+            "seventhQualityConfusion": {
+              "occurrences": 15,
+              "durationSeconds": 22.18241
+            },
+            "falseNoChord": {
+              "occurrences": 26,
+              "durationSeconds": 80.134194
+            },
+            "missedNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "earlyBoundary": {
+              "occurrences": 359,
+              "durationSeconds": 0
+            },
+            "lateBoundary": {
+              "occurrences": 250,
+              "durationSeconds": 0
+            },
+            "excessiveFragmentation": {
+              "occurrences": 393,
+              "durationSeconds": 1089.561354
+            },
+            "missedShortChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "incorrectMlOverride": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "ruleProtectionBlockedCorrectMl": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            }
+          }
+        }
+      },
+      "pairedDifferences": [
+        {
+          "metric": "rootAccuracy",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0.071538,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.044275,
+            0.099946
+          ],
+          "improvedTracks": 29,
+          "tiedTracks": 30,
+          "worsenedTracks": 1,
+          "trackCount": 60
+        },
+        {
+          "metric": "majorMinorAccuracy",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0.068606,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.042781,
+            0.09892
+          ],
+          "improvedTracks": 28,
+          "tiedTracks": 29,
+          "worsenedTracks": 3,
+          "trackCount": 60
+        },
+        {
+          "metric": "detailedAccuracy",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0.069341,
+          "medianDifference": 0.001144,
+          "bootstrap95ConfidenceInterval": [
+            0.043614,
+            0.099483
+          ],
+          "improvedTracks": 30,
+          "tiedTracks": 29,
+          "worsenedTracks": 1,
+          "trackCount": 60
+        },
+        {
+          "metric": "noChordF1",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0,
+            0
+          ],
+          "improvedTracks": 0,
+          "tiedTracks": 60,
+          "worsenedTracks": 0,
+          "trackCount": 60
+        },
+        {
+          "metric": "fragmentationRate",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0.023115,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.002975,
+            0.043999
+          ],
+          "improvedTracks": 7,
+          "tiedTracks": 36,
+          "worsenedTracks": 17,
+          "trackCount": 60
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": -73.315583,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -163.882321,
+            24.179889
+          ],
+          "improvedTracks": 24,
+          "tiedTracks": 28,
+          "worsenedTracks": 8,
+          "trackCount": 60
+        },
+        {
+          "metric": "rootAccuracy",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": -0.120067,
+          "medianDifference": -0.093246,
+          "bootstrap95ConfidenceInterval": [
+            -0.153601,
+            -0.09004
+          ],
+          "improvedTracks": 9,
+          "tiedTracks": 0,
+          "worsenedTracks": 51,
+          "trackCount": 60
+        },
+        {
+          "metric": "majorMinorAccuracy",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": -0.084687,
+          "medianDifference": -0.078308,
+          "bootstrap95ConfidenceInterval": [
+            -0.111012,
+            -0.057574
+          ],
+          "improvedTracks": 12,
+          "tiedTracks": 0,
+          "worsenedTracks": 48,
+          "trackCount": 60
+        },
+        {
+          "metric": "detailedAccuracy",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": -0.060543,
+          "medianDifference": -0.06318,
+          "bootstrap95ConfidenceInterval": [
+            -0.08811,
+            -0.033258
+          ],
+          "improvedTracks": 15,
+          "tiedTracks": 2,
+          "worsenedTracks": 43,
+          "trackCount": 60
+        },
+        {
+          "metric": "noChordF1",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": 0,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0,
+            0
+          ],
+          "improvedTracks": 0,
+          "tiedTracks": 60,
+          "worsenedTracks": 0,
+          "trackCount": 60
+        },
+        {
+          "metric": "fragmentationRate",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": -0.060962,
+          "medianDifference": -0.071428,
+          "bootstrap95ConfidenceInterval": [
+            -0.111311,
+            -0.011846
+          ],
+          "improvedTracks": 35,
+          "tiedTracks": 8,
+          "worsenedTracks": 17,
+          "trackCount": 60
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": 260.0202,
+          "medianDifference": 252.8275,
+          "bootstrap95ConfidenceInterval": [
+            -273.41024,
+            625.051312
+          ],
+          "improvedTracks": 18,
+          "tiedTracks": 0,
+          "worsenedTracks": 42,
+          "trackCount": 60
+        },
+        {
+          "metric": "rootAccuracy",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0.030048,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.013427,
+            0.048338
+          ],
+          "improvedTracks": 22,
+          "tiedTracks": 29,
+          "worsenedTracks": 9,
+          "trackCount": 60
+        },
+        {
+          "metric": "majorMinorAccuracy",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0.029914,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.0158,
+            0.046231
+          ],
+          "improvedTracks": 22,
+          "tiedTracks": 28,
+          "worsenedTracks": 10,
+          "trackCount": 60
+        },
+        {
+          "metric": "detailedAccuracy",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0.030275,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.012871,
+            0.047077
+          ],
+          "improvedTracks": 21,
+          "tiedTracks": 28,
+          "worsenedTracks": 11,
+          "trackCount": 60
+        },
+        {
+          "metric": "noChordF1",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0,
+            0
+          ],
+          "improvedTracks": 0,
+          "tiedTracks": 60,
+          "worsenedTracks": 0,
+          "trackCount": 60
+        },
+        {
+          "metric": "fragmentationRate",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0.023115,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.001982,
+            0.043007
+          ],
+          "improvedTracks": 7,
+          "tiedTracks": 36,
+          "worsenedTracks": 17,
+          "trackCount": 60
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": -73.315583,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -161.382412,
+            24.836548
+          ],
+          "improvedTracks": 24,
+          "tiedTracks": 28,
+          "worsenedTracks": 8,
+          "trackCount": 60
+        }
+      ]
+    },
+    "pickupMix": {
+      "captureType": "audio_mono-pickup_mix",
+      "audioArchiveMd5": "aecce79f425a44e2055e46f680e10f6a",
+      "fallbackCount": 0,
+      "engines": {
+        "rule-only": {
+          "trackCount": 60,
+          "totalEvaluatedDurationSeconds": 1828.072649,
+          "durationWeighted": {
+            "rootAccuracy": 0.389747,
+            "majorMinorAccuracy": 0.348895,
+            "detailedAccuracy": 0.33622,
+            "weightedChordSymbolRecall": 0.33622,
+            "noChordPrecision": 0,
+            "noChordRecall": 0,
+            "noChordF1": 0,
+            "fragmentationRate": 0.543056,
+            "meanAbsoluteBoundaryErrorMs": 1645.238,
+            "medianAbsoluteBoundaryErrorMs": 598.658,
+            "meanSignedBoundaryErrorMs": -229.061,
+            "boundariesWithin100ms": 0.12121212121212122,
+            "boundariesWithin250ms": 0.2545454545454545,
+            "boundariesWithin500ms": 0.45454545454545453,
+            "boundariesWithin1000ms": 0.6060606060606061,
+            "predictedRegionCount": 556,
+            "extraChordRegions": 71,
+            "missingChordRegions": 235,
+            "regionsPerMinute": 18.248728,
+            "oneWindowRegionRate": 0,
+            "veryShortRegionRate": 0,
+            "flickerEventCount": 0,
+            "averageChordRegionDurationSeconds": 3.2879,
+            "runtimePerAudioMinuteSeconds": 0.808733
+          },
+          "trackLevel": {
+            "rootAccuracy": {
+              "mean": 0.387416,
+              "median": 0.294735,
+              "bootstrap95ConfidenceInterval": [
+                0.32239,
+                0.457492
+              ],
+              "trackCount": 60
+            },
+            "majorMinorAccuracy": {
+              "mean": 0.343241,
+              "median": 0.246043,
+              "bootstrap95ConfidenceInterval": [
+                0.271231,
+                0.416137
+              ],
+              "trackCount": 60
+            },
+            "detailedAccuracy": {
+              "mean": 0.328784,
+              "median": 0.236891,
+              "bootstrap95ConfidenceInterval": [
+                0.259713,
+                0.401143
+              ],
+              "trackCount": 60
+            },
+            "noChordF1": {
+              "mean": 0,
+              "median": 0,
+              "bootstrap95ConfidenceInterval": [
+                0,
+                0
+              ],
+              "trackCount": 60
+            },
+            "fragmentationRate": {
+              "mean": 0.56622,
+              "median": 0.633929,
+              "bootstrap95ConfidenceInterval": [
+                0.50669,
+                0.62328
+              ],
+              "trackCount": 60
+            },
+            "meanAbsoluteBoundaryErrorMs": {
+              "mean": 1491.568724,
+              "median": 916.998,
+              "bootstrap95ConfidenceInterval": [
+                1073.975852,
+                2021.577816
+              ],
+              "trackCount": 58
+            }
+          },
+          "diagnostics": {
+            "mlOverrideCountVsRule": 0,
+            "percentRuleWindowsChangedByMl": null,
+            "ruleMlAgreementRate": null,
+            "averageEffectiveLearnedWeight": null,
+            "averageLearnedEntropy": null,
+            "peakMemoryMiB": 391.909
+          },
+          "errorTaxonomy": {
+            "wrongRoot": {
+              "occurrences": 320,
+              "durationSeconds": 1100.554517
+            },
+            "majorMinorConfusion": {
+              "occurrences": 34,
+              "durationSeconds": 74.680713
+            },
+            "seventhQualityConfusion": {
+              "occurrences": 14,
+              "durationSeconds": 23.169459
+            },
+            "falseNoChord": {
+              "occurrences": 5,
+              "durationSeconds": 15.032507
+            },
+            "missedNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "earlyBoundary": {
+              "occurrences": 346,
+              "durationSeconds": 0
+            },
+            "lateBoundary": {
+              "occurrences": 234,
+              "durationSeconds": 0
+            },
+            "excessiveFragmentation": {
+              "occurrences": 391,
+              "durationSeconds": 1075.483227
+            },
+            "missedShortChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "incorrectMlOverride": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "ruleProtectionBlockedCorrectMl": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            }
+          }
+        },
+        "ml-only": {
+          "trackCount": 60,
+          "totalEvaluatedDurationSeconds": 1828.072649,
+          "durationWeighted": {
+            "rootAccuracy": 0.546148,
+            "majorMinorAccuracy": 0.471132,
+            "detailedAccuracy": 0.43958,
+            "weightedChordSymbolRecall": 0.43958,
+            "noChordPrecision": 0,
+            "noChordRecall": 0,
+            "noChordF1": 0,
+            "fragmentationRate": 0.6375,
+            "meanAbsoluteBoundaryErrorMs": 977.736,
+            "medianAbsoluteBoundaryErrorMs": 431.562,
+            "meanSignedBoundaryErrorMs": 158.487,
+            "boundariesWithin100ms": 0.15757575757575756,
+            "boundariesWithin250ms": 0.32727272727272727,
+            "boundariesWithin500ms": 0.5378787878787878,
+            "boundariesWithin1000ms": 0.7045454545454546,
+            "predictedRegionCount": 591,
+            "extraChordRegions": 35,
+            "missingChordRegions": 164,
+            "regionsPerMinute": 19.397479,
+            "oneWindowRegionRate": 0.005076,
+            "veryShortRegionRate": 0,
+            "flickerEventCount": 0,
+            "averageChordRegionDurationSeconds": 3.093186,
+            "runtimePerAudioMinuteSeconds": 0.486087
+          },
+          "trackLevel": {
+            "rootAccuracy": {
+              "mean": 0.537184,
+              "median": 0.493062,
+              "bootstrap95ConfidenceInterval": [
+                0.462811,
+                0.612129
+              ],
+              "trackCount": 60
+            },
+            "majorMinorAccuracy": {
+              "mean": 0.461716,
+              "median": 0.402222,
+              "bootstrap95ConfidenceInterval": [
+                0.382638,
+                0.539406
+              ],
+              "trackCount": 60
+            },
+            "detailedAccuracy": {
+              "mean": 0.426505,
+              "median": 0.389605,
+              "bootstrap95ConfidenceInterval": [
+                0.342334,
+                0.511165
+              ],
+              "trackCount": 60
+            },
+            "noChordF1": {
+              "mean": 0,
+              "median": 0,
+              "bootstrap95ConfidenceInterval": [
+                0,
+                0
+              ],
+              "trackCount": 60
+            },
+            "fragmentationRate": {
+              "mean": 0.659921,
+              "median": 0.666667,
+              "bootstrap95ConfidenceInterval": [
+                0.613043,
+                0.704714
+              ],
+              "trackCount": 60
+            },
+            "meanAbsoluteBoundaryErrorMs": {
+              "mean": 909.217933,
+              "median": 788.281,
+              "bootstrap95ConfidenceInterval": [
+                700.973471,
+                1141.00995
+              ],
+              "trackCount": 60
+            }
+          },
+          "diagnostics": {
+            "mlOverrideCountVsRule": 0,
+            "percentRuleWindowsChangedByMl": null,
+            "ruleMlAgreementRate": null,
+            "averageEffectiveLearnedWeight": null,
+            "averageLearnedEntropy": null,
+            "peakMemoryMiB": 391.909
+          },
+          "errorTaxonomy": {
+            "wrongRoot": {
+              "occurrences": 422,
+              "durationSeconds": 829.673899
+            },
+            "majorMinorConfusion": {
+              "occurrences": 85,
+              "durationSeconds": 137.135592
+            },
+            "seventhQualityConfusion": {
+              "occurrences": 36,
+              "durationSeconds": 57.678719
+            },
+            "falseNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "missedNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "earlyBoundary": {
+              "occurrences": 212,
+              "durationSeconds": 0
+            },
+            "lateBoundary": {
+              "occurrences": 363,
+              "durationSeconds": 0
+            },
+            "excessiveFragmentation": {
+              "occurrences": 459,
+              "durationSeconds": 1215.271295
+            },
+            "missedShortChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "incorrectMlOverride": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "ruleProtectionBlockedCorrectMl": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            }
+          }
+        },
+        "observation-hybrid": {
+          "trackCount": 60,
+          "totalEvaluatedDurationSeconds": 1828.072649,
+          "durationWeighted": {
+            "rootAccuracy": 0.435287,
+            "majorMinorAccuracy": 0.392545,
+            "detailedAccuracy": 0.376597,
+            "weightedChordSymbolRecall": 0.376597,
+            "noChordPrecision": 0,
+            "noChordRecall": 0,
+            "noChordF1": 0,
+            "fragmentationRate": 0.561111,
+            "meanAbsoluteBoundaryErrorMs": 1503.657,
+            "medianAbsoluteBoundaryErrorMs": 532.818,
+            "meanSignedBoundaryErrorMs": -369.452,
+            "boundariesWithin100ms": 0.13333333333333333,
+            "boundariesWithin250ms": 0.2818181818181818,
+            "boundariesWithin500ms": 0.4818181818181818,
+            "boundariesWithin1000ms": 0.6212121212121212,
+            "predictedRegionCount": 567,
+            "extraChordRegions": 65,
+            "missingChordRegions": 218,
+            "regionsPerMinute": 18.609764,
+            "oneWindowRegionRate": 0,
+            "veryShortRegionRate": 0,
+            "flickerEventCount": 0,
+            "averageChordRegionDurationSeconds": 3.224114,
+            "runtimePerAudioMinuteSeconds": 1.353078
+          },
+          "trackLevel": {
+            "rootAccuracy": {
+              "mean": 0.432824,
+              "median": 0.344332,
+              "bootstrap95ConfidenceInterval": [
+                0.36294,
+                0.506559
+              ],
+              "trackCount": 60
+            },
+            "majorMinorAccuracy": {
+              "mean": 0.386613,
+              "median": 0.32545,
+              "bootstrap95ConfidenceInterval": [
+                0.311547,
+                0.463374
+              ],
+              "trackCount": 60
+            },
+            "detailedAccuracy": {
+              "mean": 0.368482,
+              "median": 0.300009,
+              "bootstrap95ConfidenceInterval": [
+                0.296742,
+                0.445713
+              ],
+              "trackCount": 60
+            },
+            "noChordF1": {
+              "mean": 0,
+              "median": 0,
+              "bootstrap95ConfidenceInterval": [
+                0,
+                0
+              ],
+              "trackCount": 60
+            },
+            "fragmentationRate": {
+              "mean": 0.585714,
+              "median": 0.642857,
+              "bootstrap95ConfidenceInterval": [
+                0.522953,
+                0.64217
+              ],
+              "trackCount": 60
+            },
+            "meanAbsoluteBoundaryErrorMs": {
+              "mean": 1347.472069,
+              "median": 805.902,
+              "bootstrap95ConfidenceInterval": [
+                988.001973,
+                1832.669127
+              ],
+              "trackCount": 58
+            }
+          },
+          "diagnostics": {
+            "mlOverrideCountVsRule": 370,
+            "percentRuleWindowsChangedByMl": 0.09501,
+            "ruleMlAgreementRate": 0.289152,
+            "averageEffectiveLearnedWeight": 0.04991,
+            "averageLearnedEntropy": 0.340571,
+            "peakMemoryMiB": 391.909
+          },
+          "errorTaxonomy": {
+            "wrongRoot": {
+              "occurrences": 351,
+              "durationSeconds": 1017.303253
+            },
+            "majorMinorConfusion": {
+              "occurrences": 36,
+              "durationSeconds": 78.135829
+            },
+            "seventhQualityConfusion": {
+              "occurrences": 16,
+              "durationSeconds": 29.154378
+            },
+            "falseNoChord": {
+              "occurrences": 5,
+              "durationSeconds": 15.032507
+            },
+            "missedNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "earlyBoundary": {
+              "occurrences": 347,
+              "durationSeconds": 0
+            },
+            "lateBoundary": {
+              "occurrences": 227,
+              "durationSeconds": 0
+            },
+            "excessiveFragmentation": {
+              "occurrences": 404,
+              "durationSeconds": 1119.203634
+            },
+            "missedShortChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "incorrectMlOverride": {
+              "occurrences": 25,
+              "durationSeconds": 11.285364
+            },
+            "ruleProtectionBlockedCorrectMl": {
+              "occurrences": 246,
+              "durationSeconds": 121.215548
+            }
+          }
+        },
+        "legacy-region-hybrid": {
+          "trackCount": 60,
+          "totalEvaluatedDurationSeconds": 1828.072649,
+          "durationWeighted": {
+            "rootAccuracy": 0.423869,
+            "majorMinorAccuracy": 0.384277,
+            "detailedAccuracy": 0.372569,
+            "weightedChordSymbolRecall": 0.372569,
+            "noChordPrecision": 0,
+            "noChordRecall": 0,
+            "noChordF1": 0,
+            "fragmentationRate": 0.543056,
+            "meanAbsoluteBoundaryErrorMs": 1645.238,
+            "medianAbsoluteBoundaryErrorMs": 598.658,
+            "meanSignedBoundaryErrorMs": -229.061,
+            "boundariesWithin100ms": 0.12121212121212122,
+            "boundariesWithin250ms": 0.2545454545454545,
+            "boundariesWithin500ms": 0.45454545454545453,
+            "boundariesWithin1000ms": 0.6060606060606061,
+            "predictedRegionCount": 556,
+            "extraChordRegions": 68,
+            "missingChordRegions": 232,
+            "regionsPerMinute": 18.248728,
+            "oneWindowRegionRate": 0,
+            "veryShortRegionRate": 0,
+            "flickerEventCount": 0,
+            "averageChordRegionDurationSeconds": 3.2879,
+            "runtimePerAudioMinuteSeconds": 0.918412
+          },
+          "trackLevel": {
+            "rootAccuracy": {
+              "mean": 0.422309,
+              "median": 0.337252,
+              "bootstrap95ConfidenceInterval": [
+                0.353349,
+                0.494634
+              ],
+              "trackCount": 60
+            },
+            "majorMinorAccuracy": {
+              "mean": 0.380028,
+              "median": 0.321006,
+              "bootstrap95ConfidenceInterval": [
+                0.30714,
+                0.456537
+              ],
+              "trackCount": 60
+            },
+            "detailedAccuracy": {
+              "mean": 0.365255,
+              "median": 0.309952,
+              "bootstrap95ConfidenceInterval": [
+                0.295543,
+                0.440612
+              ],
+              "trackCount": 60
+            },
+            "noChordF1": {
+              "mean": 0,
+              "median": 0,
+              "bootstrap95ConfidenceInterval": [
+                0,
+                0
+              ],
+              "trackCount": 60
+            },
+            "fragmentationRate": {
+              "mean": 0.56622,
+              "median": 0.633929,
+              "bootstrap95ConfidenceInterval": [
+                0.508579,
+                0.62283
+              ],
+              "trackCount": 60
+            },
+            "meanAbsoluteBoundaryErrorMs": {
+              "mean": 1491.568724,
+              "median": 916.998,
+              "bootstrap95ConfidenceInterval": [
+                1074.59136,
+                2020.35012
+              ],
+              "trackCount": 58
+            }
+          },
+          "diagnostics": {
+            "mlOverrideCountVsRule": 0,
+            "percentRuleWindowsChangedByMl": null,
+            "ruleMlAgreementRate": null,
+            "averageEffectiveLearnedWeight": null,
+            "averageLearnedEntropy": null,
+            "peakMemoryMiB": 391.909
+          },
+          "errorTaxonomy": {
+            "wrongRoot": {
+              "occurrences": 338,
+              "durationSeconds": 1038.177181
+            },
+            "majorMinorConfusion": {
+              "occurrences": 32,
+              "durationSeconds": 72.37663
+            },
+            "seventhQualityConfusion": {
+              "occurrences": 14,
+              "durationSeconds": 21.403371
+            },
+            "falseNoChord": {
+              "occurrences": 5,
+              "durationSeconds": 15.032507
+            },
+            "missedNoChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "earlyBoundary": {
+              "occurrences": 346,
+              "durationSeconds": 0
+            },
+            "lateBoundary": {
+              "occurrences": 234,
+              "durationSeconds": 0
+            },
+            "excessiveFragmentation": {
+              "occurrences": 391,
+              "durationSeconds": 1075.483227
+            },
+            "missedShortChord": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "incorrectMlOverride": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            },
+            "ruleProtectionBlockedCorrectMl": {
+              "occurrences": 0,
+              "durationSeconds": 0
+            }
+          }
+        }
+      },
+      "pairedDifferences": [
+        {
+          "metric": "rootAccuracy",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0.045408,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.027,
+            0.065591
+          ],
+          "improvedTracks": 27,
+          "tiedTracks": 32,
+          "worsenedTracks": 1,
+          "trackCount": 60
+        },
+        {
+          "metric": "majorMinorAccuracy",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0.043373,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.026385,
+            0.06329
+          ],
+          "improvedTracks": 27,
+          "tiedTracks": 32,
+          "worsenedTracks": 1,
+          "trackCount": 60
+        },
+        {
+          "metric": "detailedAccuracy",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0.039698,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0.023429,
+            0.059704
+          ],
+          "improvedTracks": 26,
+          "tiedTracks": 31,
+          "worsenedTracks": 3,
+          "trackCount": 60
+        },
+        {
+          "metric": "noChordF1",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0,
+            0
+          ],
+          "improvedTracks": 0,
+          "tiedTracks": 60,
+          "worsenedTracks": 0,
+          "trackCount": 60
+        },
+        {
+          "metric": "fragmentationRate",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": 0.019494,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -0.000104,
+            0.041972
+          ],
+          "improvedTracks": 5,
+          "tiedTracks": 46,
+          "worsenedTracks": 9,
+          "trackCount": 60
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "comparison": "hybrid-minus-rule",
+          "meanDifference": -144.096655,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -319.095983,
+            -8.905997
+          ],
+          "improvedTracks": 15,
+          "tiedTracks": 30,
+          "worsenedTracks": 13,
+          "trackCount": 58
+        },
+        {
+          "metric": "rootAccuracy",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": -0.10436,
+          "medianDifference": -0.106813,
+          "bootstrap95ConfidenceInterval": [
+            -0.142329,
+            -0.063852
+          ],
+          "improvedTracks": 11,
+          "tiedTracks": 0,
+          "worsenedTracks": 49,
+          "trackCount": 60
+        },
+        {
+          "metric": "majorMinorAccuracy",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": -0.075102,
+          "medianDifference": -0.064,
+          "bootstrap95ConfidenceInterval": [
+            -0.111294,
+            -0.035908
+          ],
+          "improvedTracks": 14,
+          "tiedTracks": 0,
+          "worsenedTracks": 46,
+          "trackCount": 60
+        },
+        {
+          "metric": "detailedAccuracy",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": -0.058023,
+          "medianDifference": -0.050912,
+          "bootstrap95ConfidenceInterval": [
+            -0.100555,
+            -0.012218
+          ],
+          "improvedTracks": 16,
+          "tiedTracks": 3,
+          "worsenedTracks": 41,
+          "trackCount": 60
+        },
+        {
+          "metric": "noChordF1",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": 0,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0,
+            0
+          ],
+          "improvedTracks": 0,
+          "tiedTracks": 60,
+          "worsenedTracks": 0,
+          "trackCount": 60
+        },
+        {
+          "metric": "fragmentationRate",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": -0.074206,
+          "medianDifference": -0.03125,
+          "bootstrap95ConfidenceInterval": [
+            -0.134179,
+            -0.018948
+          ],
+          "improvedTracks": 30,
+          "tiedTracks": 12,
+          "worsenedTracks": 18,
+          "trackCount": 60
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "comparison": "hybrid-minus-ml-only",
+          "meanDifference": 435.640724,
+          "medianDifference": 128.165,
+          "bootstrap95ConfidenceInterval": [
+            66.093711,
+            882.140328
+          ],
+          "improvedTracks": 17,
+          "tiedTracks": 0,
+          "worsenedTracks": 41,
+          "trackCount": 58
+        },
+        {
+          "metric": "rootAccuracy",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0.010515,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -0.002241,
+            0.025743
+          ],
+          "improvedTracks": 14,
+          "tiedTracks": 33,
+          "worsenedTracks": 13,
+          "trackCount": 60
+        },
+        {
+          "metric": "majorMinorAccuracy",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0.006585,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -0.006262,
+            0.020505
+          ],
+          "improvedTracks": 15,
+          "tiedTracks": 32,
+          "worsenedTracks": 13,
+          "trackCount": 60
+        },
+        {
+          "metric": "detailedAccuracy",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0.003228,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -0.009539,
+            0.01733
+          ],
+          "improvedTracks": 12,
+          "tiedTracks": 32,
+          "worsenedTracks": 16,
+          "trackCount": 60
+        },
+        {
+          "metric": "noChordF1",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            0,
+            0
+          ],
+          "improvedTracks": 0,
+          "tiedTracks": 60,
+          "worsenedTracks": 0,
+          "trackCount": 60
+        },
+        {
+          "metric": "fragmentationRate",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": 0.019494,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -0.000155,
+            0.041719
+          ],
+          "improvedTracks": 5,
+          "tiedTracks": 46,
+          "worsenedTracks": 9,
+          "trackCount": 60
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "comparison": "hybrid-minus-legacy-region-hybrid",
+          "meanDifference": -144.096655,
+          "medianDifference": 0,
+          "bootstrap95ConfidenceInterval": [
+            -327.431218,
+            -12.429788
+          ],
+          "improvedTracks": 15,
+          "tiedTracks": 30,
+          "worsenedTracks": 13,
+          "trackCount": 58
+        }
+      ]
+    }
+  },
+  "crossCaptureSensitivity": {
+    "rule-only": {
+      "rootAccuracy": {
+        "microphone": 0.368367,
+        "pickupMix": 0.389747,
+        "pickupMinusMicrophone": 0.02138000000000001,
+        "pairedTrackMeanDifference": 0.031002050000000003,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.004818,
+          0.072045
+        ]
+      },
+      "majorMinorAccuracy": {
+        "microphone": 0.331671,
+        "pickupMix": 0.348895,
+        "pickupMinusMicrophone": 0.017224000000000017,
+        "pairedTrackMeanDifference": 0.021535916666666665,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.007105,
+          0.055063
+        ]
+      },
+      "detailedAccuracy": {
+        "microphone": 0.317457,
+        "pickupMix": 0.33622,
+        "pickupMinusMicrophone": 0.01876300000000003,
+        "pairedTrackMeanDifference": 0.020118249999999994,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.008998,
+          0.052286
+        ]
+      },
+      "noChordF1": {
+        "microphone": 0,
+        "pickupMix": 0,
+        "pickupMinusMicrophone": 0,
+        "pairedTrackMeanDifference": 0,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          0,
+          0
+        ]
+      },
+      "fragmentationRate": {
+        "microphone": 0.545833,
+        "pickupMix": 0.543056,
+        "pickupMinusMicrophone": -0.0027770000000000294,
+        "pairedTrackMeanDifference": -0.0024305833333333284,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.0503,
+          0.042917
+        ]
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "microphone": 1319.105,
+        "pickupMix": 1645.238,
+        "pickupMinusMicrophone": 326.13300000000004,
+        "pairedTrackMeanDifference": 277.29517241379307,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -79.861179,
+          725.381305
+        ]
+      },
+      "regionsPerMinute": {
+        "microphone": 18.150263,
+        "pickupMix": 18.248728,
+        "pickupMinusMicrophone": 0.09846500000000091,
+        "pairedTrackMeanDifference": 0.23008608333333322,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -1.276069,
+          1.879994
+        ]
+      }
+    },
+    "ml-only": {
+      "rootAccuracy": {
+        "microphone": 0.552902,
+        "pickupMix": 0.546148,
+        "pickupMinusMicrophone": -0.006754000000000038,
+        "pairedTrackMeanDifference": -0.010835083333333332,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.031455,
+          0.007946
+        ]
+      },
+      "majorMinorAccuracy": {
+        "microphone": 0.480422,
+        "pickupMix": 0.471132,
+        "pickupMinusMicrophone": -0.00929000000000002,
+        "pairedTrackMeanDifference": -0.013282133333333335,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.03683,
+          0.011481
+        ]
+      },
+      "detailedAccuracy": {
+        "microphone": 0.448716,
+        "pickupMix": 0.43958,
+        "pickupMinusMicrophone": -0.009135999999999977,
+        "pairedTrackMeanDifference": -0.012045916666666663,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.036967,
+          0.014862
+        ]
+      },
+      "noChordF1": {
+        "microphone": 0,
+        "pickupMix": 0,
+        "pickupMinusMicrophone": 0,
+        "pairedTrackMeanDifference": 0,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          0,
+          0
+        ]
+      },
+      "fragmentationRate": {
+        "microphone": 0.631944,
+        "pickupMix": 0.6375,
+        "pickupMinusMicrophone": 0.005556000000000005,
+        "pairedTrackMeanDifference": 0.007192499999999998,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.023165,
+          0.03512
+        ]
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "microphone": 1054.731,
+        "pickupMix": 977.736,
+        "pickupMinusMicrophone": -76.995,
+        "pairedTrackMeanDifference": -44.74016666666667,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -410.201676,
+          212.118125
+        ]
+      },
+      "regionsPerMinute": {
+        "microphone": 19.922622,
+        "pickupMix": 19.397479,
+        "pickupMinusMicrophone": -0.5251429999999999,
+        "pairedTrackMeanDifference": -0.40258911666666647,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -1.256681,
+          0.504319
+        ]
+      }
+    },
+    "observation-hybrid": {
+      "rootAccuracy": {
+        "microphone": 0.440876,
+        "pickupMix": 0.435287,
+        "pickupMinusMicrophone": -0.005589000000000011,
+        "pairedTrackMeanDifference": 0.004871716666666666,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.034327,
+          0.049874
+        ]
+      },
+      "majorMinorAccuracy": {
+        "microphone": 0.400493,
+        "pickupMix": 0.392545,
+        "pickupMinusMicrophone": -0.00794800000000001,
+        "pairedTrackMeanDifference": -0.003697100000000002,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.036377,
+          0.03164
+        ]
+      },
+      "detailedAccuracy": {
+        "microphone": 0.387603,
+        "pickupMix": 0.376597,
+        "pickupMinusMicrophone": -0.01100599999999996,
+        "pairedTrackMeanDifference": -0.009525333333333335,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.042412,
+          0.026832
+        ]
+      },
+      "noChordF1": {
+        "microphone": 0,
+        "pickupMix": 0,
+        "pickupMinusMicrophone": 0,
+        "pairedTrackMeanDifference": 0,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          0,
+          0
+        ]
+      },
+      "fragmentationRate": {
+        "microphone": 0.576389,
+        "pickupMix": 0.561111,
+        "pickupMinusMicrophone": -0.015278000000000014,
+        "pairedTrackMeanDifference": -0.006051616666666664,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.055258,
+          0.045239
+        ]
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "microphone": 1193.618,
+        "pickupMix": 1503.657,
+        "pickupMinusMicrophone": 310.039,
+        "pairedTrackMeanDifference": 209.04222413793093,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -111.170809,
+          622.522224
+        ]
+      },
+      "regionsPerMinute": {
+        "microphone": 18.872335,
+        "pickupMix": 18.609764,
+        "pickupMinusMicrophone": -0.2625710000000012,
+        "pairedTrackMeanDifference": 0.03318380000000006,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -1.458321,
+          1.539242
+        ]
+      }
+    },
+    "legacy-region-hybrid": {
+      "rootAccuracy": {
+        "microphone": 0.408497,
+        "pickupMix": 0.423869,
+        "pickupMinusMicrophone": 0.015371999999999997,
+        "pairedTrackMeanDifference": 0.024404316666666665,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.013979,
+          0.064265
+        ]
+      },
+      "majorMinorAccuracy": {
+        "microphone": 0.368192,
+        "pickupMix": 0.384277,
+        "pickupMinusMicrophone": 0.01608499999999996,
+        "pairedTrackMeanDifference": 0.019631583333333334,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.010872,
+          0.052847
+        ]
+      },
+      "detailedAccuracy": {
+        "microphone": 0.356058,
+        "pickupMix": 0.372569,
+        "pickupMinusMicrophone": 0.016510999999999998,
+        "pairedTrackMeanDifference": 0.017522000000000003,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.014085,
+          0.05208
+        ]
+      },
+      "noChordF1": {
+        "microphone": 0,
+        "pickupMix": 0,
+        "pickupMinusMicrophone": 0,
+        "pairedTrackMeanDifference": 0,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          0,
+          0
+        ]
+      },
+      "fragmentationRate": {
+        "microphone": 0.545833,
+        "pickupMix": 0.543056,
+        "pickupMinusMicrophone": -0.0027770000000000294,
+        "pairedTrackMeanDifference": -0.0024305833333333284,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -0.050647,
+          0.042617
+        ]
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "microphone": 1319.105,
+        "pickupMix": 1645.238,
+        "pickupMinusMicrophone": 326.13300000000004,
+        "pairedTrackMeanDifference": 277.29517241379307,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -93.701493,
+          683.59698
+        ]
+      },
+      "regionsPerMinute": {
+        "microphone": 18.150263,
+        "pickupMix": 18.248728,
+        "pickupMinusMicrophone": 0.09846500000000091,
+        "pairedTrackMeanDifference": 0.23008608333333322,
+        "pairedTrackBootstrap95ConfidenceInterval": [
+          -1.269343,
+          1.910776
+        ]
+      }
+    }
+  },
+  "conclusions": {
+    "hybridOutperformsRuleOnMicrophone": true,
+    "hybridOutperformsMlOnlyOnMicrophone": false,
+    "hybridOutperformsLegacyOnMicrophone": true,
+    "ruleAccuracyImprovementReproducedOnPickupMix": true,
+    "fragmentationImprovesOnBothCaptures": false,
+    "boundaryTimingImprovesOnBothCaptures": false,
+    "totalHybridFallbacks": 0,
+    "evidenceLevel": "held-out-validation",
+    "recommendation": "keep-experimental",
+    "summary": "The paired validation evidence does not establish a replicated accuracy/stability win across both captures. Keep the engine experimental."
+  }
+}
