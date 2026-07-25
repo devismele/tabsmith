@@ -74,6 +74,9 @@ def main() -> None:
                         help="Split tracks into fixed-length frame windows (0 = whole track).")
     parser.add_argument("--pitch-shifts", type=str, default="",
                         help="Comma-separated semitone offsets for train-only augmentation, e.g. '-2,-1,1,2'.")
+    parser.add_argument("--audio-features", type=str, default="numpy-chroma-v1",
+                        choices=["numpy-chroma-v1", "harmony-features-v1"],
+                        help="Audio feature pipeline; harmony-features-v1 matches the app for integration.")
     parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
 
@@ -104,8 +107,10 @@ def main() -> None:
     print("Extracting features (audio -> numpy-chroma-v1, features -> billboard-bothchroma-v1)...")
     if args.chunk_frames or pitch_shifts:
         print(f"Augmentation: chunk_frames={args.chunk_frames}, pitch_shifts={pitch_shifts or 'none'} (train only)")
-    train_samples = make_samples_from_tracks(train_tracks, tolerance, args.chunk_frames, pitch_shifts)
-    dev_samples = make_samples_from_tracks(dev_tracks, tolerance, args.chunk_frames)
+    train_samples = make_samples_from_tracks(train_tracks, tolerance, args.chunk_frames, pitch_shifts,
+                                             audio_feature=args.audio_features)
+    dev_samples = make_samples_from_tracks(dev_tracks, tolerance, args.chunk_frames,
+                                           audio_feature=args.audio_features)
     print(f"Assembled samples: train {len(train_samples)} / dev {len(dev_samples)}")
 
     summary = fit_samples(config, train_samples, dev_samples, Path(args.checkpoint))

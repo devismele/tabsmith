@@ -15,9 +15,16 @@ from pathlib import Path
 
 import numpy as np
 
+from .app_features import extract_app_features
 from .billboard_features import load_billboard_bothchroma
 from .features import FeatureFrames, extract_features, read_wav_mono
 from ..schema import Track
+
+# Audio feature pipelines selectable for audio-backed tracks. "numpy-chroma-v1" is
+# the dependency-light experimental pipeline; "harmony-features-v1" matches the
+# app's spectralChroma exactly (verified identical) so a model trained on it can be
+# wired into the app.
+AUDIO_FEATURE_PIPELINES = ("numpy-chroma-v1", "harmony-features-v1")
 
 
 def load_audio_mono(path: str | Path, target_sr: int = 22050) -> tuple[np.ndarray, int]:
@@ -31,9 +38,19 @@ def load_audio_mono(path: str | Path, target_sr: int = 22050) -> tuple[np.ndarra
         return read_wav_mono(path)
 
 
-def frames_for_track(track: Track, **audio_kwargs) -> FeatureFrames:
-    """FeatureFrames for a trainable track, dispatched on availability."""
+def frames_for_track(track: Track, audio_feature: str = "numpy-chroma-v1", **audio_kwargs) -> FeatureFrames:
+    """FeatureFrames for a trainable track, dispatched on availability.
+
+    ``audio_feature`` selects the pipeline for audio-backed tracks:
+    ``numpy-chroma-v1`` (default) or ``harmony-features-v1`` (app-identical).
+    Precomputed-feature tracks (Billboard) always use their own pipeline.
+    """
     if track.is_audio_trainable():
+        if audio_feature == "harmony-features-v1":
+            # Native rate: the app's chroma bins depend on sampleRate/FRAME_SIZE,
+            # so resampling would break the verified match.
+            samples, sr = load_audio_mono(track.audio_path, target_sr=None)
+            return extract_app_features(samples, sr, **audio_kwargs)
         samples, sr = load_audio_mono(track.audio_path)
         return extract_features(samples, sr, **audio_kwargs)
     if track.is_feature_trainable():

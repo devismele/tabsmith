@@ -130,13 +130,15 @@ def pitch_shift_sample(sample: FrameSample, semitones: int) -> FrameSample:
 
 
 def make_samples_from_tracks(tracks: list[Track], tolerance_seconds: float,
-                             chunk_frames: int = 0, pitch_shifts: tuple[int, ...] = ()) -> list[FrameSample]:
+                             chunk_frames: int = 0, pitch_shifts: tuple[int, ...] = (),
+                             audio_feature: str = "numpy-chroma-v1") -> list[FrameSample]:
     """Assemble samples from real Track objects — audio *or* precomputed features.
 
     Optionally chunk long tracks into ``chunk_frames`` windows and add pitch-shifted
-    copies for each ``pitch_shifts`` semitone offset. Skips tracks that are neither
-    audio- nor feature-trainable, and any whose source can't be read, so a partial
-    local acquisition still trains.
+    copies for each ``pitch_shifts`` semitone offset. ``audio_feature`` selects the
+    audio pipeline (``numpy-chroma-v1`` or app-identical ``harmony-features-v1``).
+    Skips tracks that are neither audio- nor feature-trainable, and any whose source
+    can't be read, so a partial local acquisition still trains.
     """
     from ..preprocessing.feature_source import frames_for_track
 
@@ -145,7 +147,7 @@ def make_samples_from_tracks(tracks: list[Track], tolerance_seconds: float,
         if not track.is_trainable():
             continue
         try:
-            features = frames_for_track(track)
+            features = frames_for_track(track, audio_feature=audio_feature)
         except Exception:
             continue
         sample = _sample_from_features(track, features, tolerance_seconds)
