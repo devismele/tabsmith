@@ -27,13 +27,20 @@ DEFAULT_CONFIG = ML_ROOT / "configs" / "temporal-baseline.json"
 DEFAULT_CHECKPOINT = ML_ROOT / "checkpoints" / "temporal-baseline-real-v0.pt"
 
 
-def gather_tracks(guitarset_dir: str | None, billboard_dir: str | None) -> list[Track]:
+def gather_tracks(guitarset_dir: str | None, billboard_dir: str | None,
+                  billboard_limit: int | None = None) -> list[Track]:
     tracks: list[Track] = []
     if guitarset_dir:
-        tracks += scan_guitarset_dir(guitarset_dir)
+        tracks += [t for t in scan_guitarset_dir(guitarset_dir) if t.is_trainable()]
     if billboard_dir:
-        tracks += scan_billboard_dir(billboard_dir)
-    return [t for t in tracks if t.is_trainable()]
+        bb = [t for t in scan_billboard_dir(billboard_dir) if t.is_trainable()]
+        if billboard_limit is not None and len(bb) > billboard_limit:
+            # Deterministic stride subsample keeps artist spread (they are sorted
+            # by id); Billboard songs are long so a subset stays tractable.
+            stride = len(bb) / billboard_limit
+            bb = [bb[int(i * stride)] for i in range(billboard_limit)]
+        tracks += bb
+    return tracks
 
 
 def partition(tracks: list[Track], seed: int, cap: int | None) -> tuple[list[Track], list[Track], dict]:
@@ -61,6 +68,8 @@ def main() -> None:
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--max-tracks-per-split", type=int, default=None,
                         help="Cap tracks per split for a fast first run (default: use all).")
+    parser.add_argument("--billboard-limit", type=int, default=None,
+                        help="Subsample Billboard to N tracks (they are long; keeps a first combined run tractable).")
     parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
 
@@ -75,7 +84,7 @@ def main() -> None:
     seed = int(config.get("seed", 20260723))
     tolerance = float(config["labels"]["boundaryToleranceSeconds"])
 
-    tracks = gather_tracks(args.guitarset_dir, args.billboard_dir)
+    tracks = gather_tracks(args.guitarset_dir, args.billboard_dir, args.billboard_limit)
     if not tracks:
         parser.error("no trainable tracks found — check the acquired data paths")
     train_tracks, dev_tracks, assignment = partition(tracks, seed, args.max_tracks_per_split)

@@ -86,6 +86,19 @@ class BillboardFeatureTests(unittest.TestCase):
             frames = frames_for_track(track)
         self.assertEqual(frames.chroma.shape, (3, 12))
 
+    def test_real_release_leading_filename_column(self):
+        # The DDMAL release prefixes each row with the source filename; the loader
+        # must skip it so time/chroma still line up (26 cols instead of 25).
+        with tempfile.TemporaryDirectory() as tmp:
+            rows = ['"/tmp/audio.wav",' + _row(0.0, 3, 3),
+                    '"/tmp/audio.wav",' + _row(0.1, 10, 10)]
+            path = Path(tmp) / "bothchroma.csv"
+            path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+            frames = load_billboard_bothchroma(path)
+        self.assertEqual(frames.chroma.shape, (2, 12))
+        self.assertEqual(int(frames.bass_chroma[0].argmax()), 0)   # C
+        self.assertEqual(int(frames.bass_chroma[1].argmax()), 7)   # G
+
     def test_features_availability_requires_feature_path(self):
         with self.assertRaises(ValueError):
             Track(

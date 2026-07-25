@@ -67,14 +67,24 @@ def load_billboard_bothchroma(
     raw_rows: list[np.ndarray] = []
     with open(csv_path, "r", encoding="utf-8", errors="ignore") as handle:
         for row in csv.reader(handle):
-            if len(row) < 25:
+            # The DDMAL release prefixes each row with the source filename
+            # ("/tmp/audio.wav"): col0=name, col1=time, col2..25 = 24 chroma. A
+            # bare release omits it: col0=time, col1..24 = chroma. Detect which by
+            # whether col0 parses as a float, so both line up.
+            try:
+                float(row[0])
+                base = 0
+            except (ValueError, IndexError):
+                base = 1
+            if len(row) < base + 25:
                 continue
             try:
-                values = [float(x) for x in row[:25]]
+                time = float(row[base])
+                chroma = [float(x) for x in row[base + 1:base + 25]]
             except ValueError:
                 continue  # header or malformed line
-            times.append(values[0])
-            raw_rows.append(np.asarray(values[1:25], dtype=np.float64))
+            times.append(time)
+            raw_rows.append(np.asarray(chroma, dtype=np.float64))
 
     if not raw_rows:
         return FeatureFrames(
