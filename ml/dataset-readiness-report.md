@@ -77,14 +77,30 @@ diversity, which is exactly what the Billboard features add.
 
 Three-way offline comparison, duration-weighted, on a performer the model never saw:
 
+Argmax decode (initial):
+
 | engine | root % | majmin % | detail % | frag % | mean boundary err |
 |---|---|---|---|---|---|
 | rule (chroma-template-v0 floor) | 17.0 | 15.6 | 15.0 | 37.5 | 4058 ms |
-| ml (temporal-baseline-real-v0)  | 52.0 | 40.5 | 33.0 | 81.1 | 557 ms |
-| hybrid                          | 51.2 | 40.2 | 32.9 | 81.7 | 500 ms |
+| ml (argmax)                     | 52.0 | 40.5 | 33.0 | 81.1 | 557 ms |
+| hybrid (argmax)                 | 51.2 | 40.2 | 32.9 | 81.7 | 500 ms |
 
-**Reading it honestly:** the model learned real signal — root 52% on an unseen
-player is ~3× the non-learned chroma floor, with ~7× better boundary timing. But:
+Viterbi decode (self-transition penalty λ=4, `ml/evaluation/decode.py`, now default):
+
+| engine | root % | majmin % | detail % | frag % | mean boundary err |
+|---|---|---|---|---|---|
+| ml (viterbi)     | 53.2 | 42.3 | 34.9 | 73.4 | 670 ms |
+| hybrid (viterbi) | 52.6 | 41.2 | 33.8 | 72.5 | 664 ms |
+
+The Viterbi decode is a Pareto win over argmax — higher root/majmin/detail *and*
+lower fragmentation (81→73) — at a modest boundary-lag cost (stickier regions).
+Higher λ cuts fragmentation further but trades accuracy and boundary timing; λ=4
+is the sweet spot on this held-out player. Fragmentation is still high in absolute
+terms: this small model on solo guitar is inherently unstable, so pushing it lower
+needs a stronger model or the in-app smoothing decoder, not more decode tuning.
+
+**Reading it honestly:** the model learned real signal — root 53% on an unseen
+player is ~3× the non-learned chroma floor, with far better boundary timing. But:
 - the "rule" column is the weak offline **floor**, NOT production `harmonic-context-v3`
   (which lives in JS and is far stronger). Beating the floor is necessary, not
   sufficient — the real promotion gate is the JS three-way comparison vs v3.

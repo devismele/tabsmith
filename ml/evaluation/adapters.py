@@ -19,8 +19,13 @@ import numpy as np
 import torch
 
 from .baselines import chroma_template_predict
-from ..models.temporal_baseline import frame_labels_to_regions
+from .decode import viterbi_decode
 from ..preprocessing.features import FeatureFrames
+
+# Self-transition penalty for Viterbi decode. Tuned on the held-out GuitarSet
+# player: ~4 improves root/quality accuracy over argmax while cutting
+# fragmentation; higher values reduce fragmentation further but lag boundaries.
+DEFAULT_TRANSITION_PENALTY = 4.0
 
 
 def predict_rule(features: FeatureFrames):
@@ -38,19 +43,20 @@ def _forward(model, features: FeatureFrames):
     return root, quality, nochord, boundary
 
 
-def predict_ml(model, features: FeatureFrames):
+def predict_ml(model, features: FeatureFrames, transition_penalty: float = DEFAULT_TRANSITION_PENALTY):
     root, quality, nochord, _boundary = _forward(model, features)
-    return frame_labels_to_regions(
-        features.times, root.argmax(axis=-1), quality.argmax(axis=-1), nochord, features.hop_seconds)
+    return viterbi_decode(features.times, root, quality, nochord, features.hop_seconds, transition_penalty)
 
 
-def predict_hybrid(model, features: FeatureFrames, bass_weight: float = 0.35):
-    """ML probabilities + existing bass-root evidence -> decode."""
+def predict_hybrid(model, features: FeatureFrames, bass_weight: float = 0.35,
+                   transition_penalty: float = DEFAULT_TRANSITION_PENALTY):
+    """ML probabilities + existing bass-root evidence -> Viterbi decode."""
     root, quality, nochord, _boundary = _forward(model, features)
-    # Bass chroma (12) is already aligned to root pitch classes 0..11.
+    # Bass chroma (12) is already aligned to root pitch classes 0..11; renormalize
+    # the blend back to a distribution so the decoder's log-emissions stay valid.
     blended_root = root + bass_weight * features.bass_chroma
-    return frame_labels_to_regions(
-        features.times, blended_root.argmax(axis=-1), quality.argmax(axis=-1), nochord, features.hop_seconds)
+    blended_root = blended_root / blended_root.sum(axis=-1, keepdims=True)
+    return viterbi_decode(features.times, blended_root, quality, nochord, features.hop_seconds, transition_penalty)
 
 
 ADAPTERS = {
