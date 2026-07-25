@@ -178,6 +178,34 @@ player is ~3× the non-learned chroma floor, with far better boundary timing. Bu
 - hybrid ≈ ml here because on solo guitar bass and treble chroma nearly coincide;
   the bass blend should matter more on full-band Billboard material.
 
+## Fair gate (#1): ml vs v3 on the SAME app feature pipeline
+
+Earlier the ml-vs-v3 comparison had a confound: ml used `numpy-chroma-v1`, v3 used
+its own chroma. With `harmony-features-v1` (the verified app-identical port), the
+app-chroma model and v3 now consume the *same* features. Held-out GuitarSet p00:
+
+| engine | root % | majmin % | detail % | frag % | boundary |
+|---|---|---|---|---|---|
+| harmonic-context-v3 (production) | 35.0 | 31.5 | 29.5 | 53.2 | 1728 ms |
+| ml app-chroma (harmony-features-v1) | 55.1 | 49.8 | 46.5 | 65.7 | 854 ms |
+
+The app-chroma model beats v3 across accuracy metrics on its own feature pipeline —
+and is the best guitar-domain model so far (root 55 vs 53, detail 46 vs 35, because
+the app's 8192-pt FFT chroma is richer than numpy-chroma-v1).
+
+**But #1 is still NOT closed.** This is solo acoustic guitar — v3's home is full-band
+mixes, so it is tested out-of-distribution while the ml model is in-domain. The gate
+that actually matters (would the learned engine beat v3 on the music users play?)
+requires **licensed full-band audio with reliable chord labels**, which we do not have.
+
+Concrete paths to close #1 (each needs a data/licensing decision, not more code):
+- **Isophonics + owned audio**: their Beatles/Queen/Carole King chord annotations are
+  high quality; with legally-owned recordings, run BOTH engines on the same full-band
+  tracks via `harmony-features-v1`. The offline-eval harness is ready.
+- **A licensed full-band corpus** with timed chords (multiple artists/genres/production).
+- Until then: the model is a strong guitar-domain result and a proven integration; it
+  is not cleared to replace v3 for the app's real (full-band) use.
+
 ## 3. Recommended path
 
 1. **GuitarSet — importer DONE** (`ml/preprocessing/import_guitarset.py`, wired into
