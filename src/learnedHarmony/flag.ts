@@ -1,3 +1,4 @@
+import { LearnedTcnProvider, type TcnWeights } from "./onnxProvider";
 import { DisabledLearnedHarmonyProvider, MockLearnedHarmonyProvider } from "./provider";
 import type { LearnedHarmonyProvider } from "./types";
 
@@ -22,12 +23,16 @@ export function isLearnedHarmonyEnabled(context: FlagContext = {}): boolean {
 /**
  * Resolves the active provider. When disabled (the default), no model files are
  * searched for and no inference runtime is started — the disabled provider is
- * inert. When enabled in development, the mock provider is used.
+ * inert. When enabled in development: if exported TCN ``weights`` are supplied the
+ * real (pure-TS) learned provider runs; otherwise the mock provider is used. The
+ * caller loads the weights JSON (dev-only), keeping this resolver pure/tree-shakeable.
  */
-export function resolveLearnedHarmonyProvider(context: FlagContext = {}): LearnedHarmonyProvider {
-  return isLearnedHarmonyEnabled(context)
-    ? new MockLearnedHarmonyProvider()
-    : new DisabledLearnedHarmonyProvider();
+export function resolveLearnedHarmonyProvider(
+  context: FlagContext = {},
+  weights?: TcnWeights,
+): LearnedHarmonyProvider {
+  if (!isLearnedHarmonyEnabled(context)) return new DisabledLearnedHarmonyProvider();
+  return weights ? new LearnedTcnProvider(weights) : new MockLearnedHarmonyProvider();
 }
 
 export interface DevControlDescriptor {

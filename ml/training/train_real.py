@@ -104,7 +104,7 @@ def main() -> None:
             print(f"  - {w}")
 
     pitch_shifts = tuple(int(s) for s in args.pitch_shifts.split(",") if s.strip())
-    print("Extracting features (audio -> numpy-chroma-v1, features -> billboard-bothchroma-v1)...")
+    print(f"Extracting features (audio -> {args.audio_features}, features -> billboard-bothchroma-v1)...")
     if args.chunk_frames or pitch_shifts:
         print(f"Augmentation: chunk_frames={args.chunk_frames}, pitch_shifts={pitch_shifts or 'none'} (train only)")
     train_samples = make_samples_from_tracks(train_tracks, tolerance, args.chunk_frames, pitch_shifts,
