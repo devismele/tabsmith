@@ -55,9 +55,9 @@
     "noChord": true
   },
   "inputDim": 25,
-  "gitCommit": "41e6277265fc0a11fbe52007bc435dfae8cb6929",
+  "gitCommit": "6f4c55a2f903410696e18e12ff61abf952906e83",
   "parameterCount": 283505,
-  "checksum": "20bdf00282dd3d429cea31c9c5893b5dafa59356cf1aeb902133146b1bee42df",
-  "createdAt": "2026-07-25T20:11:30.158543+00:00",
+  "checksum": "a8719a40942eb8afe700fd7ff003353abbc1444344a0eb4c74e2a35a8b51cb34",
+  "createdAt": "2026-07-25T20:48:50.665546+00:00",
   "disclaimer": "Synthetic pipeline-validation model. Not representative of commercial music."
 }
