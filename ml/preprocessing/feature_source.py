@@ -26,6 +26,10 @@ from ..schema import Track
 # wired into the app.
 AUDIO_FEATURE_PIPELINES = ("numpy-chroma-v1", "harmony-features-v1")
 
+# The app decodes/analyzes audio at 22.05 kHz; harmony-features-v1 is computed at
+# this rate for train/serve consistency (see analysis pipeline resampleToMono).
+APP_SAMPLE_RATE = 22050
+
 
 def load_audio_mono(path: str | Path, target_sr: int = 22050) -> tuple[np.ndarray, int]:
     """Mono float32 audio. librosa if available (any bit depth / sample rate),
@@ -47,9 +51,10 @@ def frames_for_track(track: Track, audio_feature: str = "numpy-chroma-v1", **aud
     """
     if track.is_audio_trainable():
         if audio_feature == "harmony-features-v1":
-            # Native rate: the app's chroma bins depend on sampleRate/FRAME_SIZE,
-            # so resampling would break the verified match.
-            samples, sr = load_audio_mono(track.audio_path, target_sr=None)
+            # Compute at the app's analysis rate (22.05 kHz) so training features
+            # match what the app feeds the model at inference — the chroma bins
+            # depend on sampleRate/FRAME_SIZE, so the rate must be the app's.
+            samples, sr = load_audio_mono(track.audio_path, target_sr=APP_SAMPLE_RATE)
             return extract_app_features(samples, sr, **audio_kwargs)
         samples, sr = load_audio_mono(track.audio_path)
         return extract_features(samples, sr, **audio_kwargs)
