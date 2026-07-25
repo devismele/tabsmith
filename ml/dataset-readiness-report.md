@@ -142,6 +142,29 @@ learns genuine harmony signal across two domains with working no-chord. None of 
 production gate, which needs v3-comparable evaluation on representative full-band **audio** —
 still the missing ingredient (licensed full-band audio, or v3 tested in its own domain).
 
+### Improved model: temporal-baseline-real-v1 (bigger + augmented)
+
+283k params (vs 58k), dilations to 16, trained on 360 GuitarSet + 300 Billboard with 500-frame
+chunking and 5× pitch-shift augmentation (11,155 train samples). Same seed → same held-out sets.
+
+| test set | engine | root % | majmin % | detail % | frag % | no-chord recall |
+|---|---|---|---|---|---|---|
+| GuitarSet p00 (audio) | combined-v0 | 49.8 | 41.7 | 18.7 | 63.7 | — |
+| GuitarSet p00 (audio) | **v1** | 49.5 | 42.2 | **34.9** | 69.3 | — |
+| Billboard artists (features) | combined-v0 | 76.2 | 60.3 | 39.2 | 64.1 | 55.1 |
+| Billboard artists (features) | **v1** | **80.8** | **72.7** | **54.7** | 59.3 | **81.3** |
+
+Wins from the bigger model + augmentation:
+- **Fixed the guitar-detail regression** (18.7 → 34.9, back to solo-model level) — pitch augmentation
+  taught quality across keys instead of overfitting Billboard's distribution.
+- **Large full-band gains**: Billboard majmin +12, detailed +15, no-chord recall +26 (55 → 81).
+  majmin 72.7% is respectable for a 283k model (though on precomputed features, easier than raw audio).
+- Tradeoffs: slightly higher guitar fragmentation and Billboard boundary lag.
+
+Caveats unchanged: Billboard train/test share the feature pipeline (optimistic), there is still
+no v3 baseline on Billboard (no audio), and GuitarSet-audio vs Billboard-feature numbers are not
+comparable. v1 is the current best experimental model; the production gate is still open.
+
 ### Original first-result notes
 
 **Reading it honestly:** the model learned real signal — root 53% on an unseen

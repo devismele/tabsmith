@@ -1,0 +1,32 @@
+{
+  "configVersion": 1,
+  "modelName": "temporal-baseline-real-v1",
+  "productionBaseline": "2026-07-harmonic-context-v3-reduced-latency",
+  "seed": 20260723,
+  "features": {
+    "inputDim": 25,
+    "pipelineVersion": "numpy-chroma-v1"
+  },
+  "labels": {
+    "roots": 12,
+    "qualities": ["maj", "min", "7"],
+    "boundaryToleranceSeconds": 0.12
+  },
+  "model": {
+    "channels": 96,
+    "kernelSize": 3,
+    "dilations": [1, 2, 4, 8, 16],
+    "dropout": 0.1
+  },
+  "training": {
+    "epochs": 40,
+    "batchSize": 16,
+    "learningRate": 0.003,
+    "weightDecay": 0.0001,
+    "earlyStoppingPatience": 8,
+    "gradClip": 5.0,
+    "boundaryLossWeight": 2.0,
+    "boundaryPosWeight": 8.0,
+    "noChordLossWeight": 1.0
+  }
+}

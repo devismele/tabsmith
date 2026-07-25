@@ -70,6 +70,10 @@ def main() -> None:
                         help="Cap tracks per split for a fast first run (default: use all).")
     parser.add_argument("--billboard-limit", type=int, default=None,
                         help="Subsample Billboard to N tracks (they are long; keeps a first combined run tractable).")
+    parser.add_argument("--chunk-frames", type=int, default=0,
+                        help="Split tracks into fixed-length frame windows (0 = whole track).")
+    parser.add_argument("--pitch-shifts", type=str, default="",
+                        help="Comma-separated semitone offsets for train-only augmentation, e.g. '-2,-1,1,2'.")
     parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
 
@@ -96,9 +100,12 @@ def main() -> None:
         for w in assignment["warnings"]:
             print(f"  - {w}")
 
+    pitch_shifts = tuple(int(s) for s in args.pitch_shifts.split(",") if s.strip())
     print("Extracting features (audio -> numpy-chroma-v1, features -> billboard-bothchroma-v1)...")
-    train_samples = make_samples_from_tracks(train_tracks, tolerance)
-    dev_samples = make_samples_from_tracks(dev_tracks, tolerance)
+    if args.chunk_frames or pitch_shifts:
+        print(f"Augmentation: chunk_frames={args.chunk_frames}, pitch_shifts={pitch_shifts or 'none'} (train only)")
+    train_samples = make_samples_from_tracks(train_tracks, tolerance, args.chunk_frames, pitch_shifts)
+    dev_samples = make_samples_from_tracks(dev_tracks, tolerance, args.chunk_frames)
     print(f"Assembled samples: train {len(train_samples)} / dev {len(dev_samples)}")
 
     summary = fit_samples(config, train_samples, dev_samples, Path(args.checkpoint))
