@@ -117,6 +117,11 @@ export interface LearnedWindowEvidence {
 
 export interface HybridFusionContext {
   sourceMode?: "full-mix" | "guitar-focused";
+  /**
+   * Evaluation-only ablation switch. Production callers omit this, so adaptive
+   * confidence/entropy/rule-protection weighting remains enabled.
+   */
+  adaptiveWeighting?: boolean;
 }
 
 export interface HybridFusionDiagnostics {
@@ -179,6 +184,8 @@ export interface HybridDiagnostics {
   effectiveLearnedWeightMinimum?: number;
   effectiveLearnedWeightMaximum?: number;
   effectiveLearnedWeightAverage?: number;
+  alignedLearnedWindows?: number;
+  missingLearnedWindows?: number;
   sourceMode?: "full-mix" | "guitar-focused";
   warnings: string[];
   comparison: HybridComparisonRow[];

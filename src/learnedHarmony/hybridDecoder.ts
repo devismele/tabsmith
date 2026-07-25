@@ -230,7 +230,16 @@ function effectiveLearnedWeight(
   settings: HybridHarmonySettings,
   sourceMode: "full-mix" | "guitar-focused",
   flicker: number,
+  adaptiveWeighting = true,
 ): number {
+  const cap = sourceMode === "full-mix"
+    ? settings.maximumLearnedWeightFullMix
+    : settings.maximumLearnedWeightGuitarOnly;
+  if (!adaptiveWeighting) {
+    return evidence.contributingFrameCount
+      ? clamp(settings.learnedChordWeight, 0, cap)
+      : 0;
+  }
   if (!evidence.contributingFrameCount
     || evidence.topChordConfidence < settings.minimumLearnedConfidence
     || evidence.entropy >= settings.maximumLearnedEntropy) return 0;
@@ -255,9 +264,6 @@ function effectiveLearnedWeight(
         / Math.max(EPSILON, 0.9 - settings.protectRuleConfidenceAbove),
     );
   const agreement = evidence.topChord === observation.bestChord ? 1.1 : 1;
-  const cap = sourceMode === "full-mix"
-    ? settings.maximumLearnedWeightFullMix
-    : settings.maximumLearnedWeightGuitarOnly;
   return clamp(
     settings.learnedChordWeight
       * (0.35 + confidenceFactor * 0.65)
@@ -314,6 +320,7 @@ export function fuseHybridObservations(
       settings,
       sourceMode,
       flickerFactor(evidence, index),
+      context.adaptiveWeighting !== false,
     );
     weights.push(weight);
     if (learned.topChord) {
@@ -557,6 +564,8 @@ export async function runHybridHarmony(params: RunHybridParams): Promise<HybridH
       fused.diagnostics.effectiveLearnedWeight.maximum;
     diagnostics.effectiveLearnedWeightAverage =
       fused.diagnostics.effectiveLearnedWeight.average;
+    diagnostics.alignedLearnedWindows = fused.diagnostics.alignedWindows;
+    diagnostics.missingLearnedWindows = fused.diagnostics.missingLearnedWindows;
     diagnostics.warnings.push(...response.diagnostics.warnings);
 
     const aligned = alignLearnedEvidence(
