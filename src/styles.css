@@ -253,3 +253,11 @@ audio { width: 100%; margin-bottom: 18px; filter: invert(.88) hue-rotate(44deg);
   .note { grid-template-columns: 58px 1fr 70px 70px; padding: 11px; }
   .confidence { display: none; }
 }
+
+/* Output mode: show only the chord progression, only the tab, or both. */
+#results[data-output-mode="tab"] .timeline-caption,
+#results[data-output-mode="tab"] .chord-tools,
+#results[data-output-mode="tab"] .chord-strip,
+#results[data-output-mode="tab"] .chord-editor,
+#results[data-output-mode="tab"] .chord-debug { display: none; }
+#results[data-output-mode="chords"] .tab-card { display: none; }

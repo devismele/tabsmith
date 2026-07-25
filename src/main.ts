@@ -180,6 +180,22 @@ app.innerHTML = `
           <option value="detailed">Detailed chords</option>
         </select>
       </div>
+      <div class="engine-row">
+        <div><strong>Output</strong><span>Show the chord progression, the tab, or both</span></div>
+        <select id="output-mode-select" aria-label="Output mode">
+          <option value="both" selected>Chords + tab</option>
+          <option value="chords">Chords only</option>
+          <option value="tab">Tab only</option>
+        </select>
+      </div>
+      <div class="engine-row">
+        <div><strong>Chord engine</strong><span>Rule-based is the default; others are experimental</span></div>
+        <select id="chord-engine-select" aria-label="Chord detection engine">
+          <option value="rule" selected>Rule-based (default)</option>
+          <option value="learned">Learned model (experimental)</option>
+          <option value="onehotchord">OneHotChord (experimental)</option>
+        </select>
+      </div>
       <label class="separation-row">
         <input id="isolate-guitar" type="checkbox" checked />
         <span><strong>Isolate guitar before transcription</strong><small>Demucs separates vocals, drums, bass, piano, and other sounds so only its guitar stem is analyzed.</small></span>
@@ -372,6 +388,18 @@ byId<HTMLSelectElement>("note-view-select").addEventListener("change", () => {
   lastNoteViewKey = "";
   renderNoteList(true);
 });
+// Output mode (chords / tab / both) is a live display toggle — no reprocessing.
+function applyOutputMode(mode: string): void {
+  byId("results").dataset.outputMode = mode;
+  try { localStorage.setItem("tabsmith.outputMode", mode); } catch { /* storage unavailable */ }
+}
+const outputModeSelect = byId<HTMLSelectElement>("output-mode-select");
+try {
+  const saved = localStorage.getItem("tabsmith.outputMode");
+  if (saved && ["both", "chords", "tab"].includes(saved)) outputModeSelect.value = saved;
+} catch { /* storage unavailable */ }
+outputModeSelect.addEventListener("change", () => applyOutputMode(outputModeSelect.value));
+applyOutputMode(outputModeSelect.value);
 byId("notes").addEventListener("change", (event) => {
   const input = event.target as HTMLInputElement;
   if (!result || !input.matches("input[data-index]")) return;
