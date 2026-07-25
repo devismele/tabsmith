@@ -47,7 +47,12 @@ export function summarizeDiagnostics(diagnostics: HybridDiagnostics): string {
     diagnostics.modelVersion ? `model=${diagnostics.modelVersion}` : null,
     diagnostics.fallbackReason ? `fallback=${diagnostics.fallbackReason}` : "fallback=none",
     diagnostics.inferenceMs !== undefined ? `inferMs=${diagnostics.inferenceMs}` : null,
+    diagnostics.fusionMs !== undefined ? `fusionMs=${diagnostics.fusionMs.toFixed(1)}` : null,
+    diagnostics.decoderMs !== undefined ? `decodeMs=${diagnostics.decoderMs.toFixed(1)}` : null,
     diagnostics.ruleLearnedDisagreements !== undefined ? `disagreements=${diagnostics.ruleLearnedDisagreements}` : null,
+    diagnostics.effectiveLearnedWeightAverage !== undefined
+      ? `avgMlWeight=${diagnostics.effectiveLearnedWeightAverage.toFixed(3)}`
+      : null,
     diagnostics.boundaryPeakCount !== undefined ? `boundaryPeaks=${diagnostics.boundaryPeakCount}` : null,
   ].filter(Boolean);
   return `[learned-harmony diagnostics · dev-only] ${parts.join(" ")}`;

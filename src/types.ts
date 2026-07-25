@@ -317,9 +317,14 @@ export type AnalysisResult = {
   chordAnalysis: ChordAnalysisResult;
   engine: "basic-pitch" | "dsp";
   separation: "guitar" | "none";
-  /** Present when the experimental learned chord engine ran; reports whether it
-   *  was actually used or fell back to the rule-based regions. */
-  learnedEngine?: { usedLearned: boolean; fallbackReason?: string };
+  /** Present for a hybrid request, including exact rule fallback diagnostics. */
+  hybridEngine?: {
+    usedLearned: boolean;
+    fallbackReason?: string;
+    diagnostics?: HybridDiagnostics;
+  };
 };
 
 export type HarmonyResult = Omit<AnalysisResult, "notes" | "noteAnalysis" | "engine" | "separation">;
+export type ChordEngine = "rule" | "hybrid";
+import type { HybridDiagnostics } from "./learnedHarmony/types";

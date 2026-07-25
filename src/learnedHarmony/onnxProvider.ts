@@ -1,8 +1,8 @@
 // Dev-only learned-harmony provider that runs the exported temporal-baseline TCN
 // with a hand-written forward pass in pure TypeScript — no ONNX runtime, no native
 // binaries, no new dependency. It fulfils the "OnnxLearnedHarmonyProvider" slot the
-// integration contract was frozen waiting for. Not imported by main.ts, so it is
-// tree-shaken out of production; it only runs behind TABSMITH_EXPERIMENTAL_LEARNED_HARMONY.
+// integration contract was frozen waiting for. It is reached only by the
+// development worker's gated dynamic import.
 //
 // The forward pass is verified numerically identical to PyTorch via the exporter's
 // parity sample (ml/exports/export_tcn_json.py). Weights load from a JSON produced

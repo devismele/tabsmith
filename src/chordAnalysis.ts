@@ -110,7 +110,39 @@ export type ChordObservation = {
   usedBassSupport?: boolean;
   /** 1 = inferred bar boundary, 0 = no beat grid. */
   boundaryStrength: number;
+  /** Aligned learned boundary probability. Present only on fused hybrid observations. */
+  learnedBoundaryProbability?: number;
+  /**
+   * Calibrated transition-cost reduction derived from learned boundary evidence.
+   * It is pre-clamped by the hybrid fusion layer so the rule decoder never needs
+   * to understand model-specific settings.
+   */
+  learnedBoundaryAdjustment?: number;
 };
+
+export type HarmonyFeatureFrames = {
+  frameTimes: number[];
+  harmonicChroma: number[][];
+  bassChroma: number[][];
+  onsetStrength: number[];
+};
+
+/**
+ * Rule evidence before temporal decoding. Keeping this package separate lets the
+ * hybrid engine change observation evidence while reusing the one production
+ * decoder and cleanup path.
+ */
+export interface HarmonyObservationPackage {
+  observations: ChordObservation[];
+  rawFrames: RawChordFrame[];
+  beatGrid: BeatGrid;
+  keyEstimate: KeyEstimate | null;
+  duration: number;
+  settings: ChordSmoothingSettings;
+  harmonyEvidenceSource: "separated-harmonic-mix" | "full-mix" | "guitar-only";
+  beatAlignedBoundaries: number;
+  learnedFeatures: HarmonyFeatureFrames;
+}
 
 type InternalRegion = ChordEvent & {
   firstWindow: number;
@@ -438,7 +470,7 @@ export function chromaForChordFrame(frame: Float32Array, sampleRate: number): nu
 }
 
 /**
- * Per-frame harmony features (harmony-features-v1) for the learned engine: the
+ * Per-frame harmony features (harmony-features-v1) for parity/evaluation: the
  * same treble chroma, low-band root chroma, and RMS energy the ML model trained
  * on. Frame size and 0.25 s hop match the training pipeline (ml app_features.py),
  * so the learned provider receives exactly the representation it expects.
@@ -1080,6 +1112,10 @@ function transitionPenalty(
     nextName,
     observation.keyEstimate,
   );
+  // A learned boundary may make a rule-supported change cheaper, but can never
+  // create a region on its own. Fusion caps this at a small fraction of the
+  // normal change penalty; beat and minimum-duration protections remain intact.
+  penalty -= clamp(observation.learnedBoundaryAdjustment ?? 0, 0, 0.08);
   return Math.max(0, penalty);
 }
 
@@ -1856,7 +1892,7 @@ function cleanupRegions(
   return { regions, counts };
 }
 
-function rawChangeCount(frames: InternalRawFrame[]): number {
+function rawChangeCount(frames: Array<Pick<RawChordFrame, "bestChord">>): number {
   let changes = 0;
   for (let index = 1; index < frames.length; index += 1) {
     if (frames[index].bestChord !== frames[index - 1].bestChord) changes += 1;
@@ -2012,17 +2048,14 @@ export function smoothChordObservationsReducedLatency(
   };
 }
 
-export function analyzeChordProgression(
-  samples: Float32Array,
-  sampleRate: number,
+function settingsForBeatGrid(
   beatGrid: BeatGrid,
-  partialSettings: Partial<ChordSmoothingSettings> = {},
-  evidence: HarmonyEvidenceOptions = {},
-): ChordAnalysisResult {
+  partialSettings: Partial<ChordSmoothingSettings>,
+): ChordSmoothingSettings {
   const configuredSettings = resolveSettings(partialSettings);
   // With a reliable pulse, musical duration is a better stability unit than
   // wall-clock seconds. Fall back to the configured seconds for weak tempo.
-  const settings = beatGrid.beatDuration
+  return beatGrid.beatDuration
     ? {
       ...configuredSettings,
       minimumChordDurationSeconds: Math.max(
@@ -2031,24 +2064,67 @@ export function analyzeChordProgression(
       ),
     }
     : configuredSettings;
+}
+
+function presentRawFrames(frames: InternalRawFrame[]): RawChordFrame[] {
+  return frames.map(({
+    start,
+    end,
+    bestChord,
+    bestScore,
+    secondBestChord,
+    secondBestScore,
+    confidence,
+    scoreMargin,
+    uncertain,
+    rootClass,
+    bassRootClass,
+    bassConfidence,
+    keyEstimate,
+  }) => ({
+    start,
+    end,
+    bestChord,
+    bestScore,
+    secondBestChord,
+    secondBestScore,
+    confidence,
+    scoreMargin,
+    uncertain,
+    rootClass,
+    bassRootClass,
+    bassConfidence,
+    keyEstimate,
+  }));
+}
+
+export function createHarmonyObservations(
+  samples: Float32Array,
+  sampleRate: number,
+  partialSettings: Partial<ChordSmoothingSettings> = {},
+  evidence: HarmonyEvidenceOptions = {},
+  suppliedBeatGrid?: BeatGrid,
+): HarmonyObservationPackage {
+  const beatGrid = suppliedBeatGrid ?? estimateBeatGrid(samples, sampleRate);
+  const settings = settingsForBeatGrid(beatGrid, partialSettings);
   const duration = samples.length / sampleRate;
   if (!samples.length || sampleRate <= 0) {
-    const diagnostics: ChordDiagnostics = {
-      rawChordChanges: 0,
-      finalChordRegions: 0,
-      averageRegionDuration: 0,
-      shortRegionsRemoved: 0,
-      regionsMerged: 0,
-      lowConfidenceRegions: 0,
-      analysisWindows: 0,
-      beatAlignedBoundaries: 0,
-      noChordRegions: 0,
+    return {
+      observations: [],
+      rawFrames: [],
+      beatGrid,
       keyEstimate: null,
+      duration: 0,
+      settings,
       harmonyEvidenceSource: evidence.source ?? "full-mix",
-      bassSupportedWindows: 0,
-      smoothingOverrides: 0,
+      beatAlignedBoundaries: 0,
+      learnedFeatures: {
+        frameTimes: [],
+        harmonicChroma: [],
+        bassChroma: [],
+        onsetStrength: [],
+      },
     };
-    return { rawFrames: [], windows: [], regions: [], settings, diagnostics };
   }
 
   const internalRawFrames = createRawFrames(
@@ -2066,23 +2142,81 @@ export function analyzeChordProgression(
   for (const frame of internalRawFrames) {
     frame.keyEstimate = aggregation.keyEstimate?.name ?? null;
   }
-  const productionStages = runProductionSmoothing(aggregation.observations, settings);
-  const reducedStages = runReducedLatencySmoothing(aggregation.observations, settings);
+  return {
+    observations: aggregation.observations,
+    rawFrames: presentRawFrames(internalRawFrames),
+    beatGrid,
+    keyEstimate: aggregation.keyEstimate,
+    duration,
+    settings,
+    harmonyEvidenceSource: evidence.source ?? "full-mix",
+    beatAlignedBoundaries: aggregation.beatAlignedBoundaries,
+    // These are exactly the feature channels already computed for the rule
+    // frames. The learned model's "bass" input is the harmonic signal's
+    // low-band root chroma, matching harmony-features-v1 training.
+    learnedFeatures: {
+      frameTimes: internalRawFrames.map((frame) => frame.start),
+      harmonicChroma: internalRawFrames.map((frame) => [...frame.chroma]),
+      bassChroma: internalRawFrames.map((frame) => [...frame.rootChroma]),
+      onsetStrength: internalRawFrames.map((frame) => frame.rms),
+    },
+  };
+}
+
+export function decodeHarmonyObservations(
+  observationPackage: HarmonyObservationPackage,
+  partialSettings: Partial<ChordSmoothingSettings> = {},
+): ChordAnalysisResult {
+  const settings = Object.keys(partialSettings).length
+    ? settingsForBeatGrid(
+      observationPackage.beatGrid,
+      { ...observationPackage.settings, ...partialSettings },
+    )
+    : observationPackage.settings;
+  const {
+    observations,
+    rawFrames,
+    duration,
+    keyEstimate,
+    harmonyEvidenceSource,
+    beatAlignedBoundaries,
+  } = observationPackage;
+  if (!observations.length) {
+    const diagnostics: ChordDiagnostics = {
+      rawChordChanges: 0,
+      finalChordRegions: 0,
+      averageRegionDuration: 0,
+      shortRegionsRemoved: 0,
+      regionsMerged: 0,
+      lowConfidenceRegions: 0,
+      analysisWindows: 0,
+      beatAlignedBoundaries: 0,
+      noChordRegions: 0,
+      keyEstimate: null,
+      harmonyEvidenceSource,
+      bassSupportedWindows: 0,
+      smoothingOverrides: 0,
+    };
+    return { rawFrames, windows: [], regions: [], settings, diagnostics };
+  }
+
+  const productionStages = runProductionSmoothing(observations, settings);
+  const reducedStages = runReducedLatencySmoothing(observations, settings);
   const reducedLatencyRegions = reducedStages.cleaned.regions.map(presentRegion);
   const cleaned = {
     regions: reducedLatencyRegions,
     ...reducedStages.cleaned.counts,
   };
   const beatLevelWinner = labelsToRegions(
-    aggregation.observations.map((observation) => observation.bestChord),
-    aggregation.observations,
+    observations.map((observation) => observation.bestChord),
+    observations,
   ).map(presentRegion);
   const viterbiRegions = labelsToRegions(
     productionStages.decoded,
     productionStages.reinforced,
   ).map(presentRegion);
   const postHysteresisRegions = productionStages.initial.map(presentRegion);
-  const windows: ChordWindowDiagnostics[] = aggregation.observations.map((observation) => {
+  const windows: ChordWindowDiagnostics[] = observations.map((observation) => {
     const region = cleaned.regions.find(
       (candidate) => observation.start >= candidate.start
         && observation.start < candidate.end,
@@ -2127,7 +2261,7 @@ export function analyzeChordProgression(
     };
   });
   const diagnostics: ChordDiagnostics = {
-    rawChordChanges: rawChangeCount(internalRawFrames),
+    rawChordChanges: rawChangeCount(rawFrames),
     finalChordRegions: cleaned.regions.length,
     averageRegionDuration: cleaned.regions.length
       ? cleaned.regions.reduce((sum, region) => sum + region.end - region.start, 0)
@@ -2139,45 +2273,16 @@ export function analyzeChordProgression(
       (region) => region.name !== "N"
         && region.confidence < settings.minimumChordConfidence,
     ).length,
-    analysisWindows: aggregation.observations.length,
-    beatAlignedBoundaries: aggregation.beatAlignedBoundaries,
+    analysisWindows: observations.length,
+    beatAlignedBoundaries,
     noChordRegions: cleaned.regions.filter((region) => region.name === "N").length,
-    keyEstimate: aggregation.keyEstimate,
-    harmonyEvidenceSource: evidence.source ?? "full-mix",
-    bassSupportedWindows: aggregation.observations.filter(
+    keyEstimate,
+    harmonyEvidenceSource,
+    bassSupportedWindows: observations.filter(
       (observation) => observation.usedBassSupport,
     ).length,
     smoothingOverrides: windows.filter((window) => window.usedSmoothingOverride).length,
   };
-  const rawFrames: RawChordFrame[] = internalRawFrames.map(({
-    start,
-    end,
-    bestChord,
-    bestScore,
-    secondBestChord,
-    secondBestScore,
-    confidence,
-    scoreMargin,
-    uncertain,
-    rootClass,
-    bassRootClass,
-    bassConfidence,
-    keyEstimate,
-  }) => ({
-    start,
-    end,
-    bestChord,
-    bestScore,
-    secondBestChord,
-    secondBestScore,
-    confidence,
-    scoreMargin,
-    uncertain,
-    rootClass,
-    bassRootClass,
-    bassConfidence,
-    keyEstimate,
-  }));
   return {
     rawFrames,
     windows,
@@ -2193,4 +2298,20 @@ export function analyzeChordProgression(
       reducedLatencyDecisions: reducedStages.reduced.decisions,
     },
   };
+}
+
+export function analyzeChordProgression(
+  samples: Float32Array,
+  sampleRate: number,
+  beatGrid: BeatGrid,
+  partialSettings: Partial<ChordSmoothingSettings> = {},
+  evidence: HarmonyEvidenceOptions = {},
+): ChordAnalysisResult {
+  return decodeHarmonyObservations(createHarmonyObservations(
+    samples,
+    sampleRate,
+    partialSettings,
+    evidence,
+    beatGrid,
+  ));
 }

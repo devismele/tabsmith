@@ -35,6 +35,7 @@ import {
   pipelineLabel,
   reprocessPreservingPrevious,
   sha256Hex,
+  shouldStoreTranscriptionResult,
   SOURCE_SEPARATION_MODEL_VERSION,
   TEMPO_QUANTIZATION_VERSION,
   TRANSCRIPTION_PIPELINE_VERSION,
@@ -42,6 +43,18 @@ import {
   type ProcessingCacheOutcome,
   type TranscriptionCacheKeyInput,
 } from "./transcriptionCache";
+import {
+  HYBRID_HARMONY_BUILD_ENABLED,
+  resolveChordEngineSelection,
+} from "./learnedHarmony/buildGate";
+import {
+  CONSERVATIVE_HYBRID_SETTINGS,
+  HYBRID_DECODER_VERSION,
+} from "./learnedHarmony/hybridDecoder";
+import {
+  LEARNED_MODEL_CHECKSUM,
+  LEARNED_MODEL_VERSION,
+} from "./learnedHarmony/modelIdentity";
 import type {
   AnalysisResult,
   ArrangementMode,
@@ -107,6 +120,10 @@ type ProcessingJob = {
   error: string | null;
   createdAt: string;
 };
+
+const hybridChordOption = HYBRID_HARMONY_BUILD_ENABLED
+  ? '<option value="hybrid">Hybrid ML — experimental</option>'
+  : "";
 
 app.innerHTML = `
   <main class="shell">
@@ -192,7 +209,7 @@ app.innerHTML = `
         <div><strong>Chord engine</strong><span>Rule-based is the default; others are experimental</span></div>
         <select id="chord-engine-select" aria-label="Chord detection engine">
           <option value="rule" selected>Rule-based (default)</option>
-          <option value="learned">Learned model (experimental)</option>
+          ${hybridChordOption}
           <option value="onehotchord" disabled>OneHotChord (coming soon)</option>
         </select>
       </div>
@@ -579,6 +596,9 @@ async function loadFile(
       ? "separated-harmonic-mix" as const
       : "full-mix" as const;
     const chordDisplayMode = byId<HTMLSelectElement>("chord-mode-select").value as ChordDisplayMode;
+    const chordEngine = resolveChordEngineSelection(
+      byId<HTMLSelectElement>("chord-engine-select").value,
+    );
     const useMachineLearning = byId<HTMLSelectElement>("engine-select").value === "ml";
     const detectorPreset = arrangementMode === "raw" ? "raw" : qualityPreset;
     const cleanupPreset = arrangementMode === "raw" || qualityPreset === "raw"
@@ -614,6 +634,13 @@ async function loadFile(
       processingRange: { startSeconds: 0, endSeconds: null },
       guitarIsolationEnabled: isolateGuitar,
       sourceSeparationModelVersion: SOURCE_SEPARATION_MODEL_VERSION,
+      chordEngine,
+      learnedModelVersion: chordEngine === "hybrid" ? LEARNED_MODEL_VERSION : null,
+      learnedModelChecksum: chordEngine === "hybrid" ? LEARNED_MODEL_CHECKSUM : null,
+      hybridDecoderVersion: chordEngine === "hybrid" ? HYBRID_DECODER_VERSION : null,
+      hybridSettings: chordEngine === "hybrid"
+        ? { ...CONSERVATIVE_HYBRID_SETTINGS }
+        : null,
     };
     let transcriptionCacheKey = await buildTranscriptionCacheKey(cacheSettings);
     let legacyInvalidatedReason: string | null = null;
@@ -658,6 +685,7 @@ async function loadFile(
             bassSamples: bassMono,
             source: harmonyEvidenceSource,
             chordSettings: { chordDisplayMode },
+            audioHash: harmonyAudioHash,
           },
         );
         const notesPromise = transcribeWithBasicPitch(mono, (progress) => {
@@ -687,6 +715,7 @@ async function loadFile(
           harmonyMono,
           bassMono,
           harmonyEvidenceSource,
+          harmonyAudioHash,
           chordDisplayMode,
           isolateGuitar,
           noteOptions,
@@ -700,6 +729,7 @@ async function loadFile(
         harmonyMono,
         bassMono,
         harmonyEvidenceSource,
+        harmonyAudioHash,
         chordDisplayMode,
         isolateGuitar,
         noteOptions,
@@ -712,15 +742,19 @@ async function loadFile(
       cacheSettings = { ...cacheSettings, engine: analysis.engine };
       transcriptionCacheKey = await buildTranscriptionCacheKey(cacheSettings);
     }
-    const entry: CachedTranscriptionEntry = {
-      metadata: createCacheMetadata(),
-      cacheKey: transcriptionCacheKey,
-      settings: cacheSettings,
-      result: analysis,
-    };
-    await storeTranscriptionCache(entry, controller.signal).catch((cacheError) => {
-      console.warn("The fresh transcription could not be cached.", cacheError);
-    });
+    if (shouldStoreTranscriptionResult(cacheSettings, analysis)) {
+      const entry: CachedTranscriptionEntry = {
+        metadata: createCacheMetadata(),
+        cacheKey: transcriptionCacheKey,
+        settings: cacheSettings,
+        result: analysis,
+      };
+      await storeTranscriptionCache(entry, controller.signal).catch((cacheError) => {
+        console.warn("The fresh transcription could not be cached.", cacheError);
+      });
+    } else {
+      console.warn("Hybrid fell back to rules; skipping the hybrid cache entry.");
+    }
     result = analysis;
     lastCacheOutcome = {
       transcription: options.reprocessing
@@ -1198,6 +1232,7 @@ async function runDspAnalysis(
   harmonySamples: Float32Array,
   bassSamples: Float32Array | undefined,
   harmonyEvidenceSource: HarmonyEvidenceOptions["source"],
+  harmonyAudioHash: string,
   chordDisplayMode: ChordDisplayMode,
   isolated: boolean,
   noteOptions: NoteProcessingOptions,
@@ -1212,6 +1247,7 @@ async function runDspAnalysis(
       {
         source: harmonyEvidenceSource,
         chordSettings: { chordDisplayMode },
+        audioHash: harmonyAudioHash,
       },
     );
   }
@@ -1225,6 +1261,7 @@ async function runDspAnalysis(
         bassSamples,
         source: harmonyEvidenceSource,
         chordSettings: { chordDisplayMode },
+        audioHash: harmonyAudioHash,
       },
     ),
     runAnalysisWorker<AnalysisResult>(noteSamples, "full", signal, noteOptions),
@@ -1267,7 +1304,11 @@ function runAnalysisWorker<T>(
       bassSamples: bassCopy,
       harmonySource: harmonyOptions?.source,
       chordSettings: harmonyOptions?.chordSettings,
-      chordEngine: byId<HTMLSelectElement>("chord-engine-select").value,
+      chordEngine: harmonyOptions
+        ? resolveChordEngineSelection(
+          byId<HTMLSelectElement>("chord-engine-select").value,
+        )
+        : "rule",
       audioHash: harmonyOptions?.audioHash,
     }, transfer);
     worker.onmessage = (event: MessageEvent<{ type: string; result?: T; message?: string }>) => {
@@ -1326,10 +1367,10 @@ function renderResult(file: File, analysis: AnalysisResult): void {
   const sourceName = analysis.separation === "guitar" ? "isolated guitar · Demucs 6-stem" : "full mix";
   const setupName = `${analysis.tuning.join(" ")}${analysis.capo ? ` · capo ${analysis.capo}` : ""}`;
   const countLabels = analysisCountLabels(analysis);
-  const chordEngineLabel = analysis.learnedEngine
-    ? (analysis.learnedEngine.usedLearned
-      ? "chords: learned (experimental)"
-      : `chords: rule-based (learned unavailable: ${analysis.learnedEngine.fallbackReason ?? "unknown"})`)
+  const chordEngineLabel = analysis.hybridEngine
+    ? (analysis.hybridEngine.usedLearned
+      ? "chords: Hybrid ML — experimental"
+      : `chords: rule-based (hybrid fallback: ${analysis.hybridEngine.fallbackReason ?? "unknown"})`)
     : null;
   byId("metadata").innerHTML = [
     `<strong>${countLabels.main}</strong>`,

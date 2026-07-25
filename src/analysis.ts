@@ -169,6 +169,20 @@ export function analyzeAudio(
   noteOptions: NoteProcessingOptions = {},
 ): AnalysisResult {
   const harmony = analyzeHarmony(samples, sampleRate, settings);
+  return analyzeAudioWithHarmony(samples, sampleRate, harmony, noteOptions);
+}
+
+/**
+ * Runs note detection against a precomputed harmony result. The hybrid worker
+ * uses this to fuse and decode chords before note cleanup without repeating the
+ * rule feature extraction.
+ */
+export function analyzeAudioWithHarmony(
+  samples: Float32Array,
+  sampleRate: number,
+  harmony: HarmonyResult,
+  noteOptions: NoteProcessingOptions = {},
+): AnalysisResult {
   const noteProcessing = processDetectedNotes(
     detectRawNotes(samples, sampleRate),
     harmony.duration,

@@ -1,4 +1,5 @@
 import versions from "../shared/pipeline-versions.json";
+import type { HybridHarmonySettings } from "./learnedHarmony/types";
 import type {
   AnalysisResult,
   ArrangementMode,
@@ -52,6 +53,11 @@ export type TranscriptionCacheKeyInput = {
   processingRange: ProcessingRange;
   guitarIsolationEnabled: boolean;
   sourceSeparationModelVersion: string;
+  chordEngine: "rule" | "hybrid";
+  learnedModelVersion: string | null;
+  learnedModelChecksum: string | null;
+  hybridDecoderVersion: number | null;
+  hybridSettings: HybridHarmonySettings | null;
 };
 
 export type CachedTranscriptionEntry = {
@@ -165,7 +171,33 @@ export async function sha256Hex(
 export async function buildTranscriptionCacheKey(
   input: TranscriptionCacheKeyInput,
 ): Promise<string> {
+  if (input.chordEngine === "rule") {
+    // Preserve compatibility with safe existing rule-cache entries. The legacy
+    // identity already meant rule-only, so the new hybrid-only fields are
+    // intentionally omitted for that mode.
+    const {
+      chordEngine: _chordEngine,
+      learnedModelVersion: _learnedModelVersion,
+      learnedModelChecksum: _learnedModelChecksum,
+      hybridDecoderVersion: _hybridDecoderVersion,
+      hybridSettings: _hybridSettings,
+      ...legacyRuleIdentity
+    } = input;
+    return sha256Hex(canonicalizeCacheSettings(legacyRuleIdentity));
+  }
   return sha256Hex(canonicalizeCacheSettings(input));
+}
+
+/**
+ * A hybrid fallback is deliberately not cached: persisting it under a hybrid key
+ * would hide provider recovery on the next request. The exact rule result still
+ * completes the current job.
+ */
+export function shouldStoreTranscriptionResult(
+  input: TranscriptionCacheKeyInput,
+  result: AnalysisResult,
+): boolean {
+  return input.chordEngine === "rule" || result.hybridEngine?.usedLearned === true;
 }
 
 export function cacheReadDecision(
