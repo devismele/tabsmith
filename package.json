@@ -31,6 +31,7 @@
     "evaluate:chords": "node scripts/chord-evaluation.mjs evaluation/chord-reference-songs.json",
     "evaluate:hybrid": "vite-node evaluation/run-hybrid-comparison.ts --config evaluation/hybrid-accuracy-config.json",
     "evaluate:hybrid:cross-capture": "vite-node evaluation/run-cross-capture-summary.ts",
+    "calibrate:hybrid": "vite-node evaluation/run-hybrid-calibration.ts --config evaluation/hybrid-calibration-config.json",
     "evaluate:chord-section": "vite-node scripts/chord-section-ablation.ts",
     "evaluate:chord-redecode": "vite-node scripts/chord-section-redecode.ts"
   },

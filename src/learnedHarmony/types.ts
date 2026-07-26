@@ -124,6 +124,48 @@ export interface HybridFusionContext {
   adaptiveWeighting?: boolean;
 }
 
+export type HybridWeightStageId =
+  | "availability"
+  | "minimum-learned-confidence"
+  | "maximum-learned-entropy"
+  | "learned-confidence-scaling"
+  | "learned-entropy-scaling"
+  | "rule-score-margin"
+  | "rule-confidence-room"
+  | "high-rule-confidence-protection"
+  | "agreement-bonus"
+  | "learned-flicker-suppression"
+  | "source-specific-maximum";
+
+export interface HybridWeightStage {
+  id: HybridWeightStageId;
+  before: number;
+  after: number;
+  /** True only when this stage reduced the learned weight. */
+  limited: boolean;
+}
+
+/**
+ * Evaluation-facing trace of the existing adaptive-weight calculation. This is
+ * internal TypeScript state, not part of the frozen learned-harmony v1 wire
+ * contract and is intentionally not retained in application diagnostics.
+ */
+export interface HybridWeightTrace {
+  observationIndex: number;
+  startSeconds: number;
+  endSeconds: number;
+  ruleTopChord: string;
+  learnedTopChord: string | null;
+  learnedTopConfidence: number;
+  learnedEntropy: number;
+  contributingFrameCount: number;
+  effectiveWeight: number;
+  stages: HybridWeightStage[];
+  bassConflict: boolean;
+  noChordProtectionActive: boolean;
+  explicitDisagreementPenaltyApplied: false;
+}
+
 export interface HybridFusionDiagnostics {
   alignedWindows: number;
   missingLearnedWindows: number;

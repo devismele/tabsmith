@@ -9,6 +9,7 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 import {
   CONSERVATIVE_HYBRID_SETTINGS,
   HYBRID_DECODER_VERSION,
@@ -49,7 +50,7 @@ import {
   type ResolvedDatasetPaths,
 } from "./hybridEvaluationConfig";
 
-interface DatasetConfig {
+export interface DatasetConfig {
   datasetIdentifier: string;
   officialDistributionRecord?: string;
   datasetVersion?: string;
@@ -58,7 +59,7 @@ interface DatasetConfig {
   captureType?: string;
   manifestPath: string;
   annotationDirectory: string;
-  splitName: "development" | "validation" | "test";
+  splitName: "training" | "development" | "validation" | "test";
   splitStrategy?: "manifest" | "artist-hash";
   splitSeed?: number;
   heldOutArtists?: string[];
@@ -71,7 +72,7 @@ interface DatasetConfig {
   runAblations?: boolean;
 }
 
-interface EvaluationConfig {
+export interface EvaluationConfig {
   schemaVersion: 1;
   sampleRate: number;
   outputDirectory: string;
@@ -106,7 +107,7 @@ interface AnnotationTrack {
   chords: Array<{ start: number; end: number; label: string }>;
 }
 
-interface LoadedDataset {
+export interface LoadedDataset {
   config: DatasetConfig;
   identity: DatasetReportIdentity;
   tracks: PreparedEvaluationTrack[];
@@ -117,7 +118,7 @@ interface DecodedWav {
   sampleRate: number;
 }
 
-function sha256(value: Buffer | string): string {
+export function sha256(value: Buffer | string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
@@ -312,7 +313,7 @@ async function exists(target: string): Promise<boolean> {
   }
 }
 
-async function loadDataset(
+export async function loadDataset(
   dataset: DatasetConfig,
   configPath: string,
   sampleRate: number,
@@ -566,7 +567,7 @@ function validateConfig(config: EvaluationConfig): void {
   }
 }
 
-function resolvedHybridSettings(
+export function resolvedHybridSettings(
   partial: Partial<HybridHarmonySettings> | undefined,
 ): HybridHarmonySettings {
   return { ...CONSERVATIVE_HYBRID_SETTINGS, ...partial };
@@ -579,7 +580,7 @@ function currentCommit(): string {
   }).trim();
 }
 
-function validateBundledModel(weights: TcnWeights): void {
+export function validateBundledModel(weights: TcnWeights): void {
   if (weights.modelVersion !== LEARNED_MODEL_VERSION
     || weights.modelChecksum !== LEARNED_MODEL_CHECKSUM
     || weights.featureVersion !== FEATURE_VERSION) {
@@ -754,8 +755,13 @@ export async function runHybridComparison(
   return report;
 }
 
-const args = parseArgs(process.argv.slice(2));
-await runHybridComparison(args.configPath, args.outputDirectory).catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
-});
+const invokedPath = process.argv[1]
+  ? pathToFileURL(path.resolve(process.argv[1])).href
+  : null;
+if (invokedPath === import.meta.url) {
+  const args = parseArgs(process.argv.slice(2));
+  await runHybridComparison(args.configPath, args.outputDirectory).catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
+}

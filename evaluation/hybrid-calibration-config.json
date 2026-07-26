@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "sampleRate": 22050,
+  "splitManifest": "hybrid-calibration-split.json",
+  "dataset": {
+    "datasetIdentifier": "guitarset-zenodo-1492449",
+    "officialDistributionRecord": "zenodo-3371780",
+    "datasetVersion": "1.1.0",
+    "annotationArchiveMd5": "b39b78e63d3446f2e54ddb7a54df9b10",
+    "audioArchiveMd5ByCapture": {
+      "audio_mono-mic": "275966d6610ac34999b58426beb119c3",
+      "audio_mono-pickup_mix": "aecce79f425a44e2055e46f680e10f6a"
+    },
+    "manifestPath": "../ml/datasets/dataset_manifest.json",
+    "annotationDirectory": "../ml/datasets/guitarset/annotations",
+    "splitSeed": 20260723,
+    "sourceType": "solo-guitar",
+    "sourceMode": "guitar-focused",
+    "expectedAnnotationCount": 360,
+    "expectedTracksPerPerformer": 60
+  },
+  "search": {
+    "seed": 20260726,
+    "randomCandidateCount": 32,
+    "temperatureCandidates": [0.6, 0.75, 0.9, 1, 1.15, 1.3, 1.5],
+    "shortRegionThresholdSeconds": 0.5,
+    "constraints": {
+      "maximumFragmentationAboveRule": 0.01,
+      "maximumRegionsPerMinuteAboveRule": 0.5,
+      "maximumBoundaryMaeAboveRuleMs": 100
+    }
+  },
+  "outputDirectory": "reports"
+}

@@ -13,6 +13,8 @@ import type {
   HybridFusionDiagnostics,
   HybridHarmonyResult,
   HybridHarmonySettings,
+  HybridWeightStage,
+  HybridWeightTrace,
   LearnedHarmonyProvider,
   LearnedHarmonyRequest,
   LearnedHarmonyResponse,
@@ -224,25 +226,69 @@ function flickerFactor(evidence: LearnedWindowEvidence[], index: number): number
   return changes === 2 ? 0.25 : changes === 1 ? 0.65 : 1;
 }
 
-function effectiveLearnedWeight(
+function appendWeightStage(
+  stages: HybridWeightStage[],
+  id: HybridWeightStage["id"],
+  before: number,
+  after: number,
+): number {
+  stages.push({
+    id,
+    before,
+    after,
+    limited: after < before - EPSILON,
+  });
+  return after;
+}
+
+function learnedWeightCalculation(
   observation: ChordObservation,
   evidence: LearnedWindowEvidence,
   settings: HybridHarmonySettings,
   sourceMode: "full-mix" | "guitar-focused",
   flicker: number,
   adaptiveWeighting = true,
-): number {
+): { weight: number; stages: HybridWeightStage[] } {
   const cap = sourceMode === "full-mix"
     ? settings.maximumLearnedWeightFullMix
     : settings.maximumLearnedWeightGuitarOnly;
+  const stages: HybridWeightStage[] = [];
   if (!adaptiveWeighting) {
-    return evidence.contributingFrameCount
-      ? clamp(settings.learnedChordWeight, 0, cap)
-      : 0;
+    let weight = settings.learnedChordWeight;
+    weight = appendWeightStage(
+      stages,
+      "availability",
+      weight,
+      evidence.contributingFrameCount ? weight : 0,
+    );
+    weight = appendWeightStage(
+      stages,
+      "source-specific-maximum",
+      weight,
+      clamp(weight, 0, cap),
+    );
+    return { weight, stages };
   }
-  if (!evidence.contributingFrameCount
-    || evidence.topChordConfidence < settings.minimumLearnedConfidence
-    || evidence.entropy >= settings.maximumLearnedEntropy) return 0;
+
+  let weight = settings.learnedChordWeight;
+  weight = appendWeightStage(
+    stages,
+    "availability",
+    weight,
+    evidence.contributingFrameCount ? weight : 0,
+  );
+  weight = appendWeightStage(
+    stages,
+    "minimum-learned-confidence",
+    weight,
+    evidence.topChordConfidence >= settings.minimumLearnedConfidence ? weight : 0,
+  );
+  weight = appendWeightStage(
+    stages,
+    "maximum-learned-entropy",
+    weight,
+    evidence.entropy < settings.maximumLearnedEntropy ? weight : 0,
+  );
 
   const confidenceFactor = clamp(
     (evidence.topChordConfidence - settings.minimumLearnedConfidence)
@@ -257,6 +303,11 @@ function effectiveLearnedWeight(
     observation.confidence / Math.max(EPSILON, settings.protectRuleConfidenceAbove),
   );
   const ruleRoom = 0.35 + 0.65 * mean([marginAmbiguity, confidenceAmbiguity]);
+  // The production formula historically combined these two ambiguity values
+  // additively. This exact multiplicative decomposition preserves that formula
+  // while allowing calibration diagnostics to attribute their effects.
+  const ruleMarginFactor = 0.675 + 0.325 * marginAmbiguity;
+  const ruleConfidenceRoomFactor = ruleRoom / Math.max(EPSILON, ruleMarginFactor);
   const protection = observation.confidence <= settings.protectRuleConfidenceAbove
     ? 1
     : clamp(
@@ -264,17 +315,73 @@ function effectiveLearnedWeight(
         / Math.max(EPSILON, 0.9 - settings.protectRuleConfidenceAbove),
     );
   const agreement = evidence.topChord === observation.bestChord ? 1.1 : 1;
-  return clamp(
-    settings.learnedChordWeight
-      * (0.35 + confidenceFactor * 0.65)
-      * entropyFactor
-      * ruleRoom
-      * protection
-      * agreement
-      * flicker,
-    0,
-    cap,
+  weight = appendWeightStage(
+    stages,
+    "learned-confidence-scaling",
+    weight,
+    weight * (0.35 + confidenceFactor * 0.65),
   );
+  weight = appendWeightStage(
+    stages,
+    "learned-entropy-scaling",
+    weight,
+    weight * entropyFactor,
+  );
+  weight = appendWeightStage(
+    stages,
+    "rule-score-margin",
+    weight,
+    weight * ruleMarginFactor,
+  );
+  weight = appendWeightStage(
+    stages,
+    "rule-confidence-room",
+    weight,
+    weight * ruleConfidenceRoomFactor,
+  );
+  weight = appendWeightStage(
+    stages,
+    "high-rule-confidence-protection",
+    weight,
+    weight * protection,
+  );
+  weight = appendWeightStage(
+    stages,
+    "agreement-bonus",
+    weight,
+    weight * agreement,
+  );
+  weight = appendWeightStage(
+    stages,
+    "learned-flicker-suppression",
+    weight,
+    weight * flicker,
+  );
+  weight = appendWeightStage(
+    stages,
+    "source-specific-maximum",
+    weight,
+    clamp(weight, 0, cap),
+  );
+  return { weight, stages };
+}
+
+function effectiveLearnedWeight(
+  observation: ChordObservation,
+  evidence: LearnedWindowEvidence,
+  settings: HybridHarmonySettings,
+  sourceMode: "full-mix" | "guitar-focused",
+  flicker: number,
+  adaptiveWeighting = true,
+): number {
+  return learnedWeightCalculation(
+    observation,
+    evidence,
+    settings,
+    sourceMode,
+    flicker,
+    adaptiveWeighting,
+  ).weight;
 }
 
 function learnedScore(probability: number, candidateCount: number): number {
@@ -293,6 +400,50 @@ function candidateRoot(name: string): number | null {
 function observedBassRoot(observation: ChordObservation): number | null {
   const label = observation.bassRootClass ?? observation.rootClass;
   return label ? candidateRoot(label) : null;
+}
+
+export function traceHybridWeighting(
+  ruleObservations: ChordObservation[],
+  learnedResponse: LearnedHarmonyResponse,
+  settings: HybridHarmonySettings,
+  context: HybridFusionContext = {},
+): HybridWeightTrace[] {
+  const sourceMode = context.sourceMode ?? "full-mix";
+  const evidence = alignLearnedEvidence(ruleObservations, learnedResponse);
+  return ruleObservations.map((observation, index) => {
+    const learned = evidence[index];
+    const calculation = learnedWeightCalculation(
+      observation,
+      learned,
+      settings,
+      sourceMode,
+      flickerFactor(evidence, index),
+      context.adaptiveWeighting !== false,
+    );
+    const bassRoot = observedBassRoot(observation);
+    const learnedRoot = learned.topChord ? candidateRoot(learned.topChord) : null;
+    const bassConfidence = observation.bassConfidence ?? 0;
+    return {
+      observationIndex: index,
+      startSeconds: observation.start,
+      endSeconds: observation.end,
+      ruleTopChord: observation.bestChord,
+      learnedTopChord: learned.topChord,
+      learnedTopConfidence: learned.topChordConfidence,
+      learnedEntropy: learned.entropy,
+      contributingFrameCount: learned.contributingFrameCount,
+      effectiveWeight: calculation.weight,
+      stages: calculation.stages,
+      bassConflict: bassRoot !== null
+        && learnedRoot !== null
+        && bassRoot !== learnedRoot
+        && bassConfidence > 0,
+      noChordProtectionActive: learned.topChord === "N"
+        && (bassConfidence >= 0.18
+          || observation.confidence >= settings.protectRuleConfidenceAbove),
+      explicitDisagreementPenaltyApplied: false,
+    };
+  });
 }
 
 function countBoundaryPeaks(evidence: LearnedWindowEvidence[], threshold = 0.5): number {

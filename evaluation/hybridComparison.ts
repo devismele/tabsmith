@@ -366,7 +366,7 @@ class CapturingProvider implements LearnedHarmonyProvider {
   }
 }
 
-function buildRequest(
+export function buildEvaluationRequest(
   track: PreparedEvaluationTrack,
   observationPackage: HarmonyObservationPackage,
   identity: EvaluationModelIdentity,
@@ -570,7 +570,7 @@ export async function compareTrackEngines(
     },
   };
 
-  const request = buildRequest(track, observationPackage, options.modelIdentity);
+  const request = buildEvaluationRequest(track, observationPackage, options.modelIdentity);
   const capturingProvider = new CapturingProvider(dependencies.provider);
   let actualHybridDecoderInvoked = false;
   const hybridStart = now();
