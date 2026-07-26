@@ -1,3 +1,4 @@
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CONSERVATIVE_HYBRID_SETTINGS,
@@ -336,29 +337,41 @@ describe("TypeScript hybrid parity evaluation", () => {
   });
 
   it("resolves local GuitarSet overrides without putting them in report names", () => {
-    const configPath = "C:\\portable\\hybrid-config.json";
+    const fixtureRoot = path.resolve("hybrid-evaluation-fixture");
+    const configPath = path.join(fixtureRoot, "config", "hybrid-config.json");
+    const manifestOverride = path.join(
+      fixtureRoot,
+      "datasets",
+      "prepared",
+      "manifest.json",
+    );
+    const annotationsOverride = path.join(
+      fixtureRoot,
+      "datasets",
+      "prepared",
+      "annotations",
+    );
+    const audioOverride = path.join(
+      fixtureRoot,
+      "datasets",
+      "audio_mono-pickup_mix",
+    );
     const resolved = resolveDatasetPaths({
       datasetIdentifier: "guitarset-zenodo-1492449",
       manifestPath: "../fallback/manifest.json",
       annotationDirectory: "../fallback/annotations",
       captureType: "audio_mono-mic",
     }, configPath, {
-      TABSMITH_GUITARSET_MANIFEST: "D:\\datasets\\prepared\\manifest.json",
-      TABSMITH_GUITARSET_ANNOTATIONS: "D:\\datasets\\prepared\\annotations",
-      TABSMITH_GUITARSET_AUDIO: "D:\\datasets\\audio_mono-pickup_mix",
+      TABSMITH_GUITARSET_MANIFEST: manifestOverride,
+      TABSMITH_GUITARSET_ANNOTATIONS: annotationsOverride,
+      TABSMITH_GUITARSET_AUDIO: audioOverride,
       TABSMITH_HYBRID_EVAL_CAPTURE: "audio_mono-pickup_mix",
       TABSMITH_HYBRID_EVAL_OUTPUT_TAG: "pickup-mix",
     });
 
-    expect(resolved.manifestPath).toBe(
-      "D:\\datasets\\prepared\\manifest.json",
-    );
-    expect(resolved.annotationDirectory).toBe(
-      "D:\\datasets\\prepared\\annotations",
-    );
-    expect(resolved.audioRoot).toBe(
-      "D:\\datasets\\audio_mono-pickup_mix",
-    );
+    expect(resolved.manifestPath).toBe(manifestOverride);
+    expect(resolved.annotationDirectory).toBe(annotationsOverride);
+    expect(resolved.audioRoot).toBe(audioOverride);
     expect(resolved.captureType).toBe("audio_mono-pickup_mix");
     expect(audioBasenameForCapture(
       "00_BN1-129-Eb_comp_mic.wav",
