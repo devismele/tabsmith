@@ -43,6 +43,10 @@ class ModelConfig:
             dropout=float(model.get("dropout", 0.1)),
         )
 
+    def receptive_field_frames(self) -> int:
+        """Symmetric temporal context covered by the two convolutions per block."""
+        return 1 + 2 * (self.kernel_size - 1) * sum(self.dilations)
+
 
 class _ResidualBlock(nn.Module):
     def __init__(self, channels: int, kernel_size: int, dilation: int, dropout: float):

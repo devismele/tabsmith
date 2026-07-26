@@ -1,0 +1,73 @@
+{
+  "configVersion": 2,
+  "modelName": "temporal-harmony-v2-development",
+  "productionBaseline": "temporal-baseline-real-v1",
+  "artifactDisclaimer": "Experimental temporal-harmony-v2 research model. Performer-grouped development only; not approved for production.",
+  "seed": 20260726,
+  "features": {
+    "inputDim": 25,
+    "pipelineVersion": "harmony-features-v1"
+  },
+  "labels": {
+    "roots": 12,
+    "qualities": [
+      "maj",
+      "min",
+      "7"
+    ],
+    "boundaryToleranceSeconds": 0.18
+  },
+  "model": {
+    "channels": 96,
+    "kernelSize": 3,
+    "dilations": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "dropout": 0.1
+  },
+  "training": {
+    "epochs": 40,
+    "batchSize": 16,
+    "learningRate": 0.003,
+    "weightDecay": 0.0001,
+    "earlyStoppingPatience": 8,
+    "gradClip": 5.0,
+    "boundaryLossWeight": 2.0,
+    "boundaryPosWeight": 8.0,
+    "hardBoundaryLossWeight": 0.5,
+    "hardBoundaryPosWeight": 12.0,
+    "noChordLossWeight": 1.0,
+    "durationConsistencyLossWeight": 0.2,
+    "switchLossWeight": 0.35,
+    "boundarySwitchAgreementLossWeight": 0.1
+  },
+  "decoding": {
+    "transitionPenalty": 4.0,
+    "probabilitySmoothing": {
+      "method": "ema",
+      "alpha": 0.65,
+      "boundaryAlpha": 0.35
+    }
+  },
+  "selectionGates": {
+    "rootAccuracyDeltaMinimum": 0.0,
+    "detailedAccuracyDeltaMinimum": 0.0,
+    "fragmentationRelativeReductionMinimum": 0.08,
+    "regionsPerMinuteRelativeReductionMinimum": 0.05,
+    "boundaryMeanAbsoluteErrorRelativeIncreaseMaximum": 0.02,
+    "requiresPythonOnnxParity": true,
+    "requiresTypeScriptParity": true,
+    "requiresHybridImprovementWithFrozenSafeguards": true
+  },
+  "notes": [
+    "This is a bounded first v2 design, not a parameter-search winner.",
+    "Chord identity confidence is derived from the root, quality and no-chord distributions; the boundary head separately predicts whether a change should occur.",
+    "The four-head export shape stays compatible with the existing TypeScript TCN evaluator, but no production weights or defaults are changed by this config."
+  ]
+}

@@ -1,7 +1,8 @@
 """Frame-aligned targets and batching for the temporal baseline (torch).
 
 Turns (Track, FeatureFrames) into per-frame supervision:
-  root (0..11 or -1), quality (0..2 or -1), no-chord (0/1), boundary (soft 0..1).
+  root (0..11 or -1), quality (0..2 or -1), no-chord (0/1),
+  boundary (soft 0..1), change (hard 0/1), and stable (hard 0/1).
 
 Root/quality are masked on no-chord frames. Boundary targets are soft — a
 triangular window around each annotated region start — so a prediction a few
@@ -37,6 +38,8 @@ def build_frame_targets(track: Track, features: FeatureFrames, tolerance_seconds
     quality = np.full(T, -1, dtype=np.int64)
     nochord = np.zeros(T, dtype=np.float32)
     boundary = np.zeros(T, dtype=np.float32)
+    change = np.zeros(T, dtype=np.float32)
+    stable = np.zeros(T, dtype=np.float32)
 
     for i, t in enumerate(features.times):
         region = _region_at(track, float(t))
@@ -55,7 +58,25 @@ def build_frame_targets(track: Track, features: FeatureFrames, tolerance_seconds
                 if dist <= tolerance_seconds:
                     boundary[i] = max(boundary[i], 1.0 - dist / tolerance_seconds)
 
-    return {"root": root, "quality": quality, "nochord": nochord, "boundary": boundary}
+    # A hard transition target complements the tolerant boundary target. It is
+    # derived from the chord identity actually supervised at adjacent frames, so
+    # it stays aligned even when an annotated boundary falls between frame times.
+    for i in range(1, T):
+        previous = (int(root[i - 1]), int(quality[i - 1]), bool(nochord[i - 1]))
+        current = (int(root[i]), int(quality[i]), bool(nochord[i]))
+        if current == previous:
+            stable[i] = 1.0
+        else:
+            change[i] = 1.0
+
+    return {
+        "root": root,
+        "quality": quality,
+        "nochord": nochord,
+        "boundary": boundary,
+        "change": change,
+        "stable": stable,
+    }
 
 
 @dataclass
@@ -65,16 +86,30 @@ class FrameSample:
     quality: np.ndarray
     nochord: np.ndarray
     boundary: np.ndarray
+    change: np.ndarray | None = None
+    stable: np.ndarray | None = None
+    track_id: str = ""
+    capture_type: str = ""
+    augmentation_id: str = "clean"
 
 
-def _sample_from_features(track: Track, features, tolerance_seconds: float) -> FrameSample | None:
+def sample_from_features(track: Track, features, tolerance_seconds: float) -> FrameSample | None:
     if len(features.times) == 0:
         return None
     targets = build_frame_targets(track, features, tolerance_seconds)
+    audio_name = str(getattr(track, "audio_path", "")).replace("\\", "/").lower()
+    capture_type = (
+        "audio_mono-pickup_mix" if audio_name.endswith("_mix.wav")
+        else "audio_mono-mic" if audio_name.endswith("_mic.wav")
+        else features.pipeline_version
+    )
     return FrameSample(
         features=features.stacked().astype(np.float32),
         root=targets["root"], quality=targets["quality"],
         nochord=targets["nochord"], boundary=targets["boundary"],
+        change=targets["change"], stable=targets["stable"],
+        track_id=track.track_id,
+        capture_type=capture_type,
     )
 
 
@@ -82,7 +117,7 @@ def make_samples(tracks_with_audio: list[tuple[Track, np.ndarray, int]], toleran
     """Assemble samples from in-memory (Track, audio, sr) tuples (synthetic path)."""
     samples: list[FrameSample] = []
     for track, audio, sr in tracks_with_audio:
-        sample = _sample_from_features(track, extract_features(audio, sr), tolerance_seconds)
+        sample = sample_from_features(track, extract_features(audio, sr), tolerance_seconds)
         if sample is not None:
             samples.append(sample)
     return samples
@@ -107,6 +142,11 @@ def chunk_sample(sample: FrameSample, chunk_frames: int) -> list[FrameSample]:
             features=sample.features[start:end], root=sample.root[start:end],
             quality=sample.quality[start:end], nochord=sample.nochord[start:end],
             boundary=sample.boundary[start:end],
+            change=None if sample.change is None else sample.change[start:end].copy(),
+            stable=None if sample.stable is None else sample.stable[start:end].copy(),
+            track_id=sample.track_id,
+            capture_type=sample.capture_type,
+            augmentation_id=f"{sample.augmentation_id}:chunk-{start}-{end}",
         ))
     return chunks
 
@@ -126,12 +166,18 @@ def pitch_shift_sample(sample: FrameSample, semitones: int) -> FrameSample:
     voiced = root >= 0
     root[voiced] = (root[voiced] + semitones) % 12
     return FrameSample(features=features, root=root, quality=sample.quality.copy(),
-                       nochord=sample.nochord.copy(), boundary=sample.boundary.copy())
+                       nochord=sample.nochord.copy(), boundary=sample.boundary.copy(),
+                       change=None if sample.change is None else sample.change.copy(),
+                       stable=None if sample.stable is None else sample.stable.copy(),
+                       track_id=sample.track_id,
+                       capture_type=sample.capture_type,
+                       augmentation_id=f"{sample.augmentation_id}:pitch-{semitones:+d}")
 
 
 def make_samples_from_tracks(tracks: list[Track], tolerance_seconds: float,
                              chunk_frames: int = 0, pitch_shifts: tuple[int, ...] = (),
-                             audio_feature: str = "numpy-chroma-v1") -> list[FrameSample]:
+                             audio_feature: str = "numpy-chroma-v1",
+                             augmentation_manifest: dict | None = None) -> list[FrameSample]:
     """Assemble samples from real Track objects — audio *or* precomputed features.
 
     Optionally chunk long tracks into ``chunk_frames`` windows and add pitch-shifted
@@ -150,13 +196,18 @@ def make_samples_from_tracks(tracks: list[Track], tolerance_seconds: float,
             features = frames_for_track(track, audio_feature=audio_feature)
         except Exception:
             continue
-        sample = _sample_from_features(track, features, tolerance_seconds)
+        sample = sample_from_features(track, features, tolerance_seconds)
         if sample is None:
             continue
-        for chunk in chunk_sample(sample, chunk_frames):
-            samples.append(chunk)
-            for semitones in pitch_shifts:
-                samples.append(pitch_shift_sample(chunk, semitones))
+        source_samples = [sample]
+        if augmentation_manifest is not None:
+            from .augmentation import build_augmented_samples
+            source_samples = build_augmented_samples(sample, augmentation_manifest)
+        for source_sample in source_samples:
+            for chunk in chunk_sample(source_sample, chunk_frames):
+                samples.append(chunk)
+                for semitones in pitch_shifts:
+                    samples.append(pitch_shift_sample(chunk, semitones))
     return samples
 
 
@@ -169,6 +220,8 @@ def collate(batch: list[FrameSample]) -> dict[str, torch.Tensor]:
     quality = torch.full((b, max_t), -1, dtype=torch.long)
     nochord = torch.zeros(b, max_t, dtype=torch.float32)
     boundary = torch.zeros(b, max_t, dtype=torch.float32)
+    change = torch.zeros(b, max_t, dtype=torch.float32)
+    stable = torch.zeros(b, max_t, dtype=torch.float32)
     pad_mask = torch.zeros(b, max_t, dtype=torch.float32)
     for i, sample in enumerate(batch):
         t = sample.features.shape[0]
@@ -177,9 +230,23 @@ def collate(batch: list[FrameSample]) -> dict[str, torch.Tensor]:
         quality[i, :t] = torch.from_numpy(sample.quality)
         nochord[i, :t] = torch.from_numpy(sample.nochord)
         boundary[i, :t] = torch.from_numpy(sample.boundary)
+        if sample.change is not None:
+            change[i, :t] = torch.from_numpy(sample.change)
+        else:
+            identity_change = (
+                (sample.root[1:] != sample.root[:-1])
+                | (sample.quality[1:] != sample.quality[:-1])
+                | (sample.nochord[1:] != sample.nochord[:-1])
+            )
+            change[i, 1:t] = torch.from_numpy(identity_change.astype(np.float32))
+        if sample.stable is not None:
+            stable[i, :t] = torch.from_numpy(sample.stable)
+        elif t > 1:
+            stable[i, 1:t] = 1.0 - change[i, 1:t]
         pad_mask[i, :t] = 1.0
     return {"features": feats, "root": root, "quality": quality,
-            "nochord": nochord, "boundary": boundary, "pad_mask": pad_mask}
+            "nochord": nochord, "boundary": boundary, "change": change,
+            "stable": stable, "pad_mask": pad_mask}
 
 
 def compute_class_weights(samples: list[FrameSample]) -> dict[str, torch.Tensor]:

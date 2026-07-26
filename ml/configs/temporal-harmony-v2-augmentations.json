@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "augmentationId": "temporal-harmony-v2-feature-augmentations-v1",
+  "seed": 20260726,
+  "variantsPerTrack": 4,
+  "alwaysIncludeClean": true,
+  "capturePolicy": [
+    "audio_mono-mic",
+    "audio_mono-pickup_mix"
+  ],
+  "recipes": [
+    {
+      "id": "compressed-guitar",
+      "kind": "compression",
+      "weight": 1.0,
+      "strengthRange": [
+        0.2,
+        0.45
+      ]
+    },
+    {
+      "id": "reverberant-guitar",
+      "kind": "reverb",
+      "weight": 1.0,
+      "strengthRange": [
+        0.12,
+        0.35
+      ]
+    },
+    {
+      "id": "distorted-guitar",
+      "kind": "distortion",
+      "weight": 1.0,
+      "strengthRange": [
+        0.15,
+        0.4
+      ]
+    },
+    {
+      "id": "bass-leakage",
+      "kind": "bass-leakage",
+      "weight": 1.0,
+      "strengthRange": [
+        0.08,
+        0.3
+      ]
+    },
+    {
+      "id": "piano-synth-contamination",
+      "kind": "harmonic-contamination",
+      "weight": 1.0,
+      "strengthRange": [
+        0.08,
+        0.28
+      ]
+    },
+    {
+      "id": "drum-leakage",
+      "kind": "percussive-leakage",
+      "weight": 0.8,
+      "strengthRange": [
+        0.08,
+        0.25
+      ]
+    },
+    {
+      "id": "vocal-leakage",
+      "kind": "vocal-leakage",
+      "weight": 0.8,
+      "strengthRange": [
+        0.08,
+        0.25
+      ]
+    },
+    {
+      "id": "imperfect-separation",
+      "kind": "separation-artifacts",
+      "weight": 1.0,
+      "strengthRange": [
+        0.08,
+        0.28
+      ]
+    },
+    {
+      "id": "full-harmonic-mixture",
+      "kind": "full-mixture",
+      "weight": 1.2,
+      "strengthRange": [
+        0.12,
+        0.32
+      ]
+    },
+    {
+      "id": "no-harmonic-negative",
+      "kind": "no-harmonic-negative",
+      "weight": 0.45,
+      "strengthRange": [
+        0.15,
+        0.35
+      ]
+    }
+  ],
+  "notes": [
+    "Recipes are deterministic feature-domain proxies and never write generated audio.",
+    "Microphone and pickup recordings are real alternate captures, not synthetic augmentations.",
+    "No-harmonic negatives simulate drums, unpitched vocals and ambience; they do not label piano-only or other valid harmonic material as no-chord.",
+    "A later legally sourced stem manifest may replace proxy contaminants without changing split or seed semantics."
+  ]
+}

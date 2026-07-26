@@ -121,9 +121,25 @@ def fit_samples(config: dict, train_samples: list[FrameSample], dev_samples: lis
         model.load_state_dict(best_state)
     train_seconds = time.time() - start_time
 
+    def sample_manifest(samples: list[FrameSample]) -> list[dict]:
+        return [
+            {
+                "trackId": sample.track_id,
+                "captureType": sample.capture_type,
+                "augmentationId": sample.augmentation_id,
+                "frames": int(sample.features.shape[0]),
+                "featureDim": int(sample.features.shape[1]),
+            }
+            for sample in samples
+        ]
+
+    # Paths and audio never enter this identity. Unlike the old count-only hash,
+    # v2 changes identity when a performer/capture/augmentation assignment does.
     manifest_hash = hashlib.sha256(json.dumps({
-        "config": config, "trainTracks": len(train_samples), "devTracks": len(dev_samples),
-    }, sort_keys=True).encode()).hexdigest()
+        "config": config,
+        "trainingSamples": sample_manifest(train_samples),
+        "developmentSamples": sample_manifest(dev_samples),
+    }, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     metadata = build_metadata(config, manifest_hash, seed, model.parameter_count(), model)
     save_checkpoint(checkpoint_path, model, config, metadata)
 
@@ -133,7 +149,10 @@ def fit_samples(config: dict, train_samples: list[FrameSample], dev_samples: lis
         "seed": seed, "bestEpoch": best_epoch, "bestDevLoss": round(best_dev, 5),
         "epochsRun": len(history), "trainSeconds": round(train_seconds, 2),
         "parameterCount": model.parameter_count(), "history": history,
-        "disclaimer": "Synthetic pipeline-validation only. Not representative of commercial music.",
+        "disclaimer": config.get(
+            "artifactDisclaimer",
+            "Experimental research training run. Not approved for production.",
+        ),
     }, indent=2), encoding="utf-8")
 
     onnx_path = checkpoint_path.with_suffix(".onnx")

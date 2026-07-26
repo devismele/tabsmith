@@ -32,7 +32,8 @@ def predict_rule(features: FeatureFrames):
     return chroma_template_predict(features)
 
 
-def _forward(model, features: FeatureFrames):
+def forward_probabilities(model, features: FeatureFrames):
+    """One immutable learned response shared by ML-only and hybrid evaluations."""
     x = torch.from_numpy(features.stacked().astype(np.float32)).unsqueeze(0)
     with torch.no_grad():
         out = model(x)
@@ -44,14 +45,14 @@ def _forward(model, features: FeatureFrames):
 
 
 def predict_ml(model, features: FeatureFrames, transition_penalty: float = DEFAULT_TRANSITION_PENALTY):
-    root, quality, nochord, _boundary = _forward(model, features)
+    root, quality, nochord, _boundary = forward_probabilities(model, features)
     return viterbi_decode(features.times, root, quality, nochord, features.hop_seconds, transition_penalty)
 
 
 def predict_hybrid(model, features: FeatureFrames, bass_weight: float = 0.35,
                    transition_penalty: float = DEFAULT_TRANSITION_PENALTY):
     """ML probabilities + existing bass-root evidence -> Viterbi decode."""
-    root, quality, nochord, _boundary = _forward(model, features)
+    root, quality, nochord, _boundary = forward_probabilities(model, features)
     # Bass chroma (12) is already aligned to root pitch classes 0..11; renormalize
     # the blend back to a distribution so the decoder's log-emissions stay valid.
     blended_root = root + bass_weight * features.bass_chroma

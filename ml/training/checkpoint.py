@@ -44,7 +44,10 @@ def build_metadata(config: dict, dataset_manifest_hash: str, seed: int,
         "parameterCount": param_count,
         "checksum": state_dict_checksum(model),
         "createdAt": datetime.now(timezone.utc).isoformat(),
-        "disclaimer": "Synthetic pipeline-validation model. Not representative of commercial music.",
+        "disclaimer": config.get(
+            "artifactDisclaimer",
+            "Experimental research model. Not approved for production or representative full-band use.",
+        ),
     }
 
 

@@ -39,7 +39,22 @@ def load_audio_mono(path: str | Path, target_sr: int = 22050) -> tuple[np.ndarra
         samples, sr = librosa.load(str(path), sr=target_sr, mono=True)
         return samples.astype(np.float32), int(sr)
     except ImportError:
-        return read_wav_mono(path)
+        samples, sample_rate = read_wav_mono(path)
+        if sample_rate == target_sr:
+            return samples, sample_rate
+        # Dependency-light deterministic fallback. The app feature contract is
+        # sample-rate-sensitive, so silently retaining 44.1 kHz here would make
+        # local/CI training consume a different representation than inference.
+        output_length = max(1, round(len(samples) * target_sr / sample_rate))
+        source_positions = np.arange(len(samples), dtype=np.float64)
+        target_positions = np.linspace(
+            0.0,
+            max(0.0, len(samples) - 1.0),
+            output_length,
+            dtype=np.float64,
+        )
+        resampled = np.interp(target_positions, source_positions, samples).astype(np.float32)
+        return resampled, target_sr
 
 
 def frames_for_track(track: Track, audio_feature: str = "numpy-chroma-v1", **audio_kwargs) -> FeatureFrames:
