@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "baselineId": "temporal-harmony-v2-v1-baseline-20260726",
+  "purpose": "Frozen pre-v2 reference. p00 is historical validation evidence and must not be used for v2 model selection.",
+  "training": {
+    "modelVersion": "temporal-baseline-real-v1",
+    "trainingSeed": 20260723,
+    "declaredFeatureVersion": "numpy-chroma-v1",
+    "actualFeatureVersion": "harmony-features-v1",
+    "datasetManifestHash": "c2ab56a9473a92f5d1e708a42128cd921dbffaa2d602b4877b3b89be634f0c6c",
+    "stateDictChecksum": "a8719a40942eb8afe700fd7ff003353abbc1444344a0eb4c74e2a35a8b51cb34",
+    "checkpointFileSha256": "a1629d3c04ae2b615eb769bd93119c38c991b1cb008595bb459ffdd753f9f9d2",
+    "onnxFileSha256": "a25f48d56df6dd7dc9b67ae471f885fcd16682fc1d8e4ece855eb030904819ea",
+    "parameterCount": 283505,
+    "bestEpoch": 11,
+    "epochsRun": 20,
+    "bestDevLoss": 2.77243,
+    "trainSeconds": 265.41,
+    "bestEpochLosses": {
+      "train": {
+        "root": 0.9974308594067891,
+        "quality": 0.5152534492810568,
+        "nochord": 0.00006653521374876921,
+        "boundary": 0.5155230061213175,
+        "total": 2.5437968571980796
+      },
+      "development": {
+        "root": 1.1505844444036484,
+        "quality": 0.5558712407946587,
+        "nochord": 0.00006847386703157099,
+        "boundary": 0.5329505056142807,
+        "total": 2.77242511510849
+      }
+    }
+  },
+  "precursorArtifact": {
+    "description": "Earlier numpy-chroma real-v1 training artifact; not the application export scored in the TypeScript parity reports.",
+    "stateDictChecksum": "48076510ac3d392a10edb423b97e7bf63025623c195f61aa919f64fca976d19a",
+    "datasetManifestHash": "d61ab8efa8370cc5965a7ccd750c73bfe65e345a45ee7350ddf7b418c74ea6d1",
+    "bestEpoch": 9,
+    "bestDevLoss": 2.8134
+  },
+  "applicationExport": {
+    "modelVersion": "temporal-baseline-real-v1",
+    "modelChecksum": "a8719a40942eb8afe700fd7ff003353abbc1444344a0eb4c74e2a35a8b51cb34",
+    "featureVersion": "harmony-features-v1",
+    "weightsFileSha256": "a96effa3987735e0b370d3ed9d4b00cf21bafc691119b2c92289c84e4fad470c",
+    "typescriptParityTest": "tests/learnedHarmony.tcn.test.ts"
+  },
+  "historicalValidation": {
+    "dataset": "GuitarSet 1.1.0",
+    "officialDistributionRecord": "zenodo-3371780",
+    "performer": "guitarset-p00",
+    "splitRole": "validation",
+    "usedForV1TransitionSelection": true,
+    "eligibleForV2ModelSelection": false,
+    "trackCount": 60,
+    "evaluatedDurationSeconds": 1828.0731972789117,
+    "captures": {
+      "audio_mono-mic": {
+        "rootAccuracy": 0.552902,
+        "majorMinorAccuracy": 0.480422,
+        "detailedAccuracy": 0.448716,
+        "fragmentationRate": 0.631944,
+        "regionsPerMinute": 19.922622,
+        "meanAbsoluteBoundaryErrorMs": 1054.731,
+        "medianAbsoluteBoundaryErrorMs": 416.977,
+        "boundariesWithin100ms": 0.16666666666666666,
+        "boundariesWithin250ms": 0.33484848484848484,
+        "boundariesWithin500ms": 0.5545454545454546,
+        "boundariesWithin1000ms": 0.7196969696969697
+      },
+      "audio_mono-pickup_mix": {
+        "rootAccuracy": 0.546148,
+        "majorMinorAccuracy": 0.471132,
+        "detailedAccuracy": 0.43958,
+        "fragmentationRate": 0.6375,
+        "regionsPerMinute": 19.397479,
+        "meanAbsoluteBoundaryErrorMs": 977.736,
+        "medianAbsoluteBoundaryErrorMs": 431.562,
+        "boundariesWithin100ms": 0.15757575757575756,
+        "boundariesWithin250ms": 0.32727272727272727,
+        "boundariesWithin500ms": 0.5378787878787878,
+        "boundariesWithin1000ms": 0.7045454545454546
+      }
+    }
+  },
+  "limitations": [
+    "The application checkpoint metadata retained the config's numpy-chroma-v1 label even though the export command stamped the actual harmony-features-v1 pipeline; both values are recorded explicitly.",
+    "The original metadata disclaimer incorrectly calls the real-data model synthetic; this snapshot preserves the artifact while documenting the discrepancy.",
+    "p00 was already used for validation and ML-only transition-penalty selection, so it is not an untouched v2 test set.",
+    "No legally available untouched full-band raw-audio benchmark is configured."
+  ]
+}

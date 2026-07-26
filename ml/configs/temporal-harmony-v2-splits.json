@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "splitId": "temporal-harmony-v2-guitarset-lopo-20260726",
+  "seed": 20260726,
+  "strategy": "leave-one-performer-out",
+  "datasetIdentity": {
+    "datasetId": "guitarset-zenodo-3371780-v1.1.0",
+    "officialDistributionRecord": "zenodo-3371780",
+    "annotationArchiveMd5": "b39b78e63d3446f2e54ddb7a54df9b10",
+    "microphoneArchiveMd5": "275966d6610ac34999b58426beb119c3",
+    "pickupMixArchiveMd5": "aecce79f425a44e2055e46f680e10f6a",
+    "portableAnnotationManifestChecksum": "36c928feb1efa474031927513d10d0c4a9b7037c2f8d6f56456d88f146c020ed",
+    "modelSelectionAnnotationManifestChecksum": "01ea5a6e628bc7b1d0b2cbbe51719f2052af2e90d0e3fde8d1834d9f25782ced",
+    "manifestChecksumMethod": "sha256 of sorted portable track ID, performer ID, duration, and chord-region JSON"
+  },
+  "modelSelectionTrackCount": 300,
+  "modelSelectionDurationSecondsPerCapture": 9140.364,
+  "modelSelectionTrackCaptureCount": 600,
+  "groupKeys": [
+    "performerId",
+    "performanceId"
+  ],
+  "capturePolicy": "Microphone and pickup-mix captures of a performance always stay in the same fold.",
+  "modelSelectionPerformers": [
+    {
+      "performerId": "guitarset-p01",
+      "v1Role": "training",
+      "trackCount": 60,
+      "durationSecondsPerCapture": 1828.0728
+    },
+    {
+      "performerId": "guitarset-p02",
+      "v1Role": "training",
+      "trackCount": 60,
+      "durationSecondsPerCapture": 1828.0728
+    },
+    {
+      "performerId": "guitarset-p03",
+      "v1Role": "training",
+      "trackCount": 60,
+      "durationSecondsPerCapture": 1828.0728
+    },
+    {
+      "performerId": "guitarset-p04",
+      "v1Role": "development",
+      "trackCount": 60,
+      "durationSecondsPerCapture": 1828.0728
+    },
+    {
+      "performerId": "guitarset-p05",
+      "v1Role": "training",
+      "trackCount": 60,
+      "durationSecondsPerCapture": 1828.0728
+    }
+  ],
+  "excludedFromModelSelection": [
+    {
+      "performerId": "guitarset-p00",
+      "reason": "Historical v1 validation performer; also used to select the ML-only transition penalty.",
+      "trackCount": 60,
+      "durationSecondsPerCapture": 1828.0728
+    }
+  ],
+  "folds": [
+    {
+      "foldId": "lopo-p01",
+      "trainPerformers": [
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p04",
+        "guitarset-p05"
+      ],
+      "validationPerformers": [
+        "guitarset-p01"
+      ]
+    },
+    {
+      "foldId": "lopo-p02",
+      "trainPerformers": [
+        "guitarset-p01",
+        "guitarset-p03",
+        "guitarset-p04",
+        "guitarset-p05"
+      ],
+      "validationPerformers": [
+        "guitarset-p02"
+      ]
+    },
+    {
+      "foldId": "lopo-p03",
+      "trainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p04",
+        "guitarset-p05"
+      ],
+      "validationPerformers": [
+        "guitarset-p03"
+      ]
+    },
+    {
+      "foldId": "lopo-p04",
+      "trainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p05"
+      ],
+      "validationPerformers": [
+        "guitarset-p04"
+      ]
+    },
+    {
+      "foldId": "lopo-p05",
+      "trainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p04"
+      ],
+      "validationPerformers": [
+        "guitarset-p05"
+      ]
+    }
+  ],
+  "finalEvaluationGate": {
+    "datasetId": "external-full-band-raw-audio-tbd",
+    "status": "unavailable",
+    "requiredProperties": [
+      "legally available raw audio",
+      "timed chord annotations",
+      "artist separation from v2 training and model selection",
+      "multiple genres and production styles",
+      "no-chord intervals"
+    ]
+  },
+  "limitations": [
+    "Every non-p00 GuitarSet performer overlaps the v1 fitting domain, so this is integration calibration rather than independent model evaluation.",
+    "p00 is available only for a single post-freeze historical comparison and cannot select v2 architecture, losses, smoothing, or decoding settings."
+  ]
+}
