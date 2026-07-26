@@ -372,6 +372,12 @@ describe("TypeScript hybrid parity evaluation", () => {
       perTrackCsv: "hybrid-accuracy-pickup-mix-per-track.csv",
       disagreements: "hybrid-accuracy-pickup-mix-disagreements.json",
     });
+    expect(reportFileNames("calibrated-mono-mic")).toEqual({
+      json: "hybrid-calibrated-mono-mic.json",
+      markdown: "hybrid-calibrated-mono-mic.md",
+      perTrackCsv: "hybrid-calibrated-mono-mic-per-track.csv",
+      disagreements: "hybrid-calibrated-mono-mic-disagreements.json",
+    });
   });
 
   it("rejects path-like output tags", () => {

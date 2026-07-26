@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-before-p00-validation",
+  "frozenAt": "2026-07-26T10:09:42.302Z",
+  "calibrationReport": "reports/hybrid-calibration-search.json",
+  "calibrationPerformers": [
+    "guitarset-p01",
+    "guitarset-p02",
+    "guitarset-p03",
+    "guitarset-p04",
+    "guitarset-p05"
+  ],
+  "sealedFinalValidationPerformer": "guitarset-p00",
+  "candidateId": "current-adaptive",
+  "settings": {
+    "ruleObservationWeight": 1,
+    "learnedChordWeight": 0.35,
+    "learnedBoundaryWeight": 0.25,
+    "bassRootWeight": 0.25,
+    "allowLearnedBoundaryBackdating": false,
+    "minimumLearnedConfidence": 0.6,
+    "maximumLearnedEntropy": 0.75,
+    "protectRuleConfidenceAbove": 0.72,
+    "maximumLearnedWeightFullMix": 0.3,
+    "maximumLearnedWeightGuitarOnly": 0.55
+  },
+  "adaptiveWeighting": true,
+  "probabilityCalibration": {
+    "kind": "none",
+    "value": 1
+  },
+  "settingsIdentity": "5e27e83e44d6b489dc06e86f73ce41b77a2e101d25e950f6065a1812b9f5d30f",
+  "changedFromCurrent": false,
+  "selectionReason": "No candidate satisfied all frozen stability constraints; the current experimental defaults are retained and the Pareto frontier is reported."
+}

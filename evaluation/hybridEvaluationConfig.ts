@@ -127,7 +127,9 @@ export function reportFileNames(outputTag?: string): HybridReportFileNames {
       disagreements: "hybrid-disagreements.json",
     };
   }
-  const base = `hybrid-accuracy-${tag}`;
+  const base = tag.startsWith("calibrated-")
+    ? `hybrid-${tag}`
+    : `hybrid-accuracy-${tag}`;
   return {
     json: `${base}.json`,
     markdown: `${base}.md`,

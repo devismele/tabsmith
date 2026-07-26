@@ -594,6 +594,7 @@ export async function runHybridComparison(
   configPath: string,
   outputOverride?: string,
   environment: EvaluationEnvironment = process.env,
+  hybridSettingsOverride?: Partial<HybridHarmonySettings>,
 ): Promise<ReturnType<typeof buildHybridAccuracyReport>> {
   const config = JSON.parse(await readFile(configPath, "utf8")) as EvaluationConfig;
   validateConfig(config);
@@ -614,7 +615,9 @@ export async function runHybridComparison(
     modelChecksum: LEARNED_MODEL_CHECKSUM,
     featureVersion: FEATURE_VERSION,
   };
-  const settings = resolvedHybridSettings(config.hybridSettings);
+  const settings = resolvedHybridSettings(
+    hybridSettingsOverride ?? config.hybridSettings,
+  );
   const scoredTracks = [];
   const allTracks = loadedDatasets.flatMap((dataset) =>
     dataset.tracks.map((track) => ({
