@@ -1229,7 +1229,6 @@ function markdownReport(report: Record<string, any>): string {
     report.selection.reason,
     "",
     "p00 was not loaded or scored by this command.",
-    "",
   ];
   return `${lines.join("\n")}\n`;
 }

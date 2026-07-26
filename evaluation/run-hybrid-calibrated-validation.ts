@@ -93,7 +93,6 @@ function markdown(summary: any): string {
     "",
     "The final validation was executed only after the non-p00 settings freeze.",
     "The original benchmark reports remain unchanged.",
-    "",
   ];
   return `${lines.join("\n")}\n`;
 }

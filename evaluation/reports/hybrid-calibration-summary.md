@@ -54,4 +54,3 @@ Fold-calibrated ECE: 0.0215
 No candidate satisfied all frozen stability constraints; the current experimental defaults are retained and the Pareto frontier is reported.
 
 p00 was not loaded or scored by this command.
-
