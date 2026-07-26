@@ -20,7 +20,10 @@ import json
 import os
 import subprocess
 import sys
+import traceback
 from collections import defaultdict
+from contextlib import redirect_stdout
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -44,6 +47,27 @@ def _read_json(path: str | Path) -> dict[str, Any]:
 def _portable_checksum(payload: Any) -> str:
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
+
+
+def _write_json_atomic(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f"{path.name}.tmp")
+    temporary.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def _load_completed_run(path: Path, expected_identity: dict[str, Any]) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    payload = _read_json(path)
+    if payload.get("runIdentity") != expected_identity:
+        raise ValueError(
+            f"{expected_identity['foldId']}/{expected_identity['candidateId']}: "
+            "existing completed result has a different frozen identity"
+        )
+    if payload.get("status") != "completed" or not isinstance(payload.get("result"), dict):
+        return None
+    return payload["result"]
 
 
 def validate_split_manifest(manifest: dict[str, Any]) -> None:
@@ -587,6 +611,24 @@ def run_ablation(
     feature_map = _extract_feature_map(tracks, base_config["features"]["pipelineVersion"])
     run_dir.mkdir(parents=True, exist_ok=True)
     fold_results = []
+    failed_runs: list[dict[str, Any]] = []
+    selected_fold_ids = {
+        fold["foldId"]
+        for fold in split_manifest["folds"]
+        if not selected_folds or fold["foldId"] in selected_folds
+    }
+    selected_candidate_ids = {
+        candidate["id"]
+        for candidate in ablation_manifest["candidates"]
+        if not selected_candidates or candidate["id"] in selected_candidates
+    }
+    expected_run_count = len(selected_fold_ids) * len(selected_candidate_ids)
+    full_frozen_matrix = (
+        selected_fold_ids == {fold["foldId"] for fold in split_manifest["folds"]}
+        and selected_candidate_ids == {
+            candidate["id"] for candidate in ablation_manifest["candidates"]
+        }
+    )
 
     for fold in split_manifest["folds"]:
         if selected_folds and fold["foldId"] not in selected_folds:
@@ -619,38 +661,135 @@ def run_ablation(
                 config["training"]["epochs"] = epochs_override
             checkpoint_dir = run_dir / fold["foldId"] / candidate["id"]
             checkpoint_path = checkpoint_dir / "model.pt"
-            train_samples = _training_samples(
-                train_tracks,
-                feature_map,
-                config,
-                augmentation_manifest if candidate.get("useAugmentation", False) else None,
-            )
-            dev_samples = _development_samples(validation_tracks, feature_map, config)
-            summary = fit_samples(config, train_samples, dev_samples, checkpoint_path, quiet=False)
-            model, metadata = load_checkpoint(checkpoint_path)
-            metrics = _evaluate_model(model, validation_tracks, feature_map, config)
-            first_features = feature_map[validation_tracks[0].track_id].stacked()
-            python_parity = _python_onnx_parity(model, checkpoint_path.with_suffix(".onnx"), first_features)
-            typescript_parity = _typescript_parity(
-                checkpoint_path,
-                checkpoint_dir / "model.weights.json",
-            )
-            if not python_parity["passed"] or not typescript_parity["passed"]:
-                raise RuntimeError(f"{fold['foldId']}/{candidate['id']}: export parity failed")
-            fold_results.append({
+            training_config_checksum = _portable_checksum(config)
+            run_identity = {
                 "foldId": fold["foldId"],
                 "candidateId": candidate["id"],
-                "training": {
-                    "trainSampleCount": len(train_samples),
-                    "developmentSampleCount": len(dev_samples),
-                    "bestEpoch": summary["bestEpoch"],
-                    "bestDevLoss": summary["bestDevLoss"],
-                    "epochsRun": summary["epochsRun"],
-                    "stateDictChecksum": metadata["checksum"],
-                },
-                "metrics": metrics,
-                "parity": {"pythonOnnx": python_parity, "typescript": typescript_parity},
+                "trainingConfigChecksum": training_config_checksum,
+                "seed": int(config["seed"]),
+                "epochsOverride": epochs_override,
+            }
+            result_path = checkpoint_dir / "run-result.json"
+            completed_result = _load_completed_run(result_path, run_identity)
+            if completed_result is not None:
+                print(f"resume: {fold['foldId']}/{candidate['id']} already completed")
+                fold_results.append(completed_result)
+                continue
+
+            checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            status_path = checkpoint_dir / "run-status.json"
+            log_path = checkpoint_dir / "training.log"
+            _write_json_atomic(status_path, {
+                "schemaVersion": 1,
+                "status": "running",
+                "runIdentity": run_identity,
+                "startedAt": datetime.now(timezone.utc).isoformat(),
             })
+            print(f"run: {fold['foldId']}/{candidate['id']}")
+            try:
+                with log_path.open("a", encoding="utf-8") as log_handle, redirect_stdout(log_handle):
+                    print(
+                        f"starting {fold['foldId']}/{candidate['id']} "
+                        f"at {datetime.now(timezone.utc).isoformat()}"
+                    )
+                    train_samples = _training_samples(
+                        train_tracks,
+                        feature_map,
+                        config,
+                        augmentation_manifest if candidate.get("useAugmentation", False) else None,
+                    )
+                    dev_samples = _development_samples(validation_tracks, feature_map, config)
+                    summary = fit_samples(
+                        config,
+                        train_samples,
+                        dev_samples,
+                        checkpoint_path,
+                        quiet=False,
+                    )
+                    model, metadata = load_checkpoint(checkpoint_path)
+                    metrics = _evaluate_model(model, validation_tracks, feature_map, config)
+                    first_features = feature_map[validation_tracks[0].track_id].stacked()
+                    python_parity = _python_onnx_parity(
+                        model,
+                        checkpoint_path.with_suffix(".onnx"),
+                        first_features,
+                    )
+                    typescript_parity = _typescript_parity(
+                        checkpoint_path,
+                        checkpoint_dir / "model.weights.json",
+                    )
+                    if not python_parity["passed"] or not typescript_parity["passed"]:
+                        raise RuntimeError(
+                            f"{fold['foldId']}/{candidate['id']}: export parity failed"
+                        )
+                    result = {
+                        "foldId": fold["foldId"],
+                        "candidateId": candidate["id"],
+                        "trainingConfigChecksum": training_config_checksum,
+                        "training": {
+                            "trainSampleCount": len(train_samples),
+                            "developmentSampleCount": len(dev_samples),
+                            "bestEpoch": summary["bestEpoch"],
+                            "bestDevLoss": summary["bestDevLoss"],
+                            "epochsRun": summary["epochsRun"],
+                            "trainSeconds": summary["trainSeconds"],
+                            "stateDictChecksum": metadata["checksum"],
+                            "datasetManifestHash": metadata["datasetManifestHash"],
+                        },
+                        "metrics": metrics,
+                        "parity": {
+                            "pythonOnnx": python_parity,
+                            "typescript": typescript_parity,
+                        },
+                    }
+                    print(
+                        f"completed {fold['foldId']}/{candidate['id']} "
+                        f"at {datetime.now(timezone.utc).isoformat()}"
+                    )
+                _write_json_atomic(result_path, {
+                    "schemaVersion": 1,
+                    "status": "completed",
+                    "runIdentity": run_identity,
+                    "result": result,
+                })
+                _write_json_atomic(status_path, {
+                    "schemaVersion": 1,
+                    "status": "completed",
+                    "runIdentity": run_identity,
+                    "completedAt": datetime.now(timezone.utc).isoformat(),
+                    "stateDictChecksum": result["training"]["stateDictChecksum"],
+                })
+                fold_results.append(result)
+            except Exception as error:
+                with log_path.open("a", encoding="utf-8") as log_handle:
+                    traceback.print_exc(file=log_handle)
+                message = str(error)
+                for local_path in (
+                    str(Path.home()),
+                    str(annotation_dir),
+                    *(str(path) for path in audio_dirs.values()),
+                ):
+                    if local_path:
+                        message = message.replace(local_path, "[local-path]")
+                failure = {
+                    "foldId": fold["foldId"],
+                    "candidateId": candidate["id"],
+                    "trainingConfigChecksum": training_config_checksum,
+                    "errorType": type(error).__name__,
+                    "message": message,
+                }
+                failed_runs.append(failure)
+                _write_json_atomic(status_path, {
+                    "schemaVersion": 1,
+                    "status": "failed",
+                    "runIdentity": run_identity,
+                    "failedAt": datetime.now(timezone.utc).isoformat(),
+                    "failure": failure,
+                })
+                print(
+                    f"failed: {fold['foldId']}/{candidate['id']} "
+                    f"({type(error).__name__})"
+                )
 
     # Gate only complete candidate sets against the same-fold v1 reference.
     gate_results = []
@@ -681,10 +820,24 @@ def run_ablation(
                 ),
             })
 
+    matrix_complete = len(fold_results) == expected_run_count and not failed_runs
     report = {
         **plan,
-        "status": "completed",
-        "validForSelection": epochs_override is None,
+        "status": "completed" if matrix_complete else "incomplete",
+        "validForSelection": (
+            epochs_override is None
+            and full_frozen_matrix
+            and matrix_complete
+        ),
+        "expectedRunCount": expected_run_count,
+        "completedRunCount": len(fold_results),
+        "failedRunCount": len(failed_runs),
+        "failedRuns": failed_runs,
+        "resumePolicy": (
+            "Completed candidate-fold results are reused only when their fold, "
+            "candidate, seed, epoch mode, and training-config checksum match. "
+            "Interrupted or failed individual runs restart from epoch zero."
+        ),
         "loadedPerformanceCount": expected_per_capture,
         "loadedTrackCaptureCount": len(tracks),
         "p00UsedForSelection": False,
@@ -764,9 +917,14 @@ def main() -> None:
     )
     output = Path(args.output).resolve() if args.output else Path(args.run_dir).resolve() / "ablation-report.json"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    print(f"Temporal v2 ablation completed: {len(report['foldResults'])} candidate-fold runs")
+    _write_json_atomic(output, report)
+    print(
+        f"Temporal v2 ablation {report['status']}: "
+        f"{report['completedRunCount']}/{report['expectedRunCount']} candidate-fold runs"
+    )
     print(f"Report: {output}")
+    if report["status"] != "completed":
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

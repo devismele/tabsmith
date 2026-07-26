@@ -12,6 +12,8 @@ import torch
 
 from ml.evaluation.probability_smoothing import smooth_learned_probabilities
 from ml.evaluation.temporal_v2_ablation import (
+    _load_completed_run,
+    _write_json_atomic,
     build_ablation_plan,
     candidate_config,
     evaluate_selection_gates,
@@ -268,6 +270,28 @@ class ProtocolTests(unittest.TestCase):
         before = copy.deepcopy(self.base)
         candidate_config(self.base, self.ablations["candidates"][0])
         self.assertEqual(self.base, before)
+
+    def test_completed_run_resume_requires_exact_identity(self):
+        identity = {
+            "foldId": "lopo-p01",
+            "candidateId": "v1-objective",
+            "trainingConfigChecksum": "abc",
+            "seed": 20260726,
+            "epochsOverride": None,
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            result_path = Path(temporary) / "run-result.json"
+            expected_result = {"foldId": "lopo-p01", "candidateId": "v1-objective"}
+            _write_json_atomic(result_path, {
+                "schemaVersion": 1,
+                "status": "completed",
+                "runIdentity": identity,
+                "result": expected_result,
+            })
+            self.assertEqual(_load_completed_run(result_path, identity), expected_result)
+            changed = {**identity, "trainingConfigChecksum": "different"}
+            with self.assertRaises(ValueError):
+                _load_completed_run(result_path, changed)
 
     def test_fragmentation_gate_cannot_be_bypassed_by_accuracy(self):
         baseline = {
