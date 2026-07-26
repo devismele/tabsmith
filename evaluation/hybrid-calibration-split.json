@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "seed": 20260726,
+  "strategy": "leave-one-performer-out",
+  "captures": [
+    "audio_mono-mic",
+    "audio_mono-pickup_mix"
+  ],
+  "finalValidationPerformer": "guitarset-p00",
+  "calibrationPerformers": [
+    {
+      "performerId": "guitarset-p01",
+      "learnedModelRole": "training"
+    },
+    {
+      "performerId": "guitarset-p02",
+      "learnedModelRole": "training"
+    },
+    {
+      "performerId": "guitarset-p03",
+      "learnedModelRole": "training"
+    },
+    {
+      "performerId": "guitarset-p04",
+      "learnedModelRole": "development"
+    },
+    {
+      "performerId": "guitarset-p05",
+      "learnedModelRole": "training"
+    }
+  ],
+  "folds": [
+    {
+      "foldId": "lopo-p01",
+      "validationPerformers": ["guitarset-p01"],
+      "calibrationTrainPerformers": [
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p04",
+        "guitarset-p05"
+      ]
+    },
+    {
+      "foldId": "lopo-p02",
+      "validationPerformers": ["guitarset-p02"],
+      "calibrationTrainPerformers": [
+        "guitarset-p01",
+        "guitarset-p03",
+        "guitarset-p04",
+        "guitarset-p05"
+      ]
+    },
+    {
+      "foldId": "lopo-p03",
+      "validationPerformers": ["guitarset-p03"],
+      "calibrationTrainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p04",
+        "guitarset-p05"
+      ]
+    },
+    {
+      "foldId": "lopo-p04",
+      "validationPerformers": ["guitarset-p04"],
+      "calibrationTrainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p05"
+      ]
+    },
+    {
+      "foldId": "lopo-p05",
+      "validationPerformers": ["guitarset-p05"],
+      "calibrationTrainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p04"
+      ]
+    }
+  ],
+  "notes": [
+    "p00 is sealed from calibration search and may be evaluated only after settings are frozen.",
+    "Microphone and pickup-mix captures of a performance always inherit the same performer fold.",
+    "All non-p00 performers overlap the learned-model fitting domain: p01/p02/p03/p05 training, p04 development."
+  ]
+}

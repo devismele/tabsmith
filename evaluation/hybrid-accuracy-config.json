@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "sampleRate": 22050,
+  "outputDirectory": "reports",
+  "includeLegacyRegionHybrid": true,
+  "combineSourceTypes": false,
+  "timeoutMs": 5000,
+  "mlOnlyTransitionPenalty": 4,
+  "bootstrap": {
+    "seed": 20260725,
+    "iterations": 2000
+  },
+  "shortRegionThresholdSeconds": 0.5,
+  "datasets": [
+    {
+      "datasetIdentifier": "guitarset-zenodo-1492449",
+      "officialDistributionRecord": "zenodo-3371780",
+      "datasetVersion": "1.1.0",
+      "annotationArchiveMd5": "b39b78e63d3446f2e54ddb7a54df9b10",
+      "audioArchiveMd5ByCapture": {
+        "audio_mono-mic": "275966d6610ac34999b58426beb119c3",
+        "audio_mono-pickup_mix": "aecce79f425a44e2055e46f680e10f6a"
+      },
+      "captureType": "audio_mono-mic",
+      "manifestPath": "../ml/datasets/dataset_manifest.json",
+      "annotationDirectory": "../ml/datasets/guitarset/annotations",
+      "splitName": "validation",
+      "splitStrategy": "artist-hash",
+      "splitSeed": 20260723,
+      "heldOutArtists": [
+        "guitarset-p00"
+      ],
+      "sourceType": "solo-guitar",
+      "sourceMode": "guitar-focused",
+      "expectedAnnotationCount": 360,
+      "expectedTrackCount": 60,
+      "runAblations": true
+    }
+  ]
+}

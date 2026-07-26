@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  analyzeChordProgression,
   classifyChordEvidence,
+  createHarmonyObservations,
+  decodeHarmonyObservations,
   decodeReducedLatencySequence,
   estimateKeyFromChroma,
   smoothChordObservations,
@@ -454,5 +457,30 @@ describe("chord sequence smoothing", () => {
     expect(smoothChordObservationsReducedLatency(observations).regions.map(
       (region) => region.name,
     )).toEqual(["E"]);
+  });
+});
+
+describe("staged rule observation API", () => {
+  it("is exactly equivalent to the existing rule-only entry point", () => {
+    const sampleRate = 8000;
+    const samples = new Float32Array(sampleRate * 2);
+    for (let index = 0; index < samples.length; index += 1) {
+      const time = index / sampleRate;
+      samples[index] = 0.2 * (
+        Math.sin(2 * Math.PI * 196 * time)
+        + Math.sin(2 * Math.PI * 246.94 * time)
+        + Math.sin(2 * Math.PI * 293.66 * time)
+      );
+    }
+    const beatGrid = { bpm: null, beatDuration: null, phase: 0 };
+    const direct = analyzeChordProgression(samples, sampleRate, beatGrid);
+    const staged = decodeHarmonyObservations(createHarmonyObservations(
+      samples,
+      sampleRate,
+      {},
+      {},
+      beatGrid,
+    ));
+    expect(staged).toEqual(direct);
   });
 });

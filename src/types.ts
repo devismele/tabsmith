@@ -317,6 +317,14 @@ export type AnalysisResult = {
   chordAnalysis: ChordAnalysisResult;
   engine: "basic-pitch" | "dsp";
   separation: "guitar" | "none";
+  /** Present for a hybrid request, including exact rule fallback diagnostics. */
+  hybridEngine?: {
+    usedLearned: boolean;
+    fallbackReason?: string;
+    diagnostics?: HybridDiagnostics;
+  };
 };
 
 export type HarmonyResult = Omit<AnalysisResult, "notes" | "noteAnalysis" | "engine" | "separation">;
+export type ChordEngine = "rule" | "hybrid";
+import type { HybridDiagnostics } from "./learnedHarmony/types";

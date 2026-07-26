@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
+  resolveSettings,
+  type ChordObservation,
+  type HarmonyObservationPackage,
+} from "../src/chordAnalysis";
+import {
+  HYBRID_HARMONY_BUILD_ENABLED,
+  resolveChordEngineSelection,
+} from "../src/learnedHarmony/buildGate";
+import type {
+  LearnedHarmonyProvider,
+  LearnedHarmonyResponse,
+} from "../src/learnedHarmony/types";
+import {
   CONSERVATIVE_HYBRID_SETTINGS,
   CONTRACT_VERSION,
   DisabledLearnedHarmonyProvider,
@@ -53,6 +66,48 @@ const RULE_BASED: RuleBasedHarmonyEvidence = {
   ],
 };
 
+function ruleObservation(
+  start: number,
+  bestChord: string,
+  secondBestChord: string,
+): ChordObservation {
+  return {
+    start,
+    end: start + 1,
+    bestChord,
+    bestScore: 0.55,
+    secondBestChord,
+    secondBestScore: 0.5,
+    confidence: 0.5,
+    scoreMargin: 0.05,
+    uncertain: false,
+    candidateScores: { [bestChord]: 0.55, [secondBestChord]: 0.5 },
+    noChordScore: -0.5,
+    seventhEvidence: 0,
+    boundaryStrength: start ? 0.86 : 0,
+  };
+}
+
+const OBSERVATION_PACKAGE: HarmonyObservationPackage = {
+  observations: [
+    ruleObservation(0, "C", "Am"),
+    ruleObservation(1, "Am", "C"),
+  ],
+  rawFrames: [],
+  beatGrid: { bpm: 60, beatDuration: 1, phase: 0 },
+  keyEstimate: null,
+  duration: 2,
+  settings: resolveSettings({
+    minimumChordDurationSeconds: 1,
+    minimumChordDurationBeats: 1,
+    requiredConsecutiveWindows: 1,
+  }),
+  harmonyEvidenceSource: "full-mix",
+  beatAlignedBoundaries: 1,
+  learnedFeatures: featureSource(20),
+};
+RULE_BASED.observationPackage = OBSERVATION_PACKAGE;
+
 describe("learned harmony: disabled by default", () => {
   it("resolves the disabled provider with no flag (app works with no ML deps/models)", async () => {
     const provider = resolveLearnedHarmonyProvider();
@@ -63,14 +118,27 @@ describe("learned harmony: disabled by default", () => {
 
   it("is disabled unless the hidden flag is set", () => {
     expect(isLearnedHarmonyEnabled()).toBe(false);
-    expect(isLearnedHarmonyEnabled({ env: { TABSMITH_EXPERIMENTAL_LEARNED_HARMONY: "1" } })).toBe(true);
+    expect(isLearnedHarmonyEnabled({
+      env: { TABSMITH_EXPERIMENTAL_LEARNED_HARMONY: "1" },
+    })).toBe(false);
+    expect(isLearnedHarmonyEnabled({
+      env: { TABSMITH_EXPERIMENTAL_LEARNED_HARMONY: "1" },
+      isReleaseBuild: false,
+    })).toBe(true);
   });
 
   it("never exposes the dev control in a release build", () => {
     const env = { TABSMITH_EXPERIMENTAL_LEARNED_HARMONY: "1" };
     expect(isLearnedHarmonyEnabled({ env, isReleaseBuild: true })).toBe(false);
     expect(describeDevControl({ env, isReleaseBuild: true }).visible).toBe(false);
-    expect(describeDevControl({ env }).visible).toBe(true);
+    expect(describeDevControl({ env, isReleaseBuild: false }).visible).toBe(true);
+  });
+
+  it("sanitizes direct hybrid selection when the compile-time gate is closed", () => {
+    expect(HYBRID_HARMONY_BUILD_ENABLED).toBe(false);
+    expect(resolveChordEngineSelection("hybrid", false)).toBe("rule");
+    expect(resolveChordEngineSelection("onehotchord", false)).toBe("rule");
+    expect(resolveChordEngineSelection("hybrid", true)).toBe("hybrid");
   });
 });
 
@@ -145,8 +213,9 @@ describe("learned harmony: hybrid decoder + fallback", () => {
     const result = await runHybridHarmony({ ...base, provider: new MockLearnedHarmonyProvider(), request: makeRequest() });
     expect(result.engine).toBe("hybrid-experimental");
     expect(result.usedLearned).toBe(true);
-    expect(result.regions).toHaveLength(RULE_BASED.regions.length);
-    expect(result.diagnostics.comparison.length).toBe(RULE_BASED.regions.length);
+    expect(result.regions.length).toBeGreaterThan(0);
+    expect(result.diagnostics.comparison.length)
+      .toBe(OBSERVATION_PACKAGE.observations.length);
     expect(result.diagnostics.modelVersion).toBe("mock-temporal-baseline-v0");
   });
 
@@ -158,12 +227,33 @@ describe("learned harmony: hybrid decoder + fallback", () => {
     expect(result.regions).toBe(RULE_BASED.regions);
   });
 
+  it("falls back exactly when the provider is unavailable", async () => {
+    const result = await runHybridHarmony({
+      ...base,
+      provider: new DisabledLearnedHarmonyProvider(),
+      request: makeRequest(),
+    });
+    expect(result.fallbackReason).toBe("provider-unavailable");
+    expect(result.regions).toBe(RULE_BASED.regions);
+  });
+
+  it("does not run a provider without a feature package", async () => {
+    const result = await runHybridHarmony({
+      ...base,
+      provider: new MockLearnedHarmonyProvider(),
+      request: null,
+    });
+    expect(result.fallbackReason).toBe("no-feature-package");
+    expect(result.regions).toBe(RULE_BASED.regions);
+  });
+
   it("falls back on timeout without losing the job", async () => {
     const result = await runHybridHarmony({
       ...base, provider: new MockLearnedHarmonyProvider({ latencyMs: 200 }), request: makeRequest(), timeoutMs: 5,
     });
     expect(result.engine).toBe("rule-based");
     expect(result.fallbackReason).toBe("timeout");
+    expect(result.regions).toBe(RULE_BASED.regions);
   });
 
   it("falls back on provider failure", async () => {
@@ -172,6 +262,7 @@ describe("learned harmony: hybrid decoder + fallback", () => {
     });
     expect(result.fallbackReason).toBe("provider-error");
     expect(result.usedLearned).toBe(false);
+    expect(result.regions).toBe(RULE_BASED.regions);
   });
 
   it("falls back on version mismatch", async () => {
@@ -179,6 +270,53 @@ describe("learned harmony: hybrid decoder + fallback", () => {
     request.modelMetadata.modelVersion = "some-other-model";
     const result = await runHybridHarmony({ ...base, provider: new MockLearnedHarmonyProvider(), request });
     expect(result.fallbackReason).toBe("version-mismatch");
+    expect(result.regions).toBe(RULE_BASED.regions);
+  });
+
+  it("falls back exactly on cancellation, invalid output, and response checksum mismatch", async () => {
+    const cancelled = new AbortController();
+    cancelled.abort();
+    const cancellationResult = await runHybridHarmony({
+      ...base,
+      provider: new MockLearnedHarmonyProvider({ latencyMs: 20 }),
+      request: makeRequest(),
+      signal: cancelled.signal,
+    });
+    expect(cancellationResult.fallbackReason).toBe("cancelled");
+    expect(cancellationResult.regions).toBe(RULE_BASED.regions);
+
+    const delegate = new MockLearnedHarmonyProvider();
+    const provider = (
+      responseMutation: (response: LearnedHarmonyResponse) => void
+    ): LearnedHarmonyProvider => ({
+      id: "mutating-test-provider",
+      isAvailable: () => delegate.isAvailable(),
+      getMetadata: () => delegate.getMetadata(),
+      predict: async (request, signal) => {
+        const response = await delegate.predict(request, signal);
+        responseMutation(response);
+        return response;
+      },
+    });
+    const invalidResult = await runHybridHarmony({
+      ...base,
+      provider: provider((response) => {
+        response.rootProbabilities[0][0] = 2;
+      }),
+      request: makeRequest(),
+    });
+    expect(invalidResult.fallbackReason).toBe("invalid-response");
+    expect(invalidResult.regions).toBe(RULE_BASED.regions);
+
+    const checksumResult = await runHybridHarmony({
+      ...base,
+      provider: provider((response) => {
+        response.modelChecksum = "wrong-response-checksum";
+      }),
+      request: makeRequest(),
+    });
+    expect(checksumResult.fallbackReason).toBe("version-mismatch");
+    expect(checksumResult.regions).toBe(RULE_BASED.regions);
   });
 });
 

@@ -73,6 +73,16 @@ def run_training(config: dict, checkpoint_path: Path, quiet: bool = False) -> di
     dev_tracks = build_split_tracks("development", int(data["developmentTracks"]), float(data["durationSeconds"]), tempo)
     train_samples = make_samples(train_tracks, tolerance)
     dev_samples = make_samples(dev_tracks, tolerance)
+    return fit_samples(config, train_samples, dev_samples, checkpoint_path, quiet=quiet)
+
+
+def fit_samples(config: dict, train_samples: list[FrameSample], dev_samples: list[FrameSample],
+                checkpoint_path: Path, quiet: bool = False) -> dict:
+    """Train on pre-assembled samples (shared by synthetic and real-data paths)."""
+    seed = int(config.get("seed", 20260723))
+    set_seed(seed)
+    if not train_samples:
+        raise ValueError("no training samples — check the data source / acquisition")
     weights = compute_class_weights(train_samples)
 
     model = TemporalBaseline(ModelConfig.from_dict(config))

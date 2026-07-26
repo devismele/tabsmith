@@ -1,10 +1,5 @@
-// Experimental learned-harmony integration boundary.
-//
-// DISABLED BY DEFAULT. No model is bundled, no ML runtime is started, no UI is
-// exposed, and the production chord engine (harmonic-context-v3-reduced-latency)
-// is unchanged. This module only defines how a future model will communicate
-// with Tabsmith so the real model can replace the mock provider without
-// restructuring the desktop application.
+// Experimental hybrid-harmony integration boundary. Disabled by default and
+// compile-time excluded from release execution; ML-only remains evaluation-only.
 
 export * from "./types";
 export {
@@ -37,7 +32,8 @@ export {
 } from "./featurePackage";
 export {
   runHybridHarmony,
-  combineHybrid,
+  alignLearnedEvidence,
+  fuseHybridObservations,
   CONSERVATIVE_HYBRID_SETTINGS,
   HYBRID_DECODER_VERSION,
   type RunHybridParams,

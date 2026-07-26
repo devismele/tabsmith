@@ -20,6 +20,10 @@ module.exports = {
       /^\/evaluation($|\/)/,
       /^\/tests($|\/)/,
       /^\/scripts($|\/)/,
+      /^\/ml($|\/)/,
+      // Development-only learned weights are code-split in flagged dev builds
+      // and explicitly excluded from Electron release source packaging.
+      /^\/src\/learnedHarmony\/model($|\/)/,
       /^\/server.*\.log$/,
     ],
   },

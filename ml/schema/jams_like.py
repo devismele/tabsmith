@@ -15,7 +15,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Optional
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # v2 adds optional Track.feature_path (precomputed-feature sources)
 
 PITCH_CLASSES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 _PITCH_INDEX = {
@@ -166,6 +166,7 @@ class Track:
     license: str = "unknown"
     source_url: str = ""
     audio_path: str = ""
+    feature_path: str = ""                # precomputed-feature file for `features` availability
     beats: list[float] = field(default_factory=list)
     downbeats: list[float] = field(default_factory=list)
     chords: list[ChordRegion] = field(default_factory=list)
@@ -177,6 +178,8 @@ class Track:
             raise ValueError(f"{self.track_id}: audio_availability must be one of {AUDIO_AVAILABILITY}")
         if self.audio_availability == "audio" and not self.audio_path:
             raise ValueError(f"{self.track_id}: audio availability is 'audio' but no audio_path was given")
+        if self.audio_availability == "features" and not self.feature_path:
+            raise ValueError(f"{self.track_id}: audio availability is 'features' but no feature_path was given")
         last = -1e-9
         for region in self.chords:
             if region.end <= region.start:
@@ -188,6 +191,13 @@ class Track:
 
     def is_audio_trainable(self) -> bool:
         return self.audio_availability == "audio" and bool(self.audio_path)
+
+    def is_feature_trainable(self) -> bool:
+        return self.audio_availability == "features" and bool(self.feature_path)
+
+    def is_trainable(self) -> bool:
+        """Usable for training via either raw audio or precomputed features."""
+        return self.is_audio_trainable() or self.is_feature_trainable()
 
     def to_dict(self) -> dict:
         data = asdict(self)
@@ -208,6 +218,7 @@ class Track:
             license=data.get("license", "unknown"),
             source_url=data.get("source_url", ""),
             audio_path=data.get("audio_path", ""),
+            feature_path=data.get("feature_path", ""),
             beats=list(data.get("beats", [])),
             downbeats=list(data.get("downbeats", [])),
             chords=[ChordRegion(**c) for c in data.get("chords", [])],

@@ -1,0 +1,4697 @@
+{
+  "schemaVersion": 1,
+  "status": "completed-non-p00-calibration",
+  "createdAt": "2026-07-26T10:09:40.064Z",
+  "commitSha": "24f8ce0a630a46e250e075bf1f5ef05406aa52fa",
+  "protocol": {
+    "splitSeed": 20260726,
+    "strategy": "leave-one-performer-out",
+    "captures": [
+      "audio_mono-mic",
+      "audio_mono-pickup_mix"
+    ],
+    "calibrationPerformers": [
+      "guitarset-p01",
+      "guitarset-p02",
+      "guitarset-p03",
+      "guitarset-p04",
+      "guitarset-p05"
+    ],
+    "performerRoles": {
+      "guitarset-p01": "training",
+      "guitarset-p02": "training",
+      "guitarset-p03": "training",
+      "guitarset-p04": "development",
+      "guitarset-p05": "training"
+    },
+    "sealedFinalValidationPerformer": "guitarset-p00",
+    "trackCaptureCount": 600,
+    "performanceCount": 300,
+    "durationSecondsByCapture": {
+      "audio_mono-mic": 9140.36598639455,
+      "audio_mono-pickup_mix": 9140.36598639455
+    },
+    "manifestChecksums": [
+      "a4a9c79549e362cd8e75adf91310d8237d22e1bfb098803938d68dcbd567e952"
+    ],
+    "learnedModelOverlapLimitation": "All non-p00 performers overlap learned-model fitting: p01/p02/p03/p05 training and p04 development. This is integration calibration, not independent model evaluation.",
+    "p00LoadedOrScored": false
+  },
+  "model": {
+    "modelVersion": "temporal-baseline-real-v1",
+    "modelChecksum": "a8719a40942eb8afe700fd7ff003353abbc1444344a0eb4c74e2a35a8b51cb34",
+    "featureVersion": "harmony-features-v1",
+    "productionRuleEngine": "2026-07-harmonic-context-v3-reduced-latency"
+  },
+  "inferenceCache": {
+    "identityIncludesModelChecksum": true,
+    "identityIncludesFeatureVersion": true,
+    "identityIncludesCaptureType": true,
+    "storesAudio": false,
+    "stats": {
+      "audio_mono-mic": {
+        "memoryHits": 0,
+        "diskHits": 300,
+        "misses": 0,
+        "invalidEntries": 0
+      },
+      "audio_mono-pickup_mix": {
+        "memoryHits": 0,
+        "diskHits": 300,
+        "misses": 0,
+        "invalidEntries": 0
+      }
+    },
+    "cachedUncachedParityChecks": [
+      {
+        "captureType": "audio_mono-mic",
+        "trackId": "guitarset-01_BN1-129-Eb_comp",
+        "identical": true
+      },
+      {
+        "captureType": "audio_mono-pickup_mix",
+        "trackId": "guitarset-01_BN1-129-Eb_comp",
+        "identical": true
+      }
+    ]
+  },
+  "probabilityCalibration": {
+    "temperatureCandidates": [
+      0.6,
+      0.75,
+      0.9,
+      1,
+      1.15,
+      1.3,
+      1.5
+    ],
+    "folds": [
+      {
+        "foldId": "lopo-p01",
+        "validationPerformer": "guitarset-p01",
+        "selectedTemperature": 0.9,
+        "trainingNll": 2.539601258549333,
+        "validation": {
+          "uncalibrated": {
+            "sampleCount": 6596,
+            "accuracy": 0.4898423286840509,
+            "averageConfidence": 0.4932613558595606,
+            "expectedCalibrationError": 0.027356914588531702,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 152,
+                "averageConfidence": 0.08787669920511437,
+                "accuracy": 0.10526315789473684
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1439,
+                "averageConfidence": 0.15295344568694694,
+                "accuracy": 0.12091730368311328
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1006,
+                "averageConfidence": 0.2448956715033695,
+                "accuracy": 0.19980119284294234
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 663,
+                "averageConfidence": 0.3462335240022842,
+                "accuracy": 0.3453996983408748
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 494,
+                "averageConfidence": 0.4509771603917959,
+                "accuracy": 0.4676113360323887
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 443,
+                "averageConfidence": 0.550364787744375,
+                "accuracy": 0.5756207674943566
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 371,
+                "averageConfidence": 0.6508265941396687,
+                "accuracy": 0.7142857142857143
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 338,
+                "averageConfidence": 0.7507068420140304,
+                "accuracy": 0.8017751479289941
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 444,
+                "averageConfidence": 0.8511389454995684,
+                "accuracy": 0.8873873873873874
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 1246,
+                "averageConfidence": 0.9666783111142735,
+                "accuracy": 0.9590690208667737
+              }
+            ]
+          },
+          "temperature": {
+            "sampleCount": 6596,
+            "accuracy": 0.4899939357186173,
+            "averageConfidence": 0.5194019860097355,
+            "expectedCalibrationError": 0.03147721584878838,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 102,
+                "averageConfidence": 0.08974605590433904,
+                "accuracy": 0.0784313725490196
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1192,
+                "averageConfidence": 0.1552713580572791,
+                "accuracy": 0.11073825503355705
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1060,
+                "averageConfidence": 0.2448059520056109,
+                "accuracy": 0.17735849056603772
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 690,
+                "averageConfidence": 0.34797516548116086,
+                "accuracy": 0.30144927536231886
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 517,
+                "averageConfidence": 0.4487372014188177,
+                "accuracy": 0.4158607350096712
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 440,
+                "averageConfidence": 0.5464072821978886,
+                "accuracy": 0.5454545454545454
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 403,
+                "averageConfidence": 0.6469036070838335,
+                "accuracy": 0.652605459057072
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 360,
+                "averageConfidence": 0.7499973696279326,
+                "accuracy": 0.7527777777777778
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 419,
+                "averageConfidence": 0.8531615400237813,
+                "accuracy": 0.8615751789976134
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 1413,
+                "averageConfidence": 0.9706642184107188,
+                "accuracy": 0.9525831564048125
+              }
+            ]
+          }
+        }
+      },
+      {
+        "foldId": "lopo-p02",
+        "validationPerformer": "guitarset-p02",
+        "selectedTemperature": 0.9,
+        "trainingNll": 2.5717487606025973,
+        "validation": {
+          "uncalibrated": {
+            "sampleCount": 6474,
+            "accuracy": 0.5080321285140562,
+            "averageConfidence": 0.5009372333700408,
+            "expectedCalibrationError": 0.03505922434034333,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 123,
+                "averageConfidence": 0.0879457630114234,
+                "accuracy": 0.04878048780487805
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1332,
+                "averageConfidence": 0.15393251260956242,
+                "accuracy": 0.13213213213213212
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1171,
+                "averageConfidence": 0.24420965857730836,
+                "accuracy": 0.21007685738684884
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 599,
+                "averageConfidence": 0.34664099356650424,
+                "accuracy": 0.333889816360601
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 421,
+                "averageConfidence": 0.4466878219576128,
+                "accuracy": 0.4750593824228028
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 363,
+                "averageConfidence": 0.5474466233944528,
+                "accuracy": 0.5950413223140496
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 330,
+                "averageConfidence": 0.6512240985322595,
+                "accuracy": 0.7575757575757576
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 362,
+                "averageConfidence": 0.7530090871041686,
+                "accuracy": 0.8701657458563536
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 470,
+                "averageConfidence": 0.8537769698838952,
+                "accuracy": 0.9170212765957447
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 1303,
+                "averageConfidence": 0.9655085438386823,
+                "accuracy": 0.9585571757482733
+              }
+            ]
+          },
+          "temperature": {
+            "sampleCount": 6474,
+            "accuracy": 0.5080321285140562,
+            "averageConfidence": 0.5262440923022653,
+            "expectedCalibrationError": 0.03988607277964432,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 77,
+                "averageConfidence": 0.08895584701678681,
+                "accuracy": 0.05194805194805195
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1100,
+                "averageConfidence": 0.1564954902364196,
+                "accuracy": 0.11272727272727273
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1199,
+                "averageConfidence": 0.24835839406634144,
+                "accuracy": 0.20100083402835697
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 646,
+                "averageConfidence": 0.34518866799539116,
+                "accuracy": 0.29102167182662536
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 480,
+                "averageConfidence": 0.4473391228470961,
+                "accuracy": 0.4083333333333333
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 381,
+                "averageConfidence": 0.5481811947226949,
+                "accuracy": 0.5433070866141733
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 309,
+                "averageConfidence": 0.647529095306201,
+                "accuracy": 0.6957928802588996
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 355,
+                "averageConfidence": 0.7513486822617004,
+                "accuracy": 0.8366197183098592
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 452,
+                "averageConfidence": 0.8540390188986768,
+                "accuracy": 0.9092920353982301
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 1475,
+                "averageConfidence": 0.9699764723547565,
+                "accuracy": 0.9532203389830508
+              }
+            ]
+          }
+        }
+      },
+      {
+        "foldId": "lopo-p03",
+        "validationPerformer": "guitarset-p03",
+        "selectedTemperature": 1,
+        "trainingNll": 2.6031234635470692,
+        "validation": {
+          "uncalibrated": {
+            "sampleCount": 6473,
+            "accuracy": 0.5419434574385911,
+            "averageConfidence": 0.48575810901992317,
+            "expectedCalibrationError": 0.05766535757901005,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 79,
+                "averageConfidence": 0.08783034560644055,
+                "accuracy": 0.0759493670886076
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1119,
+                "averageConfidence": 0.1573529501564188,
+                "accuracy": 0.19481680071492405
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1146,
+                "averageConfidence": 0.24594848398267852,
+                "accuracy": 0.31413612565445026
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 823,
+                "averageConfidence": 0.3488691869118855,
+                "accuracy": 0.4349939246658566
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 646,
+                "averageConfidence": 0.44899686271903194,
+                "accuracy": 0.544891640866873
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 480,
+                "averageConfidence": 0.5457972812013617,
+                "accuracy": 0.63125
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 427,
+                "averageConfidence": 0.6461555663104918,
+                "accuracy": 0.7330210772833724
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 365,
+                "averageConfidence": 0.749657622296038,
+                "accuracy": 0.8356164383561644
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 420,
+                "averageConfidence": 0.8521424002263556,
+                "accuracy": 0.8666666666666667
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 968,
+                "averageConfidence": 0.963689516884854,
+                "accuracy": 0.9597107438016529
+              }
+            ]
+          },
+          "temperature": {
+            "sampleCount": 6473,
+            "accuracy": 0.5419434574385911,
+            "averageConfidence": 0.48575810901992317,
+            "expectedCalibrationError": 0.05766535757901005,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 79,
+                "averageConfidence": 0.08783034560644055,
+                "accuracy": 0.0759493670886076
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1119,
+                "averageConfidence": 0.1573529501564188,
+                "accuracy": 0.19481680071492405
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1146,
+                "averageConfidence": 0.24594848398267852,
+                "accuracy": 0.31413612565445026
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 823,
+                "averageConfidence": 0.3488691869118855,
+                "accuracy": 0.4349939246658566
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 646,
+                "averageConfidence": 0.44899686271903194,
+                "accuracy": 0.544891640866873
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 480,
+                "averageConfidence": 0.5457972812013617,
+                "accuracy": 0.63125
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 427,
+                "averageConfidence": 0.6461555663104918,
+                "accuracy": 0.7330210772833724
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 365,
+                "averageConfidence": 0.749657622296038,
+                "accuracy": 0.8356164383561644
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 420,
+                "averageConfidence": 0.8521424002263556,
+                "accuracy": 0.8666666666666667
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 968,
+                "averageConfidence": 0.963689516884854,
+                "accuracy": 0.9597107438016529
+              }
+            ]
+          }
+        }
+      },
+      {
+        "foldId": "lopo-p04",
+        "validationPerformer": "guitarset-p04",
+        "selectedTemperature": 0.9,
+        "trainingNll": 2.4805875172939396,
+        "validation": {
+          "uncalibrated": {
+            "sampleCount": 7166,
+            "accuracy": 0.44194808819425063,
+            "averageConfidence": 0.44743646711199836,
+            "expectedCalibrationError": 0.014717592787056933,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 183,
+                "averageConfidence": 0.08745998652319288,
+                "accuracy": 0.12021857923497267
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1677,
+                "averageConfidence": 0.15307161155471485,
+                "accuracy": 0.13416815742397137
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1425,
+                "averageConfidence": 0.24628320183712615,
+                "accuracy": 0.2294736842105263
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 800,
+                "averageConfidence": 0.3479474472661166,
+                "accuracy": 0.355
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 508,
+                "averageConfidence": 0.44759314224184327,
+                "accuracy": 0.46062992125984253
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 439,
+                "averageConfidence": 0.5498946185057075,
+                "accuracy": 0.5763097949886105
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 361,
+                "averageConfidence": 0.6502835295811418,
+                "accuracy": 0.6426592797783933
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 317,
+                "averageConfidence": 0.753881771621918,
+                "accuracy": 0.7476340694006309
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 388,
+                "averageConfidence": 0.8525451999401094,
+                "accuracy": 0.8608247422680413
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 1068,
+                "averageConfidence": 0.965365604532032,
+                "accuracy": 0.954119850187266
+              }
+            ]
+          },
+          "temperature": {
+            "sampleCount": 7166,
+            "accuracy": 0.4420876360591683,
+            "averageConfidence": 0.4749380493639337,
+            "expectedCalibrationError": 0.03696839321167896,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 113,
+                "averageConfidence": 0.08795134206752495,
+                "accuracy": 0.11504424778761062
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1374,
+                "averageConfidence": 0.15461099255257504,
+                "accuracy": 0.12663755458515283
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1440,
+                "averageConfidence": 0.24698842617607203,
+                "accuracy": 0.2048611111111111
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 868,
+                "averageConfidence": 0.346354117187344,
+                "accuracy": 0.31451612903225806
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 598,
+                "averageConfidence": 0.44571554137397573,
+                "accuracy": 0.3879598662207358
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 453,
+                "averageConfidence": 0.5481385791167783,
+                "accuracy": 0.5739514348785872
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 374,
+                "averageConfidence": 0.6483342667595521,
+                "accuracy": 0.5721925133689839
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 322,
+                "averageConfidence": 0.7491719841795343,
+                "accuracy": 0.6925465838509317
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 409,
+                "averageConfidence": 0.8500171007893924,
+                "accuracy": 0.8190709046454768
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 1215,
+                "averageConfidence": 0.9699763703132875,
+                "accuracy": 0.945679012345679
+              }
+            ]
+          }
+        }
+      },
+      {
+        "foldId": "lopo-p05",
+        "validationPerformer": "guitarset-p05",
+        "selectedTemperature": 0.9,
+        "trainingNll": 2.5144040250982314,
+        "validation": {
+          "uncalibrated": {
+            "sampleCount": 7431,
+            "accuracy": 0.4311667339523617,
+            "averageConfidence": 0.4271715419910445,
+            "expectedCalibrationError": 0.02495544873596244,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 198,
+                "averageConfidence": 0.08736078470983748,
+                "accuracy": 0.06060606060606061
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1902,
+                "averageConfidence": 0.15192517594939678,
+                "accuracy": 0.13932702418506834
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1455,
+                "averageConfidence": 0.2438861889932634,
+                "accuracy": 0.22061855670103092
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 859,
+                "averageConfidence": 0.34631911664061055,
+                "accuracy": 0.3352735739231665
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 567,
+                "averageConfidence": 0.4486848771327483,
+                "accuracy": 0.47795414462081126
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 439,
+                "averageConfidence": 0.5487319135973301,
+                "accuracy": 0.6013667425968109
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 361,
+                "averageConfidence": 0.6492670213033239,
+                "accuracy": 0.7590027700831025
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 315,
+                "averageConfidence": 0.7491880327214926,
+                "accuracy": 0.8095238095238095
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 370,
+                "averageConfidence": 0.8533963083459282,
+                "accuracy": 0.8783783783783784
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 965,
+                "averageConfidence": 0.9681618526822937,
+                "accuracy": 0.9626943005181348
+              }
+            ]
+          },
+          "temperature": {
+            "sampleCount": 7431,
+            "accuracy": 0.43103216256223925,
+            "averageConfidence": 0.4550632496205881,
+            "expectedCalibrationError": 0.035490172131615205,
+            "bins": [
+              {
+                "lower": 0,
+                "upper": 0.1,
+                "count": 131,
+                "averageConfidence": 0.0889178196689442,
+                "accuracy": 0.061068702290076333
+              },
+              {
+                "lower": 0.1,
+                "upper": 0.2,
+                "count": 1589,
+                "averageConfidence": 0.15516042195288776,
+                "accuracy": 0.1302706104468219
+              },
+              {
+                "lower": 0.2,
+                "upper": 0.3,
+                "count": 1506,
+                "averageConfidence": 0.2470586726876933,
+                "accuracy": 0.2051792828685259
+              },
+              {
+                "lower": 0.3,
+                "upper": 0.4,
+                "count": 878,
+                "averageConfidence": 0.34801845195228015,
+                "accuracy": 0.2744874715261959
+              },
+              {
+                "lower": 0.4,
+                "upper": 0.5,
+                "count": 655,
+                "averageConfidence": 0.44692765800706064,
+                "accuracy": 0.41068702290076337
+              },
+              {
+                "lower": 0.5,
+                "upper": 0.6,
+                "count": 450,
+                "averageConfidence": 0.5480889428652993,
+                "accuracy": 0.5622222222222222
+              },
+              {
+                "lower": 0.6,
+                "upper": 0.7,
+                "count": 406,
+                "averageConfidence": 0.6466209931198432,
+                "accuracy": 0.687192118226601
+              },
+              {
+                "lower": 0.7,
+                "upper": 0.8,
+                "count": 346,
+                "averageConfidence": 0.7492532167597699,
+                "accuracy": 0.7803468208092486
+              },
+              {
+                "lower": 0.8,
+                "upper": 0.9,
+                "count": 362,
+                "averageConfidence": 0.853629858882207,
+                "accuracy": 0.8784530386740331
+              },
+              {
+                "lower": 0.9,
+                "upper": 1,
+                "count": 1108,
+                "averageConfidence": 0.9707445088304602,
+                "accuracy": 0.9467509025270758
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "globalTemperature": 0.9,
+    "globalTrainingNll": 2.5428052807258132,
+    "heldOutFoldsWithImprovedEce": 0,
+    "retainedInFrozenConfiguration": false,
+    "decision": "Temperature scaling was not retained: held-out ECE did not improve consistently across performer folds.",
+    "diagnostics": {
+      "uncalibrated": {
+        "all": {
+          "sampleCount": 34140,
+          "accuracy": 0.48034563561804333,
+          "averageConfidence": 0.4692903703466097,
+          "expectedCalibrationError": 0.02253570118258108,
+          "bins": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "count": 735,
+              "averageConfidence": 0.08764054059698413,
+              "accuracy": 0.08435374149659863
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "count": 7469,
+              "averageConfidence": 0.1535518601683616,
+              "accuracy": 0.14165216227071897
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.3,
+              "count": 6203,
+              "averageConfidence": 0.24504263839653062,
+              "accuracy": 0.23456392068354023
+            },
+            {
+              "lower": 0.3,
+              "upper": 0.4,
+              "count": 3744,
+              "averageConfidence": 0.3472639426804248,
+              "accuracy": 0.3629807692307692
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.5,
+              "count": 2636,
+              "averageConfidence": 0.44866157252933236,
+              "accuracy": 0.48861911987860396
+            },
+            {
+              "lower": 0.5,
+              "upper": 0.6,
+              "count": 2164,
+              "averageConfidence": 0.5484355211796816,
+              "accuracy": 0.5965804066543438
+            },
+            {
+              "lower": 0.6,
+              "upper": 0.7,
+              "count": 1850,
+              "averageConfidence": 0.6494090781758567,
+              "accuracy": 0.721081081081081
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 1697,
+              "averageConfidence": 0.7512834332244679,
+              "accuracy": 0.8149675898644667
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 2092,
+              "averageConfidence": 0.8525931392959194,
+              "accuracy": 0.8833652007648184
+            },
+            {
+              "lower": 0.9,
+              "upper": 1,
+              "count": 5550,
+              "averageConfidence": 0.9658877322690711,
+              "accuracy": 0.9587387387387387
+            }
+          ]
+        },
+        "microphone": {
+          "sampleCount": 16978,
+          "accuracy": 0.5083637648721875,
+          "averageConfidence": 0.4946251555174782,
+          "expectedCalibrationError": 0.022140799612144043,
+          "bins": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "count": 248,
+              "averageConfidence": 0.0870042261277851,
+              "accuracy": 0.08064516129032258
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "count": 3219,
+              "averageConfidence": 0.1552355851561858,
+              "accuracy": 0.14134824479652067
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.3,
+              "count": 3047,
+              "averageConfidence": 0.24608407130613394,
+              "accuracy": 0.2461437479488021
+            },
+            {
+              "lower": 0.3,
+              "upper": 0.4,
+              "count": 1919,
+              "averageConfidence": 0.3472231417541202,
+              "accuracy": 0.36737884314747266
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.5,
+              "count": 1369,
+              "averageConfidence": 0.4486546287393334,
+              "accuracy": 0.504017531044558
+            },
+            {
+              "lower": 0.5,
+              "upper": 0.6,
+              "count": 1117,
+              "averageConfidence": 0.5499360180812092,
+              "accuracy": 0.5917636526410027
+            },
+            {
+              "lower": 0.6,
+              "upper": 0.7,
+              "count": 974,
+              "averageConfidence": 0.6491740128677723,
+              "accuracy": 0.7063655030800822
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 876,
+              "averageConfidence": 0.7519461797911553,
+              "accuracy": 0.8093607305936074
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 1111,
+              "averageConfidence": 0.8530992457365584,
+              "accuracy": 0.8865886588658866
+            },
+            {
+              "lower": 0.9,
+              "upper": 1,
+              "count": 3098,
+              "averageConfidence": 0.9661219484822183,
+              "accuracy": 0.9580374435119432
+            }
+          ]
+        },
+        "pickupMix": {
+          "sampleCount": 17162,
+          "accuracy": 0.4526278988462883,
+          "averageConfidence": 0.44422720855713405,
+          "expectedCalibrationError": 0.0229475592599203,
+          "bins": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "count": 487,
+              "averageConfidence": 0.08796457753407122,
+              "accuracy": 0.08624229979466119
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "count": 4250,
+              "averageConfidence": 0.152276587054055,
+              "accuracy": 0.14188235294117646
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.3,
+              "count": 3156,
+              "averageConfidence": 0.24403717386054494,
+              "accuracy": 0.22338403041825095
+            },
+            {
+              "lower": 0.3,
+              "upper": 0.4,
+              "count": 1825,
+              "averageConfidence": 0.34730684513389176,
+              "accuracy": 0.35835616438356166
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.5,
+              "count": 1267,
+              "averageConfidence": 0.44866907533005096,
+              "accuracy": 0.47198105761641673
+            },
+            {
+              "lower": 0.5,
+              "upper": 0.6,
+              "count": 1047,
+              "averageConfidence": 0.5468347045235155,
+              "accuracy": 0.6017191977077364
+            },
+            {
+              "lower": 0.6,
+              "upper": 0.7,
+              "count": 876,
+              "averageConfidence": 0.6496704407444347,
+              "accuracy": 0.7374429223744292
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 821,
+              "averageConfidence": 0.7505762882885176,
+              "accuracy": 0.8209500609013398
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 981,
+              "averageConfidence": 0.8520199647234936,
+              "accuracy": 0.8797145769622834
+            },
+            {
+              "lower": 0.9,
+              "upper": 1,
+              "count": 2452,
+              "averageConfidence": 0.965591809826851,
+              "accuracy": 0.9596247960848288
+            }
+          ]
+        },
+        "agreements": {
+          "sampleCount": 9286,
+          "accuracy": 0.8058367434848158,
+          "averageConfidence": 0.697225727096682,
+          "expectedCalibrationError": 0.10921918261704967,
+          "bins": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "count": 54,
+              "averageConfidence": 0.08932807038631987,
+              "accuracy": 0.037037037037037035
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "count": 661,
+              "averageConfidence": 0.1571564674771188,
+              "accuracy": 0.19818456883509833
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.3,
+              "count": 736,
+              "averageConfidence": 0.24613786851613648,
+              "accuracy": 0.36820652173913043
+            },
+            {
+              "lower": 0.3,
+              "upper": 0.4,
+              "count": 584,
+              "averageConfidence": 0.3502472653252989,
+              "accuracy": 0.5273972602739726
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.5,
+              "count": 561,
+              "averageConfidence": 0.4513502110011622,
+              "accuracy": 0.6934046345811051
+            },
+            {
+              "lower": 0.5,
+              "upper": 0.6,
+              "count": 645,
+              "averageConfidence": 0.5493513180518247,
+              "accuracy": 0.8031007751937984
+            },
+            {
+              "lower": 0.6,
+              "upper": 0.7,
+              "count": 628,
+              "averageConfidence": 0.6512860434142466,
+              "accuracy": 0.8853503184713376
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 727,
+              "averageConfidence": 0.7526524573647775,
+              "accuracy": 0.9325997248968363
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 1074,
+              "averageConfidence": 0.8539757205480021,
+              "accuracy": 0.972998137802607
+            },
+            {
+              "lower": 0.9,
+              "upper": 1,
+              "count": 3616,
+              "averageConfidence": 0.9676817264067308,
+              "accuracy": 0.9914269911504425
+            }
+          ]
+        },
+        "disagreements": {
+          "sampleCount": 24854,
+          "accuracy": 0.3587350124728414,
+          "averageConfidence": 0.3841287173820481,
+          "expectedCalibrationError": 0.025426530085203368,
+          "bins": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "count": 681,
+              "averageConfidence": 0.08750672766214693,
+              "accuracy": 0.0881057268722467
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "count": 6808,
+              "averageConfidence": 0.15320188287237363,
+              "accuracy": 0.13616333725029378
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.3,
+              "count": 5467,
+              "averageConfidence": 0.2448951920149621,
+              "accuracy": 0.21657216023413206
+            },
+            {
+              "lower": 0.3,
+              "upper": 0.4,
+              "count": 3160,
+              "averageConfidence": 0.34671259444478975,
+              "accuracy": 0.33259493670886076
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.5,
+              "count": 2075,
+              "averageConfidence": 0.44793466834490125,
+              "accuracy": 0.4332530120481928
+            },
+            {
+              "lower": 0.5,
+              "upper": 0.6,
+              "count": 1519,
+              "averageConfidence": 0.5480466541734073,
+              "accuracy": 0.5088874259381172
+            },
+            {
+              "lower": 0.6,
+              "upper": 0.7,
+              "count": 1222,
+              "averageConfidence": 0.6484444839289578,
+              "accuracy": 0.6366612111292962
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 970,
+              "averageConfidence": 0.7502573708017838,
+              "accuracy": 0.7268041237113402
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 1018,
+              "averageConfidence": 0.8511345024936228,
+              "accuracy": 0.7888015717092338
+            },
+            {
+              "lower": 0.9,
+              "upper": 1,
+              "count": 1934,
+              "averageConfidence": 0.9625335012443708,
+              "accuracy": 0.8976215098241985
+            }
+          ]
+        }
+      },
+      "foldTemperatureCalibrated": {
+        "sampleCount": 34140,
+        "accuracy": 0.4803749267721148,
+        "averageConfidence": 0.4909833937505412,
+        "expectedCalibrationError": 0.021457504048540472,
+        "bins": [
+          {
+            "lower": 0,
+            "upper": 0.1,
+            "count": 502,
+            "averageConfidence": 0.08870324951335852,
+            "accuracy": 0.07768924302788845
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "count": 6374,
+            "averageConfidence": 0.15567804573889935,
+            "accuracy": 0.1341386884217132
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "count": 6351,
+            "averageConfidence": 0.24671180617491015,
+            "accuracy": 0.21933553771059675
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "count": 3905,
+            "averageConfidence": 0.3473520253695838,
+            "accuracy": 0.32471190781049936
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "count": 2896,
+            "averageConfidence": 0.44753017788428656,
+            "accuracy": 0.43646408839779005
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "count": 2204,
+            "averageConfidence": 0.5472802790210313,
+            "accuracy": 0.573049001814882
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "count": 1919,
+            "averageConfidence": 0.6470569097934914,
+            "accuracy": 0.669098488796248
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "count": 1748,
+            "averageConfidence": 0.7499015213453674,
+            "accuracy": 0.7814645308924485
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "count": 2062,
+            "averageConfidence": 0.8526048171898416,
+            "accuracy": 0.8676042677012609
+          },
+          {
+            "lower": 0.9,
+            "upper": 1,
+            "count": 6179,
+            "averageConfidence": 0.9692865342930841,
+            "accuracy": 0.9514484544424664
+          }
+        ]
+      },
+      "entropy": {
+        "correctAverage": 0.22063032128072171,
+        "incorrectAverage": 0.45233437350298356
+      },
+      "confidencePower": {
+        "evaluated": true,
+        "note": "For normalized categorical probabilities, confidence power p is mathematically identical to temperature 1/p; results therefore share the temperature curve."
+      },
+      "logitScaling": {
+        "evaluated": false,
+        "reason": "The frozen response contract exposes probabilities, not recoverable pre-softmax logits."
+      }
+    }
+  },
+  "baseline": {
+    "settings": {
+      "ruleObservationWeight": 1,
+      "learnedChordWeight": 0.35,
+      "learnedBoundaryWeight": 0.25,
+      "bassRootWeight": 0.25,
+      "allowLearnedBoundaryBackdating": false,
+      "minimumLearnedConfidence": 0.6,
+      "maximumLearnedEntropy": 0.75,
+      "protectRuleConfidenceAbove": 0.72,
+      "maximumLearnedWeightFullMix": 0.3,
+      "maximumLearnedWeightGuitarOnly": 0.55
+    },
+    "settingsIdentity": "5e27e83e44d6b489dc06e86f73ce41b77a2e101d25e950f6065a1812b9f5d30f",
+    "aggregates": {
+      "audio_mono-mic": {
+        "detailedAccuracy": 0.39063872254358206,
+        "rootAccuracy": 0.48191473389293804,
+        "fragmentationRate": 0.5458333333333333,
+        "regionsPerMinute": 17.421627094457225,
+        "meanAbsoluteBoundaryErrorMs": 1536.120965003677,
+        "incorrectOverrides": 110,
+        "fallbacks": 0,
+        "regionInvariantsValid": true
+      },
+      "audio_mono-pickup_mix": {
+        "detailedAccuracy": 0.3788087692173934,
+        "rootAccuracy": 0.4751538558712876,
+        "fragmentationRate": 0.5572222222222222,
+        "regionsPerMinute": 17.815484526886554,
+        "meanAbsoluteBoundaryErrorMs": 1484.6398062937465,
+        "incorrectOverrides": 54,
+        "fallbacks": 0,
+        "regionInvariantsValid": true
+      }
+    },
+    "folds": [
+      {
+        "foldId": "lopo-p01",
+        "captureType": "audio_mono-mic",
+        "performerId": "guitarset-p01",
+        "aggregate": {
+          "detailedAccuracy": 0.44879152967300656,
+          "rootAccuracy": 0.552708535301912,
+          "fragmentationRate": 0.5638888888888889,
+          "regionsPerMinute": 17.395369932295264,
+          "meanAbsoluteBoundaryErrorMs": 1481.301491868659,
+          "incorrectOverrides": 12,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p01",
+        "captureType": "audio_mono-pickup_mix",
+        "performerId": "guitarset-p01",
+        "aggregate": {
+          "detailedAccuracy": 0.4561072726936376,
+          "rootAccuracy": 0.5659342156124243,
+          "fragmentationRate": 0.575,
+          "regionsPerMinute": 17.75640591202215,
+          "meanAbsoluteBoundaryErrorMs": 1437.1055721486428,
+          "incorrectOverrides": 9,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p02",
+        "captureType": "audio_mono-mic",
+        "performerId": "guitarset-p02",
+        "aggregate": {
+          "detailedAccuracy": 0.41593537036969475,
+          "rootAccuracy": 0.5244096520664255,
+          "fragmentationRate": 0.5541666666666667,
+          "regionsPerMinute": 17.493834290402596,
+          "meanAbsoluteBoundaryErrorMs": 1389.8319296953428,
+          "incorrectOverrides": 8,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p02",
+        "captureType": "audio_mono-pickup_mix",
+        "performerId": "guitarset-p02",
+        "aggregate": {
+          "detailedAccuracy": 0.4291781667503026,
+          "rootAccuracy": 0.544788973237989,
+          "fragmentationRate": 0.5444444444444444,
+          "regionsPerMinute": 16.870226689056164,
+          "meanAbsoluteBoundaryErrorMs": 1819.095393103537,
+          "incorrectOverrides": 12,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p03",
+        "captureType": "audio_mono-mic",
+        "performerId": "guitarset-p03",
+        "aggregate": {
+          "detailedAccuracy": 0.3950503861599306,
+          "rootAccuracy": 0.4725016079132708,
+          "fragmentationRate": 0.5111111111111111,
+          "regionsPerMinute": 16.08251182419751,
+          "meanAbsoluteBoundaryErrorMs": 1967.4717339823267,
+          "incorrectOverrides": 35,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p03",
+        "captureType": "audio_mono-pickup_mix",
+        "performerId": "guitarset-p03",
+        "aggregate": {
+          "detailedAccuracy": 0.3598197543388046,
+          "rootAccuracy": 0.4499577871630555,
+          "fragmentationRate": 0.5055555555555555,
+          "regionsPerMinute": 15.951226013387734,
+          "meanAbsoluteBoundaryErrorMs": 1754.1403075242363,
+          "incorrectOverrides": 13,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p04",
+        "captureType": "audio_mono-mic",
+        "performerId": "guitarset-p04",
+        "aggregate": {
+          "detailedAccuracy": 0.34358163029267635,
+          "rootAccuracy": 0.431269027680038,
+          "fragmentationRate": 0.5111111111111111,
+          "regionsPerMinute": 16.377904898519503,
+          "meanAbsoluteBoundaryErrorMs": 1684.6892716743914,
+          "incorrectOverrides": 26,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p04",
+        "captureType": "audio_mono-pickup_mix",
+        "performerId": "guitarset-p04",
+        "aggregate": {
+          "detailedAccuracy": 0.33089403809511064,
+          "rootAccuracy": 0.4121479189563087,
+          "fragmentationRate": 0.5611111111111111,
+          "regionsPerMinute": 17.95333462823681,
+          "meanAbsoluteBoundaryErrorMs": 1217.1926580113109,
+          "incorrectOverrides": 11,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p05",
+        "captureType": "audio_mono-mic",
+        "performerId": "guitarset-p05",
+        "aggregate": {
+          "detailedAccuracy": 0.3498346962226003,
+          "rootAccuracy": 0.42868484650304317,
+          "fragmentationRate": 0.5888888888888889,
+          "regionsPerMinute": 19.758514526871227,
+          "meanAbsoluteBoundaryErrorMs": 1145.543794802546,
+          "incorrectOverrides": 29,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      {
+        "foldId": "lopo-p05",
+        "captureType": "audio_mono-pickup_mix",
+        "performerId": "guitarset-p05",
+        "aggregate": {
+          "detailedAccuracy": 0.3180446142091115,
+          "rootAccuracy": 0.40294038438666097,
+          "fragmentationRate": 0.6,
+          "regionsPerMinute": 20.54622939172988,
+          "meanAbsoluteBoundaryErrorMs": 1185.6082589565442,
+          "incorrectOverrides": 9,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      }
+    ],
+    "overrides": {
+      "correct": 2376,
+      "incorrect": 164,
+      "blockedCorrectMl": 6382,
+      "protectedCorrectRule": 2492
+    }
+  },
+  "referenceBaselines": {
+    "ruleByCapture": {
+      "audio_mono-mic": {
+        "detailedAccuracy": 0.3175344571323916,
+        "rootAccuracy": 0.4380582775598139,
+        "fragmentationRate": 0.5205555555555555,
+        "regionsPerMinute": 16.64704081067955,
+        "meanAbsoluteBoundaryErrorMs": 1690.639721441359,
+        "incorrectOverrides": 0,
+        "fallbacks": 0,
+        "regionInvariantsValid": true
+      },
+      "audio_mono-pickup_mix": {
+        "detailedAccuracy": 0.3174380956339662,
+        "rootAccuracy": 0.443841668642696,
+        "fragmentationRate": 0.5383333333333333,
+        "regionsPerMinute": 17.375677060673805,
+        "meanAbsoluteBoundaryErrorMs": 1525.3589251730732,
+        "incorrectOverrides": 0,
+        "fallbacks": 0,
+        "regionInvariantsValid": true
+      }
+    },
+    "mlOnlyByCapture": {
+      "audio_mono-mic": {
+        "detailedAccuracy": 0.5369177618427127,
+        "rootAccuracy": 0.6377106827159076,
+        "fragmentationRate": 0.6427777777777778,
+        "regionsPerMinute": 20.112986216057624,
+        "meanAbsoluteBoundaryErrorMs": 983.5599259328288,
+        "incorrectOverrides": 0,
+        "fallbacks": 0,
+        "regionInvariantsValid": true
+      },
+      "audio_mono-pickup_mix": {
+        "detailedAccuracy": 0.48762688862924886,
+        "rootAccuracy": 0.6018987303419695,
+        "fragmentationRate": 0.6180555555555556,
+        "regionsPerMinute": 19.33839993227995,
+        "meanAbsoluteBoundaryErrorMs": 1182.2920721500725,
+        "incorrectOverrides": 0,
+        "fallbacks": 0,
+        "regionInvariantsValid": true
+      }
+    }
+  },
+  "pairedComparisons": {
+    "audio_mono-mic": {
+      "hybrid-minus-rule": [
+        {
+          "metric": "rootAccuracy",
+          "meanDifference": 0.04110510309138971,
+          "bootstrap95ConfidenceInterval": [
+            0.031453,
+            0.050548
+          ],
+          "improvedTracks": 120,
+          "tiedTracks": 154,
+          "worsenedTracks": 26,
+          "trackCount": 300
+        },
+        {
+          "metric": "detailedAccuracy",
+          "meanDifference": 0.06876419654053438,
+          "bootstrap95ConfidenceInterval": [
+            0.054701,
+            0.082445
+          ],
+          "improvedTracks": 131,
+          "tiedTracks": 155,
+          "worsenedTracks": 14,
+          "trackCount": 300
+        },
+        {
+          "metric": "fragmentationRate",
+          "meanDifference": 0.02138888888888889,
+          "bootstrap95ConfidenceInterval": [
+            0.01095,
+            0.031756
+          ],
+          "improvedTracks": 31,
+          "tiedTracks": 194,
+          "worsenedTracks": 75,
+          "trackCount": 300
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "meanDifference": -139.65888740362584,
+          "bootstrap95ConfidenceInterval": [
+            -239.633529,
+            -43.939828
+          ],
+          "improvedTracks": 102,
+          "tiedTracks": 149,
+          "worsenedTracks": 41,
+          "trackCount": 292
+        }
+      ],
+      "hybrid-minus-ml-only": [
+        {
+          "metric": "rootAccuracy",
+          "meanDifference": -0.15087738529749053,
+          "bootstrap95ConfidenceInterval": [
+            -0.169524,
+            -0.132971
+          ],
+          "improvedTracks": 44,
+          "tiedTracks": 1,
+          "worsenedTracks": 255,
+          "trackCount": 300
+        },
+        {
+          "metric": "detailedAccuracy",
+          "meanDifference": -0.138126825236221,
+          "bootstrap95ConfidenceInterval": [
+            -0.158828,
+            -0.117374
+          ],
+          "improvedTracks": 59,
+          "tiedTracks": 4,
+          "worsenedTracks": 237,
+          "trackCount": 300
+        },
+        {
+          "metric": "fragmentationRate",
+          "meanDifference": -0.10332341269841272,
+          "bootstrap95ConfidenceInterval": [
+            -0.12895,
+            -0.079034
+          ],
+          "improvedTracks": 181,
+          "tiedTracks": 55,
+          "worsenedTracks": 64,
+          "trackCount": 300
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "meanDifference": 653.3651713713613,
+          "bootstrap95ConfidenceInterval": [
+            398.051345,
+            871.007527
+          ],
+          "improvedTracks": 61,
+          "tiedTracks": 0,
+          "worsenedTracks": 233,
+          "trackCount": 294
+        }
+      ]
+    },
+    "audio_mono-pickup_mix": {
+      "hybrid-minus-rule": [
+        {
+          "metric": "rootAccuracy",
+          "meanDifference": 0.02952278519115198,
+          "bootstrap95ConfidenceInterval": [
+            0.022056,
+            0.037256
+          ],
+          "improvedTracks": 101,
+          "tiedTracks": 172,
+          "worsenedTracks": 27,
+          "trackCount": 300
+        },
+        {
+          "metric": "detailedAccuracy",
+          "meanDifference": 0.05767872089337582,
+          "bootstrap95ConfidenceInterval": [
+            0.044468,
+            0.070838
+          ],
+          "improvedTracks": 117,
+          "tiedTracks": 173,
+          "worsenedTracks": 10,
+          "trackCount": 300
+        },
+        {
+          "metric": "fragmentationRate",
+          "meanDifference": 0.01753968253968254,
+          "bootstrap95ConfidenceInterval": [
+            0.008917,
+            0.025339
+          ],
+          "improvedTracks": 17,
+          "tiedTracks": 225,
+          "worsenedTracks": 58,
+          "trackCount": 300
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "meanDifference": -62.43442097352725,
+          "bootstrap95ConfidenceInterval": [
+            -121.631952,
+            -8.200683
+          ],
+          "improvedTracks": 80,
+          "tiedTracks": 174,
+          "worsenedTracks": 38,
+          "trackCount": 292
+        }
+      ],
+      "hybrid-minus-ml-only": [
+        {
+          "metric": "rootAccuracy",
+          "meanDifference": -0.11771614799235401,
+          "bootstrap95ConfidenceInterval": [
+            -0.13798,
+            -0.09654
+          ],
+          "improvedTracks": 66,
+          "tiedTracks": 3,
+          "worsenedTracks": 231,
+          "trackCount": 300
+        },
+        {
+          "metric": "detailedAccuracy",
+          "meanDifference": -0.0963372811475198,
+          "bootstrap95ConfidenceInterval": [
+            -0.117495,
+            -0.07324
+          ],
+          "improvedTracks": 80,
+          "tiedTracks": 10,
+          "worsenedTracks": 210,
+          "trackCount": 300
+        },
+        {
+          "metric": "fragmentationRate",
+          "meanDifference": -0.07088293650793648,
+          "bootstrap95ConfidenceInterval": [
+            -0.095965,
+            -0.045157
+          ],
+          "improvedTracks": 154,
+          "tiedTracks": 58,
+          "worsenedTracks": 88,
+          "trackCount": 300
+        },
+        {
+          "metric": "meanAbsoluteBoundaryErrorMs",
+          "meanDifference": 421.05426189979636,
+          "bootstrap95ConfidenceInterval": [
+            196.349304,
+            642.111356
+          ],
+          "improvedTracks": 80,
+          "tiedTracks": 0,
+          "worsenedTracks": 213,
+          "trackCount": 293
+        }
+      ]
+    }
+  },
+  "baselineWeightDiagnostics": {
+    "totalWindows": 34148,
+    "averageEffectiveLearnedWeight": 0.05697420920413695,
+    "minimumEffectiveLearnedWeight": 0,
+    "maximumEffectiveLearnedWeight": 0.36433021552540806,
+    "learnedWeightDistribution": {
+      "zero": {
+        "count": 22959,
+        "percentage": 0.6723380578657608
+      },
+      "below-0.05": {
+        "count": 383,
+        "percentage": 0.011215883799929717
+      },
+      "0.05-to-0.15": {
+        "count": 4423,
+        "percentage": 0.12952442309944945
+      },
+      "0.15-to-0.30": {
+        "count": 5641,
+        "percentage": 0.1651926906407403
+      },
+      "above-0.30": {
+        "count": 742,
+        "percentage": 0.021728944594119715
+      }
+    },
+    "gates": {
+      "availability": {
+        "affectedWindows": 8,
+        "percentage": 0.00023427433524657375,
+        "averageWeightBefore": 0.35000000000000003,
+        "averageWeightAfter": 0,
+        "blockedCorrectMl": 0,
+        "protectedCorrectRule": 4
+      },
+      "minimum-learned-confidence": {
+        "affectedWindows": 22951,
+        "percentage": 0.6721037835305143,
+        "averageWeightBefore": 0.3500000000001456,
+        "averageWeightAfter": 0,
+        "blockedCorrectMl": 4501,
+        "protectedCorrectRule": 2218
+      },
+      "maximum-learned-entropy": {
+        "affectedWindows": 0,
+        "percentage": 0,
+        "averageWeightBefore": 0,
+        "averageWeightAfter": 0,
+        "blockedCorrectMl": 0,
+        "protectedCorrectRule": 0
+      },
+      "learned-confidence-scaling": {
+        "affectedWindows": 11189,
+        "percentage": 0.3276619421342392,
+        "averageWeightBefore": 0.34999999999993703,
+        "averageWeightAfter": 0.2702782450118413,
+        "blockedCorrectMl": 1881,
+        "protectedCorrectRule": 270
+      },
+      "learned-entropy-scaling": {
+        "affectedWindows": 11189,
+        "percentage": 0.3276619421342392,
+        "averageWeightBefore": 0.2702782450118413,
+        "averageWeightAfter": 0.23876819470869942,
+        "blockedCorrectMl": 1881,
+        "protectedCorrectRule": 270
+      },
+      "rule-score-margin": {
+        "affectedWindows": 11189,
+        "percentage": 0.3276619421342392,
+        "averageWeightBefore": 0.23876819470869942,
+        "averageWeightAfter": 0.2085441743606459,
+        "blockedCorrectMl": 1881,
+        "protectedCorrectRule": 270
+      },
+      "rule-confidence-room": {
+        "affectedWindows": 11189,
+        "percentage": 0.3276619421342392,
+        "averageWeightBefore": 0.2085441743606459,
+        "averageWeightAfter": 0.18253396461220017,
+        "blockedCorrectMl": 1881,
+        "protectedCorrectRule": 270
+      },
+      "high-rule-confidence-protection": {
+        "affectedWindows": 8,
+        "percentage": 0.00023427433524657375,
+        "averageWeightBefore": 0.07422520031144018,
+        "averageWeightAfter": 0.058241465999603344,
+        "blockedCorrectMl": 2,
+        "protectedCorrectRule": 0
+      },
+      "agreement-bonus": {
+        "affectedWindows": 0,
+        "percentage": 0,
+        "averageWeightBefore": 0,
+        "averageWeightAfter": 0,
+        "blockedCorrectMl": 0,
+        "protectedCorrectRule": 0
+      },
+      "learned-flicker-suppression": {
+        "affectedWindows": 3550,
+        "percentage": 0.1039592362656671,
+        "averageWeightBefore": 0.16385820746082647,
+        "averageWeightAfter": 0.10495202285747014,
+        "blockedCorrectMl": 816,
+        "protectedCorrectRule": 166
+      },
+      "source-specific-maximum": {
+        "affectedWindows": 0,
+        "percentage": 0,
+        "averageWeightBefore": 0,
+        "averageWeightAfter": 0,
+        "blockedCorrectMl": 0,
+        "protectedCorrectRule": 0
+      }
+    },
+    "nonWeightLimiters": {
+      "disagreement": {
+        "affectedWindows": 24854,
+        "explicitPenaltyApplied": false,
+        "note": "The current fusion formula has no explicit disagreement weight penalty."
+      },
+      "bassConflict": {
+        "affectedWindows": 23369,
+        "note": "Bass conflicts do not reduce learned weight; matching candidates receive a bass bonus."
+      },
+      "noChordHandling": {
+        "affectedWindows": 0,
+        "note": "Sustained bass or high rule confidence scales only the learned N candidate term by 0.2."
+      }
+    }
+  },
+  "search": {
+    "seed": 20260726,
+    "candidateCount": 38,
+    "fullyDecodedCandidateCount": 10,
+    "randomCandidateCount": 32,
+    "searchSpace": {
+      "learnedChordWeight": [
+        0.35,
+        0.85
+      ],
+      "maximumLearnedWeightGuitarOnly": [
+        0.5,
+        0.9
+      ],
+      "minimumLearnedConfidence": [
+        0.35,
+        0.62
+      ],
+      "maximumLearnedEntropy": [
+        0.7,
+        0.99
+      ],
+      "protectRuleConfidenceAbove": [
+        0.68,
+        0.88
+      ],
+      "learnedBoundaryWeight": [
+        0,
+        0.1,
+        0.25
+      ],
+      "bassRootWeight": [
+        0,
+        0.15,
+        0.25
+      ],
+      "adaptiveWeighting": [
+        true,
+        false
+      ],
+      "probabilityCalibration": [
+        "none",
+        "fold-temperature"
+      ]
+    },
+    "constraints": {
+      "maximumFragmentationAboveRule": 0.01,
+      "maximumRegionsPerMinuteAboveRule": 0.5,
+      "maximumBoundaryMaeAboveRuleMs": 100
+    },
+    "ruleByCapture": {
+      "audio_mono-mic": {
+        "detailedAccuracy": 0.3175344571323916,
+        "rootAccuracy": 0.4380582775598139,
+        "fragmentationRate": 0.5205555555555555,
+        "regionsPerMinute": 16.64704081067955,
+        "meanAbsoluteBoundaryErrorMs": 1690.639721441359,
+        "incorrectOverrides": 0,
+        "fallbacks": 0,
+        "regionInvariantsValid": true
+      },
+      "audio_mono-pickup_mix": {
+        "detailedAccuracy": 0.3174380956339662,
+        "rootAccuracy": 0.443841668642696,
+        "fragmentationRate": 0.5383333333333333,
+        "regionsPerMinute": 17.375677060673805,
+        "meanAbsoluteBoundaryErrorMs": 1525.3589251730732,
+        "incorrectOverrides": 0,
+        "fallbacks": 0,
+        "regionInvariantsValid": true
+      }
+    },
+    "screening": [
+      {
+        "candidateId": "fixed-current-weight",
+        "detailedAccuracy": 0.4716563232403158,
+        "rootAccuracy": 0.5647698760959888,
+        "observationChangeRate": 0.5092831205341455,
+        "score": 0.6026631298536301
+      },
+      {
+        "candidateId": "random-22",
+        "detailedAccuracy": 0.4272502845546329,
+        "rootAccuracy": 0.5220234930000187,
+        "observationChangeRate": 0.5599156612393112,
+        "score": 0.5465578445798512
+      },
+      {
+        "candidateId": "random-01",
+        "detailedAccuracy": 0.42175062057102314,
+        "rootAccuracy": 0.518466741602037,
+        "observationChangeRate": 0.5648647065713951,
+        "score": 0.5400700118401045
+      },
+      {
+        "candidateId": "random-11",
+        "detailedAccuracy": 0.4171128539598444,
+        "rootAccuracy": 0.5145789965377036,
+        "observationChangeRate": 0.568495958767717,
+        "score": 0.5343876839189159
+      },
+      {
+        "candidateId": "random-09",
+        "detailedAccuracy": 0.41671219777980706,
+        "rootAccuracy": 0.5133275083338502,
+        "observationChangeRate": 0.5702823005739721,
+        "score": 0.5336384288517902
+      },
+      {
+        "candidateId": "random-18",
+        "detailedAccuracy": 0.4164046788034523,
+        "rootAccuracy": 0.5140247820561323,
+        "observationChangeRate": 0.5690523603139276,
+        "score": 0.5335298271112068
+      },
+      {
+        "candidateId": "random-25",
+        "detailedAccuracy": 0.41556556568213066,
+        "rootAccuracy": 0.5143078503388795,
+        "observationChangeRate": 0.5696087618601382,
+        "score": 0.5327503530296477
+      },
+      {
+        "candidateId": "random-28",
+        "detailedAccuracy": 0.4127052990227579,
+        "rootAccuracy": 0.5120190247206492,
+        "observationChangeRate": 0.5718050837530748,
+        "score": 0.5292739535278587
+      },
+      {
+        "candidateId": "random-30",
+        "detailedAccuracy": 0.408809218376562,
+        "rootAccuracy": 0.5085174363404824,
+        "observationChangeRate": 0.5754363359493967,
+        "score": 0.5244298507426947
+      },
+      {
+        "candidateId": "random-10",
+        "detailedAccuracy": 0.40726445533013167,
+        "rootAccuracy": 0.5075979179403896,
+        "observationChangeRate": 0.577046972004217,
+        "score": 0.5226229953751447
+      },
+      {
+        "candidateId": "random-21",
+        "detailedAccuracy": 0.40577541539862055,
+        "rootAccuracy": 0.5058155721485877,
+        "observationChangeRate": 0.5782476279723556,
+        "score": 0.5206643558763203
+      },
+      {
+        "candidateId": "random-05",
+        "detailedAccuracy": 0.4058136407007857,
+        "rootAccuracy": 0.5050523372485685,
+        "observationChangeRate": 0.5790383038538128,
+        "score": 0.5204959589358515
+      },
+      {
+        "candidateId": "random-06",
+        "detailedAccuracy": 0.4037698547294604,
+        "rootAccuracy": 0.5056957681301965,
+        "observationChangeRate": 0.5790968724376244,
+        "score": 0.518611859313257
+      },
+      {
+        "candidateId": "random-17",
+        "detailedAccuracy": 0.4033776814010637,
+        "rootAccuracy": 0.5041584503252526,
+        "observationChangeRate": 0.5804146655733864,
+        "score": 0.5178090006709092
+      },
+      {
+        "candidateId": "random-32",
+        "detailedAccuracy": 0.40248719368725117,
+        "rootAccuracy": 0.5030386695347895,
+        "observationChangeRate": 0.5807953613681621,
+        "score": 0.5166309538435853
+      },
+      {
+        "candidateId": "random-23",
+        "detailedAccuracy": 0.4021115149867011,
+        "rootAccuracy": 0.5041737253097057,
+        "observationChangeRate": 0.5804439498652922,
+        "score": 0.5165460673168216
+      },
+      {
+        "candidateId": "random-12",
+        "detailedAccuracy": 0.40213942434586786,
+        "rootAccuracy": 0.5023371731155708,
+        "observationChangeRate": 0.582288860255359,
+        "score": 0.5160779404196534
+      },
+      {
+        "candidateId": "random-24",
+        "detailedAccuracy": 0.4017943735717623,
+        "rootAccuracy": 0.5031494826255928,
+        "observationChangeRate": 0.5812053414548436,
+        "score": 0.5159576373990636
+      },
+      {
+        "candidateId": "random-15",
+        "detailedAccuracy": 0.4012312718414695,
+        "rootAccuracy": 0.5023132180194468,
+        "observationChangeRate": 0.5818788801686775,
+        "score": 0.5151719987429576
+      },
+      {
+        "candidateId": "random-02",
+        "detailedAccuracy": 0.4001309460206764,
+        "rootAccuracy": 0.5011590260227422,
+        "observationChangeRate": 0.5829038303853813,
+        "score": 0.5137626259186543
+      },
+      {
+        "candidateId": "random-19",
+        "detailedAccuracy": 0.39918382680107156,
+        "rootAccuracy": 0.500455677630122,
+        "observationChangeRate": 0.5841337706454258,
+        "score": 0.5126150707956936
+      },
+      {
+        "candidateId": "random-20",
+        "detailedAccuracy": 0.39895419126910175,
+        "rootAccuracy": 0.5009026318128457,
+        "observationChangeRate": 0.583108820428722,
+        "score": 0.5125176728137387
+      },
+      {
+        "candidateId": "random-16",
+        "detailedAccuracy": 0.39828843009738424,
+        "rootAccuracy": 0.5014182781732597,
+        "observationChangeRate": 0.5831673890125337,
+        "score": 0.5119796518604485
+      },
+      {
+        "candidateId": "random-31",
+        "detailedAccuracy": 0.3975576628654751,
+        "rootAccuracy": 0.5001054508109626,
+        "observationChangeRate": 0.5839873491858967,
+        "score": 0.5109042785844977
+      },
+      {
+        "candidateId": "random-08",
+        "detailedAccuracy": 0.39562852072441484,
+        "rootAccuracy": 0.49921945729579353,
+        "observationChangeRate": 0.5855394166569052,
+        "score": 0.5087225967152251
+      },
+      {
+        "candidateId": "random-07",
+        "detailedAccuracy": 0.3920553063376012,
+        "rootAccuracy": 0.49569594064509986,
+        "observationChangeRate": 0.5896685018156261,
+        "score": 0.5041859214625637
+      },
+      {
+        "candidateId": "random-29",
+        "detailedAccuracy": 0.3902593460693507,
+        "rootAccuracy": 0.4942890965327495,
+        "observationChangeRate": 0.5912498535785404,
+        "score": 0.5020066231309672
+      },
+      {
+        "candidateId": "random-27",
+        "detailedAccuracy": 0.3900291958373828,
+        "rootAccuracy": 0.49423641207298297,
+        "observationChangeRate": 0.5915426964975987,
+        "score": 0.5017574449256766
+      },
+      {
+        "candidateId": "random-26",
+        "detailedAccuracy": 0.3863849887601811,
+        "rootAccuracy": 0.49340647619262884,
+        "observationChangeRate": 0.5915719807895045,
+        "score": 0.4979051681925482
+      },
+      {
+        "candidateId": "random-13",
+        "detailedAccuracy": 0.3814881349929727,
+        "rootAccuracy": 0.4898198718413382,
+        "observationChangeRate": 0.5956132130725079,
+        "score": 0.4920308386918571
+      },
+      {
+        "candidateId": "random-03",
+        "detailedAccuracy": 0.3797612381225767,
+        "rootAccuracy": 0.48945726929347705,
+        "observationChangeRate": 0.5960817617430011,
+        "score": 0.49020392021108594
+      },
+      {
+        "candidateId": "random-04",
+        "detailedAccuracy": 0.37950082750322384,
+        "rootAccuracy": 0.48931023623463604,
+        "observationChangeRate": 0.5964038889539651,
+        "score": 0.4899003087828036
+      },
+      {
+        "candidateId": "random-14",
+        "detailedAccuracy": 0.37891761171139743,
+        "rootAccuracy": 0.48894243345636595,
+        "observationChangeRate": 0.5965210261215884,
+        "score": 0.48922279955305714
+      },
+      {
+        "candidateId": "adaptive-temperature-calibrated",
+        "detailedAccuracy": 0.37737119430206956,
+        "rootAccuracy": 0.4874943957661393,
+        "observationChangeRate": 0.5983073679278436,
+        "score": 0.4872786458850475
+      },
+      {
+        "candidateId": "adaptive-without-entropy-suppression",
+        "detailedAccuracy": 0.3726618642999576,
+        "rootAccuracy": 0.48472695968579166,
+        "observationChangeRate": 0.5996544453555113,
+        "score": 0.48185051531429535
+      },
+      {
+        "candidateId": "adaptive-without-rule-protection",
+        "detailedAccuracy": 0.372137974002841,
+        "rootAccuracy": 0.48406954499750326,
+        "observationChangeRate": 0.6004451212369685,
+        "score": 0.48114645782747745
+      },
+      {
+        "candidateId": "chord-evidence-only",
+        "detailedAccuracy": 0.3713547512652082,
+        "rootAccuracy": 0.483737335195674,
+        "observationChangeRate": 0.6006793955722151,
+        "score": 0.4802754971526824
+      },
+      {
+        "candidateId": "current-adaptive",
+        "detailedAccuracy": 0.37122755447369943,
+        "rootAccuracy": 0.4836622359325244,
+        "observationChangeRate": 0.6006793955722151,
+        "score": 0.48012952554538624
+      }
+    ],
+    "results": [
+      {
+        "candidate": {
+          "id": "fixed-current-weight",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.35,
+            "learnedBoundaryWeight": 0.25,
+            "bassRootWeight": 0.25,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.6,
+            "maximumLearnedEntropy": 0.75,
+            "protectRuleConfidenceAbove": 0.72,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.55
+          },
+          "adaptiveWeighting": false,
+          "probabilityCalibration": "none",
+          "description": "Current learned weight without adaptive gates.",
+          "complexity": 1
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.46896220348769596,
+            "rootAccuracy": 0.5614655523950958,
+            "fragmentationRate": 0.62,
+            "regionsPerMinute": 19.732257364709277,
+            "meanAbsoluteBoundaryErrorMs": 1104.6371609680089,
+            "incorrectOverrides": 463,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.45675006632730925,
+            "rootAccuracy": 0.5427606151884149,
+            "fragmentationRate": 0.6086111111111111,
+            "regionsPerMinute": 19.60753584443999,
+            "meanAbsoluteBoundaryErrorMs": 1112.577566573417,
+            "incorrectOverrides": 520,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.4628561349075026,
+        "meanRootAccuracy": 0.5521130837917554,
+        "worstFoldDetailedAccuracy": 0.40902765475294506,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "random-22",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.784,
+            "learnedBoundaryWeight": 0,
+            "bassRootWeight": 0,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.356,
+            "maximumLearnedEntropy": 0.849,
+            "protectRuleConfidenceAbove": 0.81,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.784
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "temperature",
+          "description": "Deterministic bounded random-search candidate.",
+          "complexity": 2
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.43974538159491333,
+            "rootAccuracy": 0.5263618596892751,
+            "fragmentationRate": 0.5761111111111111,
+            "regionsPerMinute": 18.340627770125653,
+            "meanAbsoluteBoundaryErrorMs": 1393.7936987312366,
+            "incorrectOverrides": 197,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.41505568216618316,
+            "rootAccuracy": 0.5116847274026279,
+            "fragmentationRate": 0.5697222222222222,
+            "regionsPerMinute": 18.215906249856367,
+            "meanAbsoluteBoundaryErrorMs": 1373.1465290665235,
+            "incorrectOverrides": 195,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.4274005318805483,
+        "meanRootAccuracy": 0.5190232935459516,
+        "worstFoldDetailedAccuracy": 0.35166541977775906,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "random-01",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.765,
+            "learnedBoundaryWeight": 0.25,
+            "bassRootWeight": 0,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.356,
+            "maximumLearnedEntropy": 0.902,
+            "protectRuleConfidenceAbove": 0.75,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.765
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "none",
+          "description": "Deterministic bounded random-search candidate.",
+          "complexity": 2
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.4340781185816982,
+            "rootAccuracy": 0.5214747122373221,
+            "fragmentationRate": 0.5719444444444445,
+            "regionsPerMinute": 18.222470540396856,
+            "meanAbsoluteBoundaryErrorMs": 1391.6738649158724,
+            "incorrectOverrides": 183,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.41109628599560055,
+            "rootAccuracy": 0.5052822348456629,
+            "fragmentationRate": 0.5697222222222222,
+            "regionsPerMinute": 18.189649087694413,
+            "meanAbsoluteBoundaryErrorMs": 1379.9440387241505,
+            "incorrectOverrides": 161,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.4225872022886494,
+        "meanRootAccuracy": 0.5133784735414926,
+        "worstFoldDetailedAccuracy": 0.3467753599199714,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "random-09",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.803,
+            "learnedBoundaryWeight": 0,
+            "bassRootWeight": 0,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.469,
+            "maximumLearnedEntropy": 0.914,
+            "protectRuleConfidenceAbove": 0.775,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.803
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "temperature",
+          "description": "Deterministic bounded random-search candidate.",
+          "complexity": 2
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.42916558181921743,
+            "rootAccuracy": 0.5173374196530809,
+            "fragmentationRate": 0.5647222222222222,
+            "regionsPerMinute": 18.02554182418219,
+            "meanAbsoluteBoundaryErrorMs": 1472.7382112488692,
+            "incorrectOverrides": 180,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.4089632608423104,
+            "rootAccuracy": 0.5034759324995778,
+            "fragmentationRate": 0.5697222222222222,
+            "regionsPerMinute": 18.20277766877539,
+            "meanAbsoluteBoundaryErrorMs": 1366.431174868945,
+            "incorrectOverrides": 137,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.41906442133076394,
+        "meanRootAccuracy": 0.5104066760763293,
+        "worstFoldDetailedAccuracy": 0.33986822010379497,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "random-11",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.631,
+            "learnedBoundaryWeight": 0.25,
+            "bassRootWeight": 0,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.393,
+            "maximumLearnedEntropy": 0.853,
+            "protectRuleConfidenceAbove": 0.855,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.763
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "temperature",
+          "description": "Deterministic bounded random-search candidate.",
+          "complexity": 2
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.428184978203317,
+            "rootAccuracy": 0.515494634429822,
+            "fragmentationRate": 0.5686111111111111,
+            "regionsPerMinute": 18.104313310668058,
+            "meanAbsoluteBoundaryErrorMs": 1487.1585418394943,
+            "incorrectOverrides": 199,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.4085118700435613,
+            "rootAccuracy": 0.5034799182889013,
+            "fragmentationRate": 0.5672222222222222,
+            "regionsPerMinute": 18.15682763499197,
+            "meanAbsoluteBoundaryErrorMs": 1380.3984730646966,
+            "incorrectOverrides": 148,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.4183484241234392,
+        "meanRootAccuracy": 0.5094872763593616,
+        "worstFoldDetailedAccuracy": 0.3449884842860609,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "adaptive-temperature-calibrated",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.35,
+            "learnedBoundaryWeight": 0.25,
+            "bassRootWeight": 0.25,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.6,
+            "maximumLearnedEntropy": 0.75,
+            "protectRuleConfidenceAbove": 0.72,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.55
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "temperature",
+          "description": "Current adaptive weighting with fold-fitted temperature scaling.",
+          "complexity": 1
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.39611116211812103,
+            "rootAccuracy": 0.4869644690222314,
+            "fragmentationRate": 0.5477777777777778,
+            "regionsPerMinute": 17.487269999862114,
+            "meanAbsoluteBoundaryErrorMs": 1528.9521483651754,
+            "incorrectOverrides": 108,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.38005359828095553,
+            "rootAccuracy": 0.47581629670779507,
+            "fragmentationRate": 0.5566666666666666,
+            "regionsPerMinute": 17.789227364724596,
+            "meanAbsoluteBoundaryErrorMs": 1455.4036023679503,
+            "incorrectOverrides": 74,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.3880823801995383,
+        "meanRootAccuracy": 0.48139038286501323,
+        "worstFoldDetailedAccuracy": 0.32049685006907297,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "adaptive-without-entropy-suppression",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.35,
+            "learnedBoundaryWeight": 0.25,
+            "bassRootWeight": 0.25,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.6,
+            "maximumLearnedEntropy": 1,
+            "protectRuleConfidenceAbove": 0.72,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.55
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "none",
+          "description": "Adaptive weighting without the entropy hard gate.",
+          "complexity": 1
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.39148725657676664,
+            "rootAccuracy": 0.48348969822436955,
+            "fragmentationRate": 0.5466666666666666,
+            "regionsPerMinute": 17.467577128240645,
+            "meanAbsoluteBoundaryErrorMs": 1529.2993002754556,
+            "incorrectOverrides": 112,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.3792080860364161,
+            "rootAccuracy": 0.4761687069185497,
+            "fragmentationRate": 0.5580555555555555,
+            "regionsPerMinute": 17.841741689048508,
+            "meanAbsoluteBoundaryErrorMs": 1481.5485786245915,
+            "incorrectOverrides": 58,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.38534767130659137,
+        "meanRootAccuracy": 0.4798292025714596,
+        "worstFoldDetailedAccuracy": 0.3180446142091115,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "adaptive-without-rule-protection",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.35,
+            "learnedBoundaryWeight": 0.25,
+            "bassRootWeight": 0.25,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.6,
+            "maximumLearnedEntropy": 0.75,
+            "protectRuleConfidenceAbove": 0.89,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.55
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "none",
+          "description": "Adaptive weighting with high-confidence protection effectively relaxed.",
+          "complexity": 1
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.39108052525449327,
+            "rootAccuracy": 0.4829423391358355,
+            "fragmentationRate": 0.5463888888888889,
+            "regionsPerMinute": 17.415062803916737,
+            "meanAbsoluteBoundaryErrorMs": 1535.7591158470154,
+            "incorrectOverrides": 107,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.3787737516524139,
+            "rootAccuracy": 0.47525042878542106,
+            "fragmentationRate": 0.5575,
+            "regionsPerMinute": 17.815484526886554,
+            "meanAbsoluteBoundaryErrorMs": 1487.3790529788516,
+            "incorrectOverrides": 58,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.3849271384534536,
+        "meanRootAccuracy": 0.47909638396062826,
+        "worstFoldDetailedAccuracy": 0.3180829258184125,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "chord-evidence-only",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.35,
+            "learnedBoundaryWeight": 0,
+            "bassRootWeight": 0,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.6,
+            "maximumLearnedEntropy": 0.75,
+            "protectRuleConfidenceAbove": 0.72,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.55
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "none",
+          "description": "Learned chord evidence only; no learned boundary or fusion bass bonus.",
+          "complexity": 1
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.3906415659581948,
+            "rootAccuracy": 0.48219704842971756,
+            "fragmentationRate": 0.5455555555555556,
+            "regionsPerMinute": 17.40193422283576,
+            "meanAbsoluteBoundaryErrorMs": 1536.9968220490646,
+            "incorrectOverrides": 109,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.37885982708301624,
+            "rootAccuracy": 0.4752049137369103,
+            "fragmentationRate": 0.5577777777777778,
+            "regionsPerMinute": 17.82861310796753,
+            "meanAbsoluteBoundaryErrorMs": 1483.8251371111967,
+            "incorrectOverrides": 57,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.38475069652060556,
+        "meanRootAccuracy": 0.47870098108331394,
+        "worstFoldDetailedAccuracy": 0.3180071941358126,
+        "eligible": false
+      },
+      {
+        "candidate": {
+          "id": "current-adaptive",
+          "settings": {
+            "ruleObservationWeight": 1,
+            "learnedChordWeight": 0.35,
+            "learnedBoundaryWeight": 0.25,
+            "bassRootWeight": 0.25,
+            "allowLearnedBoundaryBackdating": false,
+            "minimumLearnedConfidence": 0.6,
+            "maximumLearnedEntropy": 0.75,
+            "protectRuleConfidenceAbove": 0.72,
+            "maximumLearnedWeightFullMix": 0.3,
+            "maximumLearnedWeightGuitarOnly": 0.55
+          },
+          "adaptiveWeighting": true,
+          "probabilityCalibration": "none",
+          "description": "Current conservative adaptive configuration.",
+          "complexity": 0
+        },
+        "captures": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.39063872254358206,
+            "rootAccuracy": 0.48191473389293804,
+            "fragmentationRate": 0.5458333333333333,
+            "regionsPerMinute": 17.421627094457225,
+            "meanAbsoluteBoundaryErrorMs": 1536.120965003677,
+            "incorrectOverrides": 110,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.3788087692173934,
+            "rootAccuracy": 0.4751538558712876,
+            "fragmentationRate": 0.5572222222222222,
+            "regionsPerMinute": 17.815484526886554,
+            "meanAbsoluteBoundaryErrorMs": 1484.6398062937465,
+            "incorrectOverrides": 54,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "meanDetailedAccuracy": 0.38472374588048774,
+        "meanRootAccuracy": 0.47853429488211285,
+        "worstFoldDetailedAccuracy": 0.3180446142091115,
+        "eligible": false
+      }
+    ],
+    "detailedResults": [
+      {
+        "candidateId": "current-adaptive",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.39063872254358206,
+            "rootAccuracy": 0.48191473389293804,
+            "fragmentationRate": 0.5458333333333333,
+            "regionsPerMinute": 17.421627094457225,
+            "meanAbsoluteBoundaryErrorMs": 1536.120965003677,
+            "incorrectOverrides": 110,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.3788087692173934,
+            "rootAccuracy": 0.4751538558712876,
+            "fragmentationRate": 0.5572222222222222,
+            "regionsPerMinute": 17.815484526886554,
+            "meanAbsoluteBoundaryErrorMs": 1484.6398062937465,
+            "incorrectOverrides": 54,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.44879152967300656,
+              "rootAccuracy": 0.552708535301912,
+              "fragmentationRate": 0.5638888888888889,
+              "regionsPerMinute": 17.395369932295264,
+              "meanAbsoluteBoundaryErrorMs": 1481.301491868659,
+              "incorrectOverrides": 12,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4561072726936376,
+              "rootAccuracy": 0.5659342156124243,
+              "fragmentationRate": 0.575,
+              "regionsPerMinute": 17.75640591202215,
+              "meanAbsoluteBoundaryErrorMs": 1437.1055721486428,
+              "incorrectOverrides": 9,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.41593537036969475,
+              "rootAccuracy": 0.5244096520664255,
+              "fragmentationRate": 0.5541666666666667,
+              "regionsPerMinute": 17.493834290402596,
+              "meanAbsoluteBoundaryErrorMs": 1389.8319296953428,
+              "incorrectOverrides": 8,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4291781667503026,
+              "rootAccuracy": 0.544788973237989,
+              "fragmentationRate": 0.5444444444444444,
+              "regionsPerMinute": 16.870226689056164,
+              "meanAbsoluteBoundaryErrorMs": 1819.095393103537,
+              "incorrectOverrides": 12,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.3950503861599306,
+              "rootAccuracy": 0.4725016079132708,
+              "fragmentationRate": 0.5111111111111111,
+              "regionsPerMinute": 16.08251182419751,
+              "meanAbsoluteBoundaryErrorMs": 1967.4717339823267,
+              "incorrectOverrides": 35,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.3598197543388046,
+              "rootAccuracy": 0.4499577871630555,
+              "fragmentationRate": 0.5055555555555555,
+              "regionsPerMinute": 15.951226013387734,
+              "meanAbsoluteBoundaryErrorMs": 1754.1403075242363,
+              "incorrectOverrides": 13,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.34358163029267635,
+              "rootAccuracy": 0.431269027680038,
+              "fragmentationRate": 0.5111111111111111,
+              "regionsPerMinute": 16.377904898519503,
+              "meanAbsoluteBoundaryErrorMs": 1684.6892716743914,
+              "incorrectOverrides": 26,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.33089403809511064,
+              "rootAccuracy": 0.4121479189563087,
+              "fragmentationRate": 0.5611111111111111,
+              "regionsPerMinute": 17.95333462823681,
+              "meanAbsoluteBoundaryErrorMs": 1217.1926580113109,
+              "incorrectOverrides": 11,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3498346962226003,
+              "rootAccuracy": 0.42868484650304317,
+              "fragmentationRate": 0.5888888888888889,
+              "regionsPerMinute": 19.758514526871227,
+              "meanAbsoluteBoundaryErrorMs": 1145.543794802546,
+              "incorrectOverrides": 29,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3180446142091115,
+              "rootAccuracy": 0.40294038438666097,
+              "fragmentationRate": 0.6,
+              "regionsPerMinute": 20.54622939172988,
+              "meanAbsoluteBoundaryErrorMs": 1185.6082589565442,
+              "incorrectOverrides": 9,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 2376,
+          "incorrect": 164,
+          "blockedCorrectMl": 6382,
+          "protectedCorrectRule": 2492
+        }
+      },
+      {
+        "candidateId": "fixed-current-weight",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.46896220348769596,
+            "rootAccuracy": 0.5614655523950958,
+            "fragmentationRate": 0.62,
+            "regionsPerMinute": 19.732257364709277,
+            "meanAbsoluteBoundaryErrorMs": 1104.6371609680089,
+            "incorrectOverrides": 463,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.45675006632730925,
+            "rootAccuracy": 0.5427606151884149,
+            "fragmentationRate": 0.6086111111111111,
+            "regionsPerMinute": 19.60753584443999,
+            "meanAbsoluteBoundaryErrorMs": 1112.577566573417,
+            "incorrectOverrides": 520,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.48486039661222935,
+              "rootAccuracy": 0.602585800146568,
+              "fragmentationRate": 0.6416666666666667,
+              "regionsPerMinute": 20.152371959300552,
+              "meanAbsoluteBoundaryErrorMs": 1104.8046117404244,
+              "incorrectOverrides": 97,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.49336977972354945,
+              "rootAccuracy": 0.6027208717653024,
+              "fragmentationRate": 0.65,
+              "regionsPerMinute": 20.11955050659811,
+              "meanAbsoluteBoundaryErrorMs": 870.8304260499731,
+              "incorrectOverrides": 153,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.47768083546048884,
+              "rootAccuracy": 0.569481654354126,
+              "fragmentationRate": 0.6083333333333333,
+              "regionsPerMinute": 19.331835641739456,
+              "meanAbsoluteBoundaryErrorMs": 1048.7973605785542,
+              "incorrectOverrides": 74,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4759682979018266,
+              "rootAccuracy": 0.5749187315134984,
+              "fragmentationRate": 0.5930555555555556,
+              "regionsPerMinute": 18.642585134988135,
+              "meanAbsoluteBoundaryErrorMs": 993.5382946255661,
+              "incorrectOverrides": 92,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.5021529290491464,
+              "rootAccuracy": 0.5972917017969033,
+              "fragmentationRate": 0.6291666666666667,
+              "regionsPerMinute": 19.495942905251674,
+              "meanAbsoluteBoundaryErrorMs": 933.671230588108,
+              "incorrectOverrides": 114,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.4858440883630941,
+              "rootAccuracy": 0.5598267659934736,
+              "fragmentationRate": 0.5791666666666667,
+              "regionsPerMinute": 18.34719206066614,
+              "meanAbsoluteBoundaryErrorMs": 1382.1653624601684,
+              "incorrectOverrides": 95,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.43827332830816673,
+              "rootAccuracy": 0.5145520362123823,
+              "fragmentationRate": 0.5861111111111111,
+              "regionsPerMinute": 18.544120776880803,
+              "meanAbsoluteBoundaryErrorMs": 1323.9317266142205,
+              "incorrectOverrides": 90,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.40902765475294506,
+              "rootAccuracy": 0.47683258843338916,
+              "fragmentationRate": 0.6083333333333333,
+              "regionsPerMinute": 19.266192736334567,
+              "meanAbsoluteBoundaryErrorMs": 1248.4031705172695,
+              "incorrectOverrides": 100,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.44184352800844756,
+              "rootAccuracy": 0.5234165694654975,
+              "fragmentationRate": 0.6347222222222222,
+              "regionsPerMinute": 21.13701554037387,
+              "meanAbsoluteBoundaryErrorMs": 1110.2887601554175,
+              "incorrectOverrides": 88,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.4195405108951311,
+              "rootAccuracy": 0.4995041182364109,
+              "fragmentationRate": 0.6125,
+              "regionsPerMinute": 21.662158783612973,
+              "meanAbsoluteBoundaryErrorMs": 1065.9899572449149,
+              "incorrectOverrides": 80,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 6005,
+          "incorrect": 983,
+          "blockedCorrectMl": 4296,
+          "protectedCorrectRule": 1786
+        }
+      },
+      {
+        "candidateId": "adaptive-without-rule-protection",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.39108052525449327,
+            "rootAccuracy": 0.4829423391358355,
+            "fragmentationRate": 0.5463888888888889,
+            "regionsPerMinute": 17.415062803916737,
+            "meanAbsoluteBoundaryErrorMs": 1535.7591158470154,
+            "incorrectOverrides": 107,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.3787737516524139,
+            "rootAccuracy": 0.47525042878542106,
+            "fragmentationRate": 0.5575,
+            "regionsPerMinute": 17.815484526886554,
+            "meanAbsoluteBoundaryErrorMs": 1487.3790529788516,
+            "incorrectOverrides": 58,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.44879152967300656,
+              "rootAccuracy": 0.5550227780863709,
+              "fragmentationRate": 0.5652777777777778,
+              "regionsPerMinute": 17.42819138499771,
+              "meanAbsoluteBoundaryErrorMs": 1478.472947238686,
+              "incorrectOverrides": 12,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4561072726936376,
+              "rootAccuracy": 0.5659342156124243,
+              "fragmentationRate": 0.575,
+              "regionsPerMinute": 17.75640591202215,
+              "meanAbsoluteBoundaryErrorMs": 1437.1055721486428,
+              "incorrectOverrides": 9,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.41655441396954884,
+              "rootAccuracy": 0.525088351329993,
+              "fragmentationRate": 0.5555555555555556,
+              "regionsPerMinute": 17.559477195807485,
+              "meanAbsoluteBoundaryErrorMs": 1387.107456464473,
+              "incorrectOverrides": 7,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4291781667503026,
+              "rootAccuracy": 0.5456306720169358,
+              "fragmentationRate": 0.5458333333333333,
+              "regionsPerMinute": 16.903048141758607,
+              "meanAbsoluteBoundaryErrorMs": 1816.8864008822754,
+              "incorrectOverrides": 12,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.39469028870324474,
+              "rootAccuracy": 0.47214151045658487,
+              "fragmentationRate": 0.5125,
+              "regionsPerMinute": 16.08251182419751,
+              "meanAbsoluteBoundaryErrorMs": 1967.9436483799768,
+              "incorrectOverrides": 35,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.3593989664836451,
+              "rootAccuracy": 0.449536999307896,
+              "fragmentationRate": 0.5041666666666667,
+              "regionsPerMinute": 15.918404560685289,
+              "meanAbsoluteBoundaryErrorMs": 1769.4074830967552,
+              "incorrectOverrides": 14,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.34466002245242244,
+              "rootAccuracy": 0.43290253405154244,
+              "fragmentationRate": 0.5097222222222222,
+              "regionsPerMinute": 16.24661908770973,
+              "meanAbsoluteBoundaryErrorMs": 1688.9975085721176,
+              "incorrectOverrides": 27,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.3311014265160715,
+              "rootAccuracy": 0.41193198834642425,
+              "fragmentationRate": 0.5611111111111111,
+              "regionsPerMinute": 17.95333462823681,
+              "meanAbsoluteBoundaryErrorMs": 1217.8094343271,
+              "incorrectOverrides": 14,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3507063714742425,
+              "rootAccuracy": 0.4295565217546852,
+              "fragmentationRate": 0.5888888888888889,
+              "regionsPerMinute": 19.758514526871227,
+              "meanAbsoluteBoundaryErrorMs": 1144.558444707173,
+              "incorrectOverrides": 26,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3180829258184125,
+              "rootAccuracy": 0.40321826864342514,
+              "fragmentationRate": 0.6013888888888889,
+              "regionsPerMinute": 20.54622939172988,
+              "meanAbsoluteBoundaryErrorMs": 1185.4988270735457,
+              "incorrectOverrides": 9,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 2382,
+          "incorrect": 165,
+          "blockedCorrectMl": 6377,
+          "protectedCorrectRule": 2490
+        }
+      },
+      {
+        "candidateId": "adaptive-without-entropy-suppression",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.39148725657676664,
+            "rootAccuracy": 0.48348969822436955,
+            "fragmentationRate": 0.5466666666666666,
+            "regionsPerMinute": 17.467577128240645,
+            "meanAbsoluteBoundaryErrorMs": 1529.2993002754556,
+            "incorrectOverrides": 112,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.3792080860364161,
+            "rootAccuracy": 0.4761687069185497,
+            "fragmentationRate": 0.5580555555555555,
+            "regionsPerMinute": 17.841741689048508,
+            "meanAbsoluteBoundaryErrorMs": 1481.5485786245915,
+            "incorrectOverrides": 58,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4485611216395597,
+              "rootAccuracy": 0.553954051214549,
+              "fragmentationRate": 0.5638888888888889,
+              "regionsPerMinute": 17.42819138499771,
+              "meanAbsoluteBoundaryErrorMs": 1478.1284271695743,
+              "incorrectOverrides": 13,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4561072726936376,
+              "rootAccuracy": 0.5659342156124243,
+              "fragmentationRate": 0.575,
+              "regionsPerMinute": 17.75640591202215,
+              "meanAbsoluteBoundaryErrorMs": 1437.1055721486428,
+              "incorrectOverrides": 9,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.41630616496365824,
+              "rootAccuracy": 0.5250405976068404,
+              "fragmentationRate": 0.5555555555555556,
+              "regionsPerMinute": 17.559477195807485,
+              "meanAbsoluteBoundaryErrorMs": 1383.3006244232338,
+              "incorrectOverrides": 8,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4294980983281141,
+              "rootAccuracy": 0.5459017548051155,
+              "fragmentationRate": 0.5444444444444444,
+              "regionsPerMinute": 16.903048141758607,
+              "meanAbsoluteBoundaryErrorMs": 1816.1240023733471,
+              "incorrectOverrides": 12,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.3951380670611447,
+              "rootAccuracy": 0.4743018637663399,
+              "fragmentationRate": 0.5125,
+              "regionsPerMinute": 16.115333276899953,
+              "meanAbsoluteBoundaryErrorMs": 1964.980699568788,
+              "incorrectOverrides": 35,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.3593989664836451,
+              "rootAccuracy": 0.449536999307896,
+              "fragmentationRate": 0.5041666666666667,
+              "regionsPerMinute": 15.918404560685289,
+              "meanAbsoluteBoundaryErrorMs": 1769.4074830967552,
+              "incorrectOverrides": 14,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.34460728728511375,
+              "rootAccuracy": 0.4324781863193192,
+              "fragmentationRate": 0.5125,
+              "regionsPerMinute": 16.377904898519503,
+              "meanAbsoluteBoundaryErrorMs": 1678.2742912474364,
+              "incorrectOverrides": 26,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.33299147846757204,
+              "rootAccuracy": 0.41661080208041806,
+              "fragmentationRate": 0.5666666666666667,
+              "regionsPerMinute": 18.08462043904659,
+              "meanAbsoluteBoundaryErrorMs": 1191.2028698890451,
+              "incorrectOverrides": 14,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3528236419343556,
+              "rootAccuracy": 0.4316737922147984,
+              "fragmentationRate": 0.5888888888888889,
+              "regionsPerMinute": 19.856978884978556,
+              "meanAbsoluteBoundaryErrorMs": 1129.796505024884,
+              "incorrectOverrides": 30,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3180446142091115,
+              "rootAccuracy": 0.40285976278689534,
+              "fragmentationRate": 0.6,
+              "regionsPerMinute": 20.54622939172988,
+              "meanAbsoluteBoundaryErrorMs": 1183.3173754978975,
+              "incorrectOverrides": 9,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 2407,
+          "incorrect": 170,
+          "blockedCorrectMl": 6355,
+          "protectedCorrectRule": 2489
+        }
+      },
+      {
+        "candidateId": "adaptive-temperature-calibrated",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.39611116211812103,
+            "rootAccuracy": 0.4869644690222314,
+            "fragmentationRate": 0.5477777777777778,
+            "regionsPerMinute": 17.487269999862114,
+            "meanAbsoluteBoundaryErrorMs": 1528.9521483651754,
+            "incorrectOverrides": 108,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.38005359828095553,
+            "rootAccuracy": 0.47581629670779507,
+            "fragmentationRate": 0.5566666666666666,
+            "regionsPerMinute": 17.789227364724596,
+            "meanAbsoluteBoundaryErrorMs": 1455.4036023679503,
+            "incorrectOverrides": 74,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4500194339799825,
+              "rootAccuracy": 0.5593998158909226,
+              "fragmentationRate": 0.5652777777777778,
+              "regionsPerMinute": 17.493834290402596,
+              "meanAbsoluteBoundaryErrorMs": 1474.2886008686485,
+              "incorrectOverrides": 14,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.45658897464139053,
+              "rootAccuracy": 0.5651143006580933,
+              "fragmentationRate": 0.5791666666666667,
+              "regionsPerMinute": 17.789227364724592,
+              "meanAbsoluteBoundaryErrorMs": 1443.069469958142,
+              "incorrectOverrides": 13,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.42330339367529185,
+              "rootAccuracy": 0.5238898095762479,
+              "fragmentationRate": 0.5541666666666667,
+              "regionsPerMinute": 17.461012837700153,
+              "meanAbsoluteBoundaryErrorMs": 1401.1477906141029,
+              "incorrectOverrides": 6,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4359556788665713,
+              "rootAccuracy": 0.5440163907340099,
+              "fragmentationRate": 0.5375,
+              "regionsPerMinute": 16.6732979728415,
+              "meanAbsoluteBoundaryErrorMs": 1760.1431937021196,
+              "incorrectOverrides": 12,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.3950503861599306,
+              "rootAccuracy": 0.4725016079132708,
+              "fragmentationRate": 0.5111111111111111,
+              "regionsPerMinute": 16.08251182419751,
+              "meanAbsoluteBoundaryErrorMs": 1967.4717339823267,
+              "incorrectOverrides": 35,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.3598197543388046,
+              "rootAccuracy": 0.4499577871630555,
+              "fragmentationRate": 0.5055555555555555,
+              "regionsPerMinute": 15.951226013387734,
+              "meanAbsoluteBoundaryErrorMs": 1754.1403075242363,
+              "incorrectOverrides": 13,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.35111934385446963,
+              "rootAccuracy": 0.43944140191422587,
+              "fragmentationRate": 0.5180555555555556,
+              "regionsPerMinute": 16.443547803924393,
+              "meanAbsoluteBoundaryErrorMs": 1673.6254322923444,
+              "incorrectOverrides": 24,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.3274067334889383,
+              "rootAccuracy": 0.41153377299480953,
+              "fragmentationRate": 0.5625,
+              "regionsPerMinute": 17.986156080939256,
+              "meanAbsoluteBoundaryErrorMs": 1180.7019682750285,
+              "incorrectOverrides": 20,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3610632529209298,
+              "rootAccuracy": 0.43958970981648976,
+              "fragmentationRate": 0.5902777777777778,
+              "regionsPerMinute": 19.955443243085888,
+              "meanAbsoluteBoundaryErrorMs": 1116.2316828771795,
+              "incorrectOverrides": 29,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.32049685006907297,
+              "rootAccuracy": 0.40845923198900785,
+              "fragmentationRate": 0.5986111111111111,
+              "regionsPerMinute": 20.54622939172988,
+              "meanAbsoluteBoundaryErrorMs": 1127.8199879172794,
+              "incorrectOverrides": 16,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 2515,
+          "incorrect": 182,
+          "blockedCorrectMl": 6255,
+          "protectedCorrectRule": 2465
+        }
+      },
+      {
+        "candidateId": "chord-evidence-only",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.3906415659581948,
+            "rootAccuracy": 0.48219704842971756,
+            "fragmentationRate": 0.5455555555555556,
+            "regionsPerMinute": 17.40193422283576,
+            "meanAbsoluteBoundaryErrorMs": 1536.9968220490646,
+            "incorrectOverrides": 109,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.37885982708301624,
+            "rootAccuracy": 0.4752049137369103,
+            "fragmentationRate": 0.5577777777777778,
+            "regionsPerMinute": 17.82861310796753,
+            "meanAbsoluteBoundaryErrorMs": 1483.8251371111967,
+            "incorrectOverrides": 57,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.44879152967300656,
+              "rootAccuracy": 0.552708535301912,
+              "fragmentationRate": 0.5638888888888889,
+              "regionsPerMinute": 17.395369932295264,
+              "meanAbsoluteBoundaryErrorMs": 1481.301491868659,
+              "incorrectOverrides": 12,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4561072726936376,
+              "rootAccuracy": 0.5659342156124243,
+              "fragmentationRate": 0.575,
+              "regionsPerMinute": 17.75640591202215,
+              "meanAbsoluteBoundaryErrorMs": 1437.1055721486428,
+              "incorrectOverrides": 9,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4148310634437048,
+              "rootAccuracy": 0.5247027007512687,
+              "fragmentationRate": 0.5541666666666667,
+              "regionsPerMinute": 17.493834290402596,
+              "meanAbsoluteBoundaryErrorMs": 1388.994876123914,
+              "incorrectOverrides": 8,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4291781667503026,
+              "rootAccuracy": 0.544788973237989,
+              "fragmentationRate": 0.5444444444444444,
+              "regionsPerMinute": 16.870226689056164,
+              "meanAbsoluteBoundaryErrorMs": 1819.095393103537,
+              "incorrectOverrides": 12,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.3950503861599306,
+              "rootAccuracy": 0.4725016079132708,
+              "fragmentationRate": 0.5111111111111111,
+              "regionsPerMinute": 16.08251182419751,
+              "meanAbsoluteBoundaryErrorMs": 1967.4717339823267,
+              "incorrectOverrides": 35,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.35901841531680206,
+              "rootAccuracy": 0.44915644814105304,
+              "fragmentationRate": 0.5069444444444444,
+              "regionsPerMinute": 15.984047466090178,
+              "meanAbsoluteBoundaryErrorMs": 1753.0324444909818,
+              "incorrectOverrides": 16,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.3443814994111243,
+              "rootAccuracy": 0.4320688967984859,
+              "fragmentationRate": 0.5097222222222222,
+              "regionsPerMinute": 16.27944054041217,
+              "meanAbsoluteBoundaryErrorMs": 1689.66862263593,
+              "incorrectOverrides": 26,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.3319880865185254,
+              "rootAccuracy": 0.41324196737972346,
+              "fragmentationRate": 0.5611111111111111,
+              "regionsPerMinute": 17.986156080939256,
+              "meanAbsoluteBoundaryErrorMs": 1214.0889739126712,
+              "incorrectOverrides": 11,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3501533511032066,
+              "rootAccuracy": 0.42900350138364934,
+              "fragmentationRate": 0.5888888888888889,
+              "regionsPerMinute": 19.758514526871227,
+              "meanAbsoluteBoundaryErrorMs": 1145.835523704712,
+              "incorrectOverrides": 28,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3180071941358126,
+              "rootAccuracy": 0.40290296431336203,
+              "fragmentationRate": 0.6013888888888889,
+              "regionsPerMinute": 20.54622939172988,
+              "meanAbsoluteBoundaryErrorMs": 1185.7151442886338,
+              "incorrectOverrides": 9,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 2376,
+          "incorrect": 166,
+          "blockedCorrectMl": 6385,
+          "protectedCorrectRule": 2491
+        }
+      },
+      {
+        "candidateId": "random-01",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.4340781185816982,
+            "rootAccuracy": 0.5214747122373221,
+            "fragmentationRate": 0.5719444444444445,
+            "regionsPerMinute": 18.222470540396856,
+            "meanAbsoluteBoundaryErrorMs": 1391.6738649158724,
+            "incorrectOverrides": 183,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.41109628599560055,
+            "rootAccuracy": 0.5052822348456629,
+            "fragmentationRate": 0.5697222222222222,
+            "regionsPerMinute": 18.189649087694413,
+            "meanAbsoluteBoundaryErrorMs": 1379.9440387241505,
+            "incorrectOverrides": 161,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.47302591125603716,
+              "rootAccuracy": 0.5798487596219553,
+              "fragmentationRate": 0.5888888888888889,
+              "regionsPerMinute": 18.150263344451474,
+              "meanAbsoluteBoundaryErrorMs": 1386.7317511342492,
+              "incorrectOverrides": 26,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4707353483143702,
+              "rootAccuracy": 0.5843310241802344,
+              "fragmentationRate": 0.5916666666666667,
+              "regionsPerMinute": 18.0189775336417,
+              "meanAbsoluteBoundaryErrorMs": 1476.7235577509866,
+              "incorrectOverrides": 32,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4589323588317026,
+              "rootAccuracy": 0.5540568485840521,
+              "fragmentationRate": 0.5597222222222222,
+              "regionsPerMinute": 17.822048817427035,
+              "meanAbsoluteBoundaryErrorMs": 1386.3308103550423,
+              "incorrectOverrides": 22,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.45212645095348064,
+              "rootAccuracy": 0.5589545773149748,
+              "fragmentationRate": 0.5513888888888889,
+              "regionsPerMinute": 17.42819138499771,
+              "meanAbsoluteBoundaryErrorMs": 1619.1988529209398,
+              "incorrectOverrides": 31,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.44562083822183557,
+              "rootAccuracy": 0.522907682576102,
+              "fragmentationRate": 0.5541666666666667,
+              "regionsPerMinute": 17.067155405270825,
+              "meanAbsoluteBoundaryErrorMs": 1480.0961096487495,
+              "incorrectOverrides": 67,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.4103698984929855,
+              "rootAccuracy": 0.4926492022448149,
+              "fragmentationRate": 0.5180555555555556,
+              "regionsPerMinute": 16.115333276899953,
+              "meanAbsoluteBoundaryErrorMs": 1621.798796751746,
+              "incorrectOverrides": 35,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.39640586900382063,
+              "rootAccuracy": 0.47355551735687085,
+              "fragmentationRate": 0.5458333333333333,
+              "regionsPerMinute": 17.132798310675714,
+              "meanAbsoluteBoundaryErrorMs": 1653.8947999596974,
+              "incorrectOverrides": 36,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.3754743722971947,
+              "rootAccuracy": 0.45815188952132274,
+              "fragmentationRate": 0.5847222222222223,
+              "regionsPerMinute": 18.44565641877347,
+              "meanAbsoluteBoundaryErrorMs": 1111.7013834345482,
+              "incorrectOverrides": 26,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.39640561559509296,
+              "rootAccuracy": 0.4770047530476277,
+              "fragmentationRate": 0.6111111111111112,
+              "regionsPerMinute": 20.940086824159206,
+              "meanAbsoluteBoundaryErrorMs": 1045.0170285495262,
+              "incorrectOverrides": 32,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3467753599199714,
+              "rootAccuracy": 0.43232448096696763,
+              "fragmentationRate": 0.6027777777777777,
+              "regionsPerMinute": 20.940086824159206,
+              "meanAbsoluteBoundaryErrorMs": 1057.8664154298488,
+              "incorrectOverrides": 37,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 3904,
+          "incorrect": 344,
+          "blockedCorrectMl": 5258,
+          "protectedCorrectRule": 2353
+        }
+      },
+      {
+        "candidateId": "random-09",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.42916558181921743,
+            "rootAccuracy": 0.5173374196530809,
+            "fragmentationRate": 0.5647222222222222,
+            "regionsPerMinute": 18.02554182418219,
+            "meanAbsoluteBoundaryErrorMs": 1472.7382112488692,
+            "incorrectOverrides": 180,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.4089632608423104,
+            "rootAccuracy": 0.5034759324995778,
+            "fragmentationRate": 0.5697222222222222,
+            "regionsPerMinute": 18.20277766877539,
+            "meanAbsoluteBoundaryErrorMs": 1366.431174868945,
+            "incorrectOverrides": 137,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4736234662599795,
+              "rootAccuracy": 0.5807918723142396,
+              "fragmentationRate": 0.5916666666666667,
+              "regionsPerMinute": 18.183084797153917,
+              "meanAbsoluteBoundaryErrorMs": 1382.4809042490022,
+              "incorrectOverrides": 21,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.47137494371037036,
+              "rootAccuracy": 0.5864081799363583,
+              "fragmentationRate": 0.5944444444444444,
+              "regionsPerMinute": 17.986156080939256,
+              "meanAbsoluteBoundaryErrorMs": 1369.5373560012238,
+              "incorrectOverrides": 23,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4555890993514497,
+              "rootAccuracy": 0.5535207276245456,
+              "fragmentationRate": 0.5611111111111111,
+              "regionsPerMinute": 17.75640591202215,
+              "meanAbsoluteBoundaryErrorMs": 1386.3554738576818,
+              "incorrectOverrides": 19,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.45460582093140284,
+              "rootAccuracy": 0.5612220306975786,
+              "fragmentationRate": 0.5527777777777778,
+              "regionsPerMinute": 17.461012837700153,
+              "meanAbsoluteBoundaryErrorMs": 1645.4194289638997,
+              "incorrectOverrides": 23,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.42805845066098264,
+              "rootAccuracy": 0.5053355568269171,
+              "fragmentationRate": 0.5222222222222223,
+              "regionsPerMinute": 16.34508344581706,
+              "meanAbsoluteBoundaryErrorMs": 2052.0936673298947,
+              "incorrectOverrides": 71,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.40334330079208197,
+              "rootAccuracy": 0.4831338662274527,
+              "fragmentationRate": 0.5166666666666667,
+              "regionsPerMinute": 16.180976182304843,
+              "meanAbsoluteBoundaryErrorMs": 1645.5087901154964,
+              "incorrectOverrides": 20,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.3920533723337538,
+              "rootAccuracy": 0.4700866349631024,
+              "fragmentationRate": 0.5361111111111111,
+              "regionsPerMinute": 17.165619763378157,
+              "meanAbsoluteBoundaryErrorMs": 1490.6675403817935,
+              "incorrectOverrides": 35,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.37562401867390305,
+              "rootAccuracy": 0.45941123235754056,
+              "fragmentationRate": 0.5763888888888888,
+              "regionsPerMinute": 18.314370607963696,
+              "meanAbsoluteBoundaryErrorMs": 1096.7630327735346,
+              "incorrectOverrides": 28,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.39650352048991944,
+              "rootAccuracy": 0.4769523065365971,
+              "fragmentationRate": 0.6125,
+              "regionsPerMinute": 20.677515202539656,
+              "meanAbsoluteBoundaryErrorMs": 1040.0494612427628,
+              "incorrectOverrides": 34,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.33986822010379497,
+              "rootAccuracy": 0.4272043532789588,
+              "fragmentationRate": 0.6083333333333333,
+              "regionsPerMinute": 21.07137263496898,
+              "meanAbsoluteBoundaryErrorMs": 1061.8233428924948,
+              "incorrectOverrides": 43,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 3746,
+          "incorrect": 317,
+          "blockedCorrectMl": 5319,
+          "protectedCorrectRule": 2384
+        }
+      },
+      {
+        "candidateId": "random-11",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.428184978203317,
+            "rootAccuracy": 0.515494634429822,
+            "fragmentationRate": 0.5686111111111111,
+            "regionsPerMinute": 18.104313310668058,
+            "meanAbsoluteBoundaryErrorMs": 1487.1585418394943,
+            "incorrectOverrides": 199,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.4085118700435613,
+            "rootAccuracy": 0.5034799182889013,
+            "fragmentationRate": 0.5672222222222222,
+            "regionsPerMinute": 18.15682763499197,
+            "meanAbsoluteBoundaryErrorMs": 1380.3984730646966,
+            "incorrectOverrides": 148,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.47276317211530705,
+              "rootAccuracy": 0.576505965654359,
+              "fragmentationRate": 0.5902777777777778,
+              "regionsPerMinute": 18.150263344451474,
+              "meanAbsoluteBoundaryErrorMs": 1385.329633452502,
+              "incorrectOverrides": 22,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.4689298090136465,
+              "rootAccuracy": 0.5810651225133019,
+              "fragmentationRate": 0.5930555555555556,
+              "regionsPerMinute": 18.051798986344142,
+              "meanAbsoluteBoundaryErrorMs": 1483.9575954285851,
+              "incorrectOverrides": 26,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4600673892355029,
+              "rootAccuracy": 0.5552538803166119,
+              "fragmentationRate": 0.5611111111111111,
+              "regionsPerMinute": 17.75640591202215,
+              "meanAbsoluteBoundaryErrorMs": 1380.4046222019215,
+              "incorrectOverrides": 19,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4504645582888904,
+              "rootAccuracy": 0.558523161454726,
+              "fragmentationRate": 0.55,
+              "regionsPerMinute": 17.36254847959282,
+              "meanAbsoluteBoundaryErrorMs": 1631.0761728359896,
+              "incorrectOverrides": 25,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.4223309440831237,
+              "rootAccuracy": 0.49587546726994575,
+              "fragmentationRate": 0.5305555555555556,
+              "regionsPerMinute": 16.50919070932928,
+              "meanAbsoluteBoundaryErrorMs": 1940.5279499489352,
+              "incorrectOverrides": 80,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.397921818663212,
+              "rootAccuracy": 0.4820756680459674,
+              "fragmentationRate": 0.5111111111111111,
+              "regionsPerMinute": 16.08251182419751,
+              "meanAbsoluteBoundaryErrorMs": 1600.1054889908792,
+              "incorrectOverrides": 33,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.39208840635252296,
+              "rootAccuracy": 0.4723711699791458,
+              "fragmentationRate": 0.5458333333333333,
+              "regionsPerMinute": 17.165619763378157,
+              "meanAbsoluteBoundaryErrorMs": 1674.7401970134865,
+              "incorrectOverrides": 46,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.38025467996599666,
+              "rootAccuracy": 0.46541617296841875,
+              "fragmentationRate": 0.5805555555555556,
+              "regionsPerMinute": 18.38001351336858,
+              "meanAbsoluteBoundaryErrorMs": 1117.7974720211328,
+              "incorrectOverrides": 28,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3936749792301264,
+              "rootAccuracy": 0.4774666889290457,
+              "fragmentationRate": 0.6152777777777778,
+              "regionsPerMinute": 20.940086824159206,
+              "meanAbsoluteBoundaryErrorMs": 1041.4250322835142,
+              "incorrectOverrides": 32,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.3449884842860609,
+              "rootAccuracy": 0.4303194664620925,
+              "fragmentationRate": 0.6013888888888889,
+              "regionsPerMinute": 20.907265371456763,
+              "meanAbsoluteBoundaryErrorMs": 1056.753191228331,
+              "incorrectOverrides": 36,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 3762,
+          "incorrect": 347,
+          "blockedCorrectMl": 5380,
+          "protectedCorrectRule": 2354
+        }
+      },
+      {
+        "candidateId": "random-22",
+        "aggregates": {
+          "audio_mono-mic": {
+            "detailedAccuracy": 0.43974538159491333,
+            "rootAccuracy": 0.5263618596892751,
+            "fragmentationRate": 0.5761111111111111,
+            "regionsPerMinute": 18.340627770125653,
+            "meanAbsoluteBoundaryErrorMs": 1393.7936987312366,
+            "incorrectOverrides": 197,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          },
+          "audio_mono-pickup_mix": {
+            "detailedAccuracy": 0.41505568216618316,
+            "rootAccuracy": 0.5116847274026279,
+            "fragmentationRate": 0.5697222222222222,
+            "regionsPerMinute": 18.215906249856367,
+            "meanAbsoluteBoundaryErrorMs": 1373.1465290665235,
+            "incorrectOverrides": 195,
+            "fallbacks": 0,
+            "regionInvariantsValid": true
+          }
+        },
+        "folds": [
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.47639559564556594,
+              "rootAccuracy": 0.5828258690683208,
+              "fragmentationRate": 0.6,
+              "regionsPerMinute": 18.511299324178356,
+              "meanAbsoluteBoundaryErrorMs": 1343.8373703063446,
+              "incorrectOverrides": 23,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p01",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p01",
+            "aggregate": {
+              "detailedAccuracy": 0.47279597551257213,
+              "rootAccuracy": 0.5905456972848487,
+              "fragmentationRate": 0.5916666666666667,
+              "regionsPerMinute": 18.11744189174903,
+              "meanAbsoluteBoundaryErrorMs": 1453.9580367680753,
+              "incorrectOverrides": 40,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4669567514475686,
+              "rootAccuracy": 0.5553703279085287,
+              "fragmentationRate": 0.5638888888888889,
+              "regionsPerMinute": 17.85487027012948,
+              "meanAbsoluteBoundaryErrorMs": 1359.0780697073526,
+              "incorrectOverrides": 20,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p02",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p02",
+            "aggregate": {
+              "detailedAccuracy": 0.4613244675524027,
+              "rootAccuracy": 0.5693564947123243,
+              "fragmentationRate": 0.5513888888888889,
+              "regionsPerMinute": 17.461012837700153,
+              "meanAbsoluteBoundaryErrorMs": 1583.540673112634,
+              "incorrectOverrides": 30,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.44611865793790084,
+              "rootAccuracy": 0.5230599929343305,
+              "fragmentationRate": 0.5513888888888889,
+              "regionsPerMinute": 17.03433395256838,
+              "meanAbsoluteBoundaryErrorMs": 1492.9716351474494,
+              "incorrectOverrides": 66,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p03",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p03",
+            "aggregate": {
+              "detailedAccuracy": 0.4096554144541396,
+              "rootAccuracy": 0.49381319381932065,
+              "fragmentationRate": 0.5180555555555556,
+              "regionsPerMinute": 16.115333276899953,
+              "meanAbsoluteBoundaryErrorMs": 1622.0860299821582,
+              "incorrectOverrides": 35,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.40024045066939384,
+              "rootAccuracy": 0.4820819804390054,
+              "fragmentationRate": 0.5430555555555555,
+              "regionsPerMinute": 17.132798310675714,
+              "meanAbsoluteBoundaryErrorMs": 1495.0349209284263,
+              "incorrectOverrides": 46,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p04",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p04",
+            "aggregate": {
+              "detailedAccuracy": 0.3798371335340422,
+              "rootAccuracy": 0.465399689934265,
+              "fragmentationRate": 0.5847222222222223,
+              "regionsPerMinute": 18.478477871475913,
+              "meanAbsoluteBoundaryErrorMs": 1072.7325954810149,
+              "incorrectOverrides": 39,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-mic",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.409015452274136,
+              "rootAccuracy": 0.488471128096188,
+              "fragmentationRate": 0.6222222222222222,
+              "regionsPerMinute": 21.169836993076313,
+              "meanAbsoluteBoundaryErrorMs": 1278.9480136165125,
+              "incorrectOverrides": 42,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          },
+          {
+            "foldId": "lopo-p05",
+            "captureType": "audio_mono-pickup_mix",
+            "performerId": "guitarset-p05",
+            "aggregate": {
+              "detailedAccuracy": 0.35166541977775906,
+              "rootAccuracy": 0.4393085612623818,
+              "fragmentationRate": 0.6027777777777777,
+              "regionsPerMinute": 20.907265371456763,
+              "meanAbsoluteBoundaryErrorMs": 1119.4210384634953,
+              "incorrectOverrides": 51,
+              "fallbacks": 0,
+              "regionInvariantsValid": true
+            }
+          }
+        ],
+        "overrides": {
+          "correct": 4110,
+          "incorrect": 392,
+          "blockedCorrectMl": 5102,
+          "protectedCorrectRule": 2306
+        }
+      }
+    ],
+    "paretoFrontier": [
+      "fixed-current-weight",
+      "random-22",
+      "random-01",
+      "random-09",
+      "adaptive-temperature-calibrated",
+      "adaptive-without-rule-protection",
+      "chord-evidence-only",
+      "current-adaptive"
+    ]
+  },
+  "selection": {
+    "selected": {
+      "candidate": {
+        "id": "current-adaptive",
+        "settings": {
+          "ruleObservationWeight": 1,
+          "learnedChordWeight": 0.35,
+          "learnedBoundaryWeight": 0.25,
+          "bassRootWeight": 0.25,
+          "allowLearnedBoundaryBackdating": false,
+          "minimumLearnedConfidence": 0.6,
+          "maximumLearnedEntropy": 0.75,
+          "protectRuleConfidenceAbove": 0.72,
+          "maximumLearnedWeightFullMix": 0.3,
+          "maximumLearnedWeightGuitarOnly": 0.55
+        },
+        "adaptiveWeighting": true,
+        "probabilityCalibration": "none",
+        "description": "Current conservative adaptive configuration.",
+        "complexity": 0
+      },
+      "captures": {
+        "audio_mono-mic": {
+          "detailedAccuracy": 0.39063872254358206,
+          "rootAccuracy": 0.48191473389293804,
+          "fragmentationRate": 0.5458333333333333,
+          "regionsPerMinute": 17.421627094457225,
+          "meanAbsoluteBoundaryErrorMs": 1536.120965003677,
+          "incorrectOverrides": 110,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        },
+        "audio_mono-pickup_mix": {
+          "detailedAccuracy": 0.3788087692173934,
+          "rootAccuracy": 0.4751538558712876,
+          "fragmentationRate": 0.5572222222222222,
+          "regionsPerMinute": 17.815484526886554,
+          "meanAbsoluteBoundaryErrorMs": 1484.6398062937465,
+          "incorrectOverrides": 54,
+          "fallbacks": 0,
+          "regionInvariantsValid": true
+        }
+      },
+      "meanDetailedAccuracy": 0.38472374588048774,
+      "meanRootAccuracy": 0.47853429488211285,
+      "worstFoldDetailedAccuracy": 0.3180446142091115
+    },
+    "selectedProbabilityCalibration": {
+      "kind": "none",
+      "value": 1
+    },
+    "settingsIdentity": "5e27e83e44d6b489dc06e86f73ce41b77a2e101d25e950f6065a1812b9f5d30f",
+    "selectedByConstraints": null,
+    "changedFromCurrent": false,
+    "reason": "No candidate satisfied all frozen stability constraints; the current experimental defaults are retained and the Pareto frontier is reported."
+  },
+  "limitations": [
+    "Every non-p00 GuitarSet performer overlaps learned-model training or development, so calibration metrics are integration-domain estimates.",
+    "GuitarSet contains alternate captures of solo acoustic guitar only; full-band validation remains required.",
+    "The calibration references contain no useful no-chord duration.",
+    "Logit scaling was not evaluated because the frozen learned response exposes probabilities rather than logits."
+  ]
+}

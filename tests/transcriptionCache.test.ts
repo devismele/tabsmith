@@ -10,6 +10,7 @@ import {
   FRETBOARD_MAPPER_VERSION,
   NOTE_CLEANUP_VERSION,
   reprocessPreservingPrevious,
+  shouldStoreTranscriptionResult,
   SOURCE_SEPARATION_MODEL_VERSION,
   TEMPO_QUANTIZATION_VERSION,
   TRANSCRIPTION_PIPELINE_VERSION,
@@ -47,6 +48,11 @@ function cacheInput(): TranscriptionCacheKeyInput {
     processingRange: { startSeconds: 0, endSeconds: null },
     guitarIsolationEnabled: true,
     sourceSeparationModelVersion: SOURCE_SEPARATION_MODEL_VERSION,
+    chordEngine: "rule",
+    learnedModelVersion: null,
+    learnedModelChecksum: null,
+    hybridDecoderVersion: null,
+    hybridSettings: null,
   };
 }
 
@@ -175,6 +181,40 @@ describe("canonical cache keys", () => {
     expect(await buildTranscriptionCacheKey(first))
       .toBe(await buildTranscriptionCacheKey(second));
   });
+
+  it("isolates rule and hybrid cache identities", async () => {
+    const rule = cacheInput();
+    const hybrid = {
+      ...rule,
+      chordEngine: "hybrid" as const,
+      learnedModelVersion: "model-v1",
+      learnedModelChecksum: "checksum-a",
+      hybridDecoderVersion: 2,
+      hybridSettings: {
+        ruleObservationWeight: 1,
+        learnedChordWeight: 0.35,
+        learnedBoundaryWeight: 0.25,
+        bassRootWeight: 0.25,
+        allowLearnedBoundaryBackdating: false,
+        minimumLearnedConfidence: 0.6,
+        maximumLearnedEntropy: 0.75,
+        protectRuleConfidenceAbove: 0.72,
+        maximumLearnedWeightFullMix: 0.3,
+        maximumLearnedWeightGuitarOnly: 0.55,
+      },
+    };
+    const ruleKey = await buildTranscriptionCacheKey(rule);
+    const hybridKey = await buildTranscriptionCacheKey(hybrid);
+    expect(ruleKey).not.toBe(hybridKey);
+    expect(await buildTranscriptionCacheKey({
+      ...hybrid,
+      learnedModelChecksum: "checksum-b",
+    })).not.toBe(hybridKey);
+    expect(await buildTranscriptionCacheKey({
+      ...hybrid,
+      hybridSettings: { ...hybrid.hybridSettings, learnedChordWeight: 0.2 },
+    })).not.toBe(hybridKey);
+  });
 });
 
 describe("cache-facing result behavior", () => {
@@ -185,6 +225,22 @@ describe("cache-facing result behavior", () => {
     });
     expect(outcome.result).toBe(previous);
     expect(outcome.replaced).toBe(false);
+  });
+
+  it("does not cache a hybrid request that fell back to rules", () => {
+    const input = {
+      ...cacheInput(),
+      chordEngine: "hybrid" as const,
+    };
+    const fallback = {
+      ...analysis(),
+      hybridEngine: { usedLearned: false, fallbackReason: "timeout" },
+    };
+    expect(shouldStoreTranscriptionResult(input, fallback)).toBe(false);
+    expect(shouldStoreTranscriptionResult(
+      input,
+      { ...fallback, hybridEngine: { usedLearned: true } },
+    )).toBe(true);
   });
 
   it("uses final arranged notes as the main count", () => {

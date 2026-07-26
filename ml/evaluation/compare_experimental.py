@@ -24,7 +24,10 @@ ML_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CHECKPOINT = ML_ROOT / "checkpoints" / "temporal-baseline-v0.pt"
 REPORT = ML_ROOT / "evaluation" / "reports" / "experimental-comparison.json"
 
-_KEYS = ["rootAccuracy", "majorMinorAccuracy", "detailedAccuracy", "fragmentationRate"]
+_KEYS = [
+    "rootAccuracy", "majorMinorAccuracy", "detailedAccuracy",
+    "fragmentationRate", "noChordRecall", "predictedRegions",
+]
 
 
 def _bpm(beats):
@@ -35,6 +38,21 @@ def _bpm(beats):
 def _mean(values):
     vals = [v for v in values if isinstance(v, (int, float))]
     return round(sum(vals) / len(vals), 4) if vals else None
+
+
+def _label_at(regions, time):
+    for region in regions:
+        if region.start <= time < region.end:
+            return region.label
+    return "N"
+
+
+def _override_count(rule_regions, hybrid_regions):
+    """Count hybrid regions whose midpoint differs from the rule proxy."""
+    return sum(
+        1 for region in hybrid_regions
+        if _label_at(rule_regions, (region.start + region.end) / 2) != region.label
+    )
 
 
 def compare(config: dict, checkpoint_path: Path) -> dict:
@@ -50,8 +68,14 @@ def compare(config: dict, checkpoint_path: Path) -> dict:
     results = {name: [] for name in predictors}
     for track, audio, sr in tracks:
         features = extract_features(audio, sr)
+        predictions = {name: predict(features) for name, predict in predictors.items()}
         for name, predict in predictors.items():
-            metrics = evaluate_regions(track.chords, predict(features), bpm=_bpm(track.beats))
+            metrics = evaluate_regions(track.chords, predictions[name], bpm=_bpm(track.beats))
+            if name == "hybrid-experimental":
+                metrics["mlOverridesVsRule"] = _override_count(
+                    predictions["rule-based (chroma-template-v0)"],
+                    predictions[name],
+                )
             results[name].append(metrics)
 
     aggregate = {}
@@ -64,6 +88,10 @@ def compare(config: dict, checkpoint_path: Path) -> dict:
         agg["meanSignedBoundaryErrorMs"] = _mean([m["meanSignedBoundaryErrorMs"] for m in metric_list])
         agg["extraChords"] = _mean([m["extraChords"] for m in metric_list])
         agg["missingChords"] = _mean([m["missingChords"] for m in metric_list])
+        if name == "hybrid-experimental":
+            agg["mlOverridesVsRule"] = _mean(
+                [m["mlOverridesVsRule"] for m in metric_list]
+            )
         aggregate[name] = agg
     return {"trackCount": len(tracks), "modelChecksum": metadata.get("checksum"), "aggregate": aggregate}
 

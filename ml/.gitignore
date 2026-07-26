@@ -16,5 +16,10 @@ checkpoints/*
 *.ckpt
 *.safetensors
 
+# Exported full-model weight JSONs are large dev artifacts (reproducible via
+# ml.exports.export_tcn_json). The small committed parity fixture under
+# src/learnedHarmony/__fixtures__ is what the TS test needs.
+exports/*.weights.json
+
 __pycache__/
 *.pyc

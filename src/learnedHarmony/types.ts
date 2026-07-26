@@ -1,10 +1,8 @@
-import type { ChordEvent } from "../types";
+import type { HarmonyObservationPackage } from "../chordAnalysis";
+import type { ChordAnalysisResult, ChordEvent } from "../types";
 
-// Application-side integration contract for a FUTURE learned-harmony model.
-// The current synthetic TCN is a pipeline-validation model only: nothing here is
-// wired into the production UI, no model is bundled, and the default provider is
-// disabled. These types define how a real model will one day communicate with
-// Tabsmith without restructuring the app.
+// Frozen learned-harmony v1 request/response contract plus internal hybrid types.
+// The model remains development-only and is excluded from release builds.
 
 export interface LearnedHarmonyRequest {
   contractVersion: number;
@@ -84,6 +82,10 @@ export interface LearnedHarmonyProvider {
 export interface RuleBasedHarmonyEvidence {
   pipelineVersion: string;
   regions: ChordEvent[];
+  /** Pre-decoder rule evidence. Required for genuine hybrid fusion. */
+  observationPackage?: HarmonyObservationPackage;
+  /** Exact rule result returned unchanged on every learned failure. */
+  analysisResult?: ChordAnalysisResult;
   frameTimes?: number[];
   /** Optional per-frame bass root pitch class (0..11) from the existing tracker. */
   bassRootPerFrame?: number[];
@@ -95,6 +97,88 @@ export interface HybridHarmonySettings {
   bassRootWeight: number;
   ruleObservationWeight: number;
   allowLearnedBoundaryBackdating: boolean;
+  minimumLearnedConfidence: number;
+  maximumLearnedEntropy: number;
+  protectRuleConfidenceAbove: number;
+  maximumLearnedWeightFullMix: number;
+  maximumLearnedWeightGuitarOnly: number;
+}
+
+export interface LearnedWindowEvidence {
+  chordProbabilities: Record<string, number>;
+  noChordProbability: number;
+  boundaryProbability: number;
+  /** Normalized to 0..1 across the root, quality and no-chord heads. */
+  entropy: number;
+  topChord: string | null;
+  topChordConfidence: number;
+  contributingFrameCount: number;
+}
+
+export interface HybridFusionContext {
+  sourceMode?: "full-mix" | "guitar-focused";
+  /**
+   * Evaluation-only ablation switch. Production callers omit this, so adaptive
+   * confidence/entropy/rule-protection weighting remains enabled.
+   */
+  adaptiveWeighting?: boolean;
+}
+
+export type HybridWeightStageId =
+  | "availability"
+  | "minimum-learned-confidence"
+  | "maximum-learned-entropy"
+  | "learned-confidence-scaling"
+  | "learned-entropy-scaling"
+  | "rule-score-margin"
+  | "rule-confidence-room"
+  | "high-rule-confidence-protection"
+  | "agreement-bonus"
+  | "learned-flicker-suppression"
+  | "source-specific-maximum";
+
+export interface HybridWeightStage {
+  id: HybridWeightStageId;
+  before: number;
+  after: number;
+  /** True only when this stage reduced the learned weight. */
+  limited: boolean;
+}
+
+/**
+ * Evaluation-facing trace of the existing adaptive-weight calculation. This is
+ * internal TypeScript state, not part of the frozen learned-harmony v1 wire
+ * contract and is intentionally not retained in application diagnostics.
+ */
+export interface HybridWeightTrace {
+  observationIndex: number;
+  startSeconds: number;
+  endSeconds: number;
+  ruleTopChord: string;
+  learnedTopChord: string | null;
+  learnedTopConfidence: number;
+  learnedEntropy: number;
+  contributingFrameCount: number;
+  effectiveWeight: number;
+  stages: HybridWeightStage[];
+  bassConflict: boolean;
+  noChordProtectionActive: boolean;
+  explicitDisagreementPenaltyApplied: false;
+}
+
+export interface HybridFusionDiagnostics {
+  alignedWindows: number;
+  missingLearnedWindows: number;
+  averageLearnedEntropy: number;
+  ruleLearnedAgreementRate: number;
+  ruleLearnedDisagreements: number;
+  changedTopCandidateWindows: number;
+  learnedBoundaryPeaksConsidered: number;
+  effectiveLearnedWeight: {
+    minimum: number;
+    maximum: number;
+    average: number;
+  };
 }
 
 export interface HybridHarmonyInput {
@@ -116,6 +200,7 @@ export type HybridFallbackReason =
 export interface HybridHarmonyResult {
   engine: "rule-based" | "hybrid-experimental";
   regions: ChordEvent[];
+  chordAnalysis?: ChordAnalysisResult;
   usedLearned: boolean;
   fallbackReason?: HybridFallbackReason;
   diagnostics: HybridDiagnostics;
@@ -126,6 +211,7 @@ export interface HybridDiagnostics {
   providerAvailable: boolean;
   featureConstructionMs?: number;
   inferenceMs?: number;
+  fusionMs?: number;
   decoderMs?: number;
   modelVersion?: string;
   modelChecksum?: string;
@@ -134,6 +220,15 @@ export interface HybridDiagnostics {
   learnedProbabilityEntropy?: number;
   boundaryPeakCount?: number;
   ruleLearnedDisagreements?: number;
+  ruleLearnedAgreementRate?: number;
+  changedTopCandidateWindows?: number;
+  finalRegionsChanged?: number;
+  effectiveLearnedWeightMinimum?: number;
+  effectiveLearnedWeightMaximum?: number;
+  effectiveLearnedWeightAverage?: number;
+  alignedLearnedWindows?: number;
+  missingLearnedWindows?: number;
+  sourceMode?: "full-mix" | "guitar-focused";
   warnings: string[];
   comparison: HybridComparisonRow[];
 }
