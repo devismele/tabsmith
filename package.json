@@ -33,6 +33,9 @@
     "evaluate:hybrid:cross-capture": "vite-node evaluation/run-cross-capture-summary.ts",
     "evaluate:hybrid:calibrated": "vite-node evaluation/run-hybrid-calibrated-validation.ts",
     "calibrate:hybrid": "vite-node evaluation/run-hybrid-calibration.ts --config evaluation/hybrid-calibration-config.json",
+    "baseline:temporal-v2": "python -m ml.evaluation.temporal_v2_baseline",
+    "ablate:temporal-v2": "python -m ml.evaluation.temporal_v2_ablation",
+    "verify:temporal-v2-parity": "vite-node evaluation/verify-temporal-v2-parity.ts --weights src/learnedHarmony/model/app-chord-model.weights.json",
     "evaluate:chord-section": "vite-node scripts/chord-section-ablation.ts",
     "evaluate:chord-redecode": "vite-node scripts/chord-section-redecode.ts"
   },

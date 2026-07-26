@@ -77,9 +77,26 @@ try {
   await send("Runtime.enable");
   await send("DOM.enable");
   await send("Page.enable");
+  // Edge can briefly hand the CDP target back as about:blank when a previous
+  // headless context is still shutting down. Navigate the selected target
+  // explicitly so readiness is tied to this run's requested app port.
+  await send("Page.navigate", { url: `http://127.0.0.1:${appPort}` });
+  let appReady = false;
   for (let attempt = 0; attempt < 50; attempt += 1) {
-    if (await evaluate("Boolean(document.querySelector('#file-input') && document.querySelector('#isolate-guitar'))")) break;
+    if (await evaluate("Boolean(document.querySelector('#file-input') && document.querySelector('#isolate-guitar'))")) {
+      appReady = true;
+      break;
+    }
     await delay(100);
+  }
+  if (!appReady) {
+    const pageState = await evaluate(`(() => ({
+      url: location.href,
+      title: document.title,
+      readyState: document.readyState,
+      appHtmlLength: document.querySelector('#app')?.innerHTML.length || 0
+    }))()`);
+    throw new Error(`Tabsmith page did not become ready: ${JSON.stringify(pageState)}`);
   }
 
   if (inputPath) {

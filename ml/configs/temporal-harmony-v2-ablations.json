@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "ablationId": "temporal-harmony-v2-bounded-ablation-v1",
+  "seed": 20260726,
+  "selectionMetric": "detailedAccuracy",
+  "candidates": [
+    {
+      "id": "v1-objective",
+      "description": "Same architecture and objective as v1, retrained on each grouped fold.",
+      "modelOverrides": {
+        "dilations": [
+          1,
+          2,
+          4,
+          8,
+          16
+        ]
+      },
+      "labelOverrides": {
+        "boundaryToleranceSeconds": 0.12
+      },
+      "trainingOverrides": {
+        "durationConsistencyLossWeight": 0.0,
+        "switchLossWeight": 0.0,
+        "hardBoundaryLossWeight": 0.0,
+        "boundarySwitchAgreementLossWeight": 0.0
+      },
+      "smoothing": {
+        "method": "none"
+      },
+      "useAugmentation": false
+    },
+    {
+      "id": "longer-context",
+      "description": "Longer receptive field only.",
+      "trainingOverrides": {
+        "durationConsistencyLossWeight": 0.0,
+        "switchLossWeight": 0.0,
+        "hardBoundaryLossWeight": 0.0,
+        "boundarySwitchAgreementLossWeight": 0.0
+      },
+      "smoothing": {
+        "method": "none"
+      },
+      "useAugmentation": false
+    },
+    {
+      "id": "duration-objective",
+      "description": "Longer context plus within-chord distribution consistency.",
+      "trainingOverrides": {
+        "switchLossWeight": 0.0,
+        "hardBoundaryLossWeight": 0.0,
+        "boundarySwitchAgreementLossWeight": 0.0
+      },
+      "smoothing": {
+        "method": "none"
+      },
+      "useAugmentation": false
+    },
+    {
+      "id": "boundary-switch-objective",
+      "description": "Longer context plus supervised identity switching and stronger boundary targets.",
+      "trainingOverrides": {
+        "durationConsistencyLossWeight": 0.0
+      },
+      "smoothing": {
+        "method": "none"
+      },
+      "useAugmentation": false
+    },
+    {
+      "id": "full-objective-unsmoothed",
+      "description": "All sequence objectives without probability filtering.",
+      "smoothing": {
+        "method": "none"
+      },
+      "useAugmentation": false
+    },
+    {
+      "id": "full-v2",
+      "description": "All sequence objectives, deterministic augmentation, and probability-domain EMA.",
+      "useAugmentation": true
+    }
+  ],
+  "constraints": {
+    "candidateCountMaximum": 6,
+    "p00Forbidden": true,
+    "alternateCapturesGrouped": true,
+    "productionMutationForbidden": true,
+    "hybridDefaultMutationForbidden": true
+  },
+  "notes": [
+    "This is a fixed causal ablation, not a hyperparameter sweep.",
+    "A candidate is not promotable unless it passes every gate in temporal-harmony-v2.json on grouped validation folds.",
+    "p00 may be run once only after a candidate is frozen, and remains validation evidence rather than a final test."
+  ]
+}
