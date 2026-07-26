@@ -9,7 +9,6 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
-import { pathToFileURL } from "node:url";
 import {
   CONSERVATIVE_HYBRID_SETTINGS,
   HYBRID_DECODER_VERSION,
@@ -755,10 +754,10 @@ export async function runHybridComparison(
   return report;
 }
 
-const invokedPath = process.argv[1]
-  ? pathToFileURL(path.resolve(process.argv[1])).href
-  : null;
-if (invokedPath === import.meta.url) {
+const invokedDirectly = process.env.npm_lifecycle_event === "evaluate:hybrid"
+  || process.argv.some((argument) =>
+    path.basename(argument).startsWith("run-hybrid-comparison.ts"));
+if (invokedDirectly) {
   const args = parseArgs(process.argv.slice(2));
   await runHybridComparison(args.configPath, args.outputDirectory).catch((error) => {
     console.error(error instanceof Error ? error.message : String(error));

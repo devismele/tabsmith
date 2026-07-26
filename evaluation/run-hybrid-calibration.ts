@@ -8,7 +8,6 @@ import {
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
-import { pathToFileURL } from "node:url";
 import {
   createHarmonyObservations,
   decodeHarmonyObservations,
@@ -47,6 +46,7 @@ import {
 } from "./hybridComparison";
 import {
   aggregateEngineMetrics,
+  bootstrapMeanConfidenceInterval,
   canonicalChordLabel,
   scoreTrackComparison,
   type EngineAggregate,
@@ -133,14 +133,35 @@ interface PreparedCalibrationEvidence {
 
 interface CandidateTrackResult {
   evidence: PreparedCalibrationEvidence;
-  metrics: EngineTrackMetrics;
+  metrics: FastTrackMetrics;
   regions: ChordEvent[];
+  analysis: ChordAnalysisResult;
   diagnostics: HybridFusionDiagnostics;
   correctOverrides: number;
   incorrectOverrides: number;
   blockedCorrectMl: number;
   protectedCorrectRule: number;
   regionInvariantsValid: boolean;
+}
+
+interface FastTrackMetrics {
+  evaluatedDurationSeconds: number;
+  rootCorrectSeconds: number;
+  majorMinorCorrectSeconds: number;
+  detailedCorrectSeconds: number;
+  fragmentedReferenceRegions: number;
+  referenceRegionCount: number;
+  predictedRegionCount: number;
+  absoluteBoundaryErrorSumMs: number;
+  finiteBoundaryCount: number;
+}
+
+interface CandidateScreeningRow {
+  candidateId: string;
+  detailedAccuracy: number;
+  rootAccuracy: number;
+  observationChangeRate: number;
+  score: number;
 }
 
 interface TemperatureFoldResult {
@@ -229,6 +250,79 @@ function chordAt(regions: ChordEvent[], time: number): string {
     && (time < candidate.end
       || (index === regions.length - 1 && time <= candidate.end)));
   return canonicalChordLabel(region?.name ?? "N");
+}
+
+function parsedFamily(label: string): { root: string; family: string } {
+  const canonical = canonicalChordLabel(label);
+  if (canonical === "N") return { root: "N", family: "N" };
+  const match = /^([A-G](?:#|b)?)(.*)$/.exec(canonical);
+  const suffix = match?.[2] ?? "";
+  return {
+    root: match?.[1] ?? "N",
+    family: suffix.startsWith("m") && !suffix.startsWith("maj")
+      ? "min"
+      : suffix === "dim" ? "dim" : "maj",
+  };
+}
+
+function fastTrackMetrics(
+  evidence: PreparedCalibrationEvidence,
+  regions: ChordEvent[],
+): FastTrackMetrics {
+  const points = [...new Set([
+    ...evidence.track.referenceRegions.flatMap((region) => [region.start, region.end]),
+    ...regions.flatMap((region) => [region.start, region.end]),
+  ])].sort((left, right) => left - right);
+  let evaluatedDurationSeconds = 0;
+  let rootCorrectSeconds = 0;
+  let majorMinorCorrectSeconds = 0;
+  let detailedCorrectSeconds = 0;
+  for (let index = 0; index + 1 < points.length; index += 1) {
+    const start = points[index];
+    const end = points[index + 1];
+    if (end <= start) continue;
+    const midpoint = (start + end) / 2;
+    const reference = referenceAt(evidence.track, midpoint);
+    if (!evidence.track.referenceRegions.some((region) =>
+      midpoint >= region.start && midpoint <= region.end)) continue;
+    const predicted = chordAt(regions, midpoint);
+    const duration = end - start;
+    const expectedParts = parsedFamily(reference);
+    const predictedParts = parsedFamily(predicted);
+    evaluatedDurationSeconds += duration;
+    if (expectedParts.root === predictedParts.root) {
+      rootCorrectSeconds += duration;
+      if (expectedParts.family === predictedParts.family) {
+        majorMinorCorrectSeconds += duration;
+      }
+    }
+    if (reference === predicted) detailedCorrectSeconds += duration;
+  }
+  const fragmentedReferenceRegions = evidence.track.referenceRegions.filter(
+    (expected) => regions.filter((actual) =>
+      actual.start < expected.end && actual.end > expected.start).length > 1,
+  ).length;
+  const predictedBoundaries = regions.slice(1).map((region) => region.start);
+  const boundaryErrors = evidence.track.referenceRegions.slice(1).flatMap((region) => {
+    if (!predictedBoundaries.length) return [];
+    const nearest = predictedBoundaries.reduce((best, candidate) =>
+      Math.abs(candidate - region.start) < Math.abs(best - region.start)
+        ? candidate
+        : best);
+    return [Math.abs(nearest - region.start) * 1000];
+  });
+  return {
+    evaluatedDurationSeconds,
+    rootCorrectSeconds,
+    majorMinorCorrectSeconds,
+    detailedCorrectSeconds,
+    fragmentedReferenceRegions,
+    referenceRegionCount: evidence.track.referenceRegions.length,
+    predictedRegionCount: regions.length,
+    absoluteBoundaryErrorSumMs:
+      boundaryErrors.reduce((sum, value) => sum + value, 0),
+    finiteBoundaryCount: boundaryErrors.length,
+  };
 }
 
 function regionInvariants(regions: ChordEvent[], duration: number): boolean {
@@ -373,21 +467,11 @@ function evaluateCandidateTrack(
     ...evidence.observationPackage,
     observations: fused.observations,
   });
-  const comparison = trackComparisonForCandidate(
-    evidence,
-    analysis.regions,
-    analysis,
-    fused.diagnostics,
-  );
-  const metrics = scoreTrackComparison(
-    comparison,
-    shortRegionThresholdSeconds,
-  ).engineMetrics["observation-hybrid"];
-  if (!metrics) throw new Error(`${evidence.track.trackId}: candidate scoring failed`);
   return {
     evidence,
-    metrics,
+    metrics: fastTrackMetrics(evidence, analysis.regions),
     regions: analysis.regions,
+    analysis,
     diagnostics: fused.diagnostics,
     ...overrideDiagnostics(evidence, response, analysis.regions),
     regionInvariantsValid: regionInvariants(
@@ -395,6 +479,89 @@ function evaluateCandidateTrack(
       evidence.observationPackage.duration,
     ),
   };
+}
+
+function screenCandidate(
+  evidence: PreparedCalibrationEvidence[],
+  candidate: CalibrationCandidate,
+  foldTemperatures: Map<string, number>,
+): CandidateScreeningRow {
+  let duration = 0;
+  let detailedCorrect = 0;
+  let rootCorrect = 0;
+  let changes = 0;
+  let windows = 0;
+  for (const item of evidence) {
+    const response = calibrateLearnedResponse(
+      item.response,
+      candidate.probabilityCalibration === "temperature"
+        ? {
+          kind: "temperature",
+          value: foldTemperatures.get(item.performerId) ?? 1,
+        }
+        : { kind: "none", value: 1 },
+    );
+    const fused = fuseHybridObservations(
+      item.observationPackage.observations,
+      response,
+      candidate.settings,
+      {
+        sourceMode: item.track.sourceMode,
+        adaptiveWeighting: candidate.adaptiveWeighting,
+      },
+    );
+    let previous: string | null = null;
+    for (const observation of fused.observations) {
+      const midpoint = (observation.start + observation.end) / 2;
+      const reference = referenceAt(item.track, midpoint);
+      const predicted = canonicalChordLabel(observation.bestChord);
+      const windowDuration = observation.end - observation.start;
+      duration += windowDuration;
+      if (reference === predicted) detailedCorrect += windowDuration;
+      if (parsedFamily(reference).root === parsedFamily(predicted).root) {
+        rootCorrect += windowDuration;
+      }
+      if (previous !== null && previous !== predicted) changes += 1;
+      previous = predicted;
+      windows += 1;
+    }
+  }
+  const detailedAccuracy = duration ? detailedCorrect / duration : 0;
+  const rootAccuracy = duration ? rootCorrect / duration : 0;
+  const observationChangeRate = windows ? changes / windows : 0;
+  return {
+    candidateId: candidate.id,
+    detailedAccuracy,
+    rootAccuracy,
+    observationChangeRate,
+    // Screening is intentionally only a shortlist heuristic. Frozen selection
+    // uses the real decoder metrics and hard constraints below.
+    score: detailedAccuracy + rootAccuracy * 0.25 - observationChangeRate * 0.02,
+  };
+}
+
+function shortlistCandidates(
+  candidates: CalibrationCandidate[],
+  screening: CandidateScreeningRow[],
+  leadingCount = 4,
+): CalibrationCandidate[] {
+  const mandatory = new Set([
+    "current-adaptive",
+    "fixed-current-weight",
+    "adaptive-without-rule-protection",
+    "adaptive-without-entropy-suppression",
+    "adaptive-temperature-calibrated",
+    "chord-evidence-only",
+  ]);
+  const ranked = [...screening].sort((left, right) =>
+    right.score - left.score || left.candidateId.localeCompare(right.candidateId));
+  for (const row of ranked) {
+    if (mandatory.has(row.candidateId)) continue;
+    mandatory.add(row.candidateId);
+    if ([...mandatory].filter((id) => id.startsWith("random-")).length
+      >= leadingCount) break;
+  }
+  return candidates.filter((candidate) => mandatory.has(candidate.id));
 }
 
 function probabilityPoints(
@@ -520,15 +687,14 @@ function aggregateCandidate(
   candidate: CalibrationCandidate,
   results: CandidateTrackResult[],
   seed: number,
-  bootstrapIterations: number,
 ): {
   selection: CandidateSelectionRow;
-  aggregates: Record<string, EngineAggregate>;
+  aggregates: Record<string, CandidateCaptureMetrics>;
   folds: Array<{
     foldId: string;
     captureType: string;
     performerId: string;
-    aggregate: EngineAggregate;
+    aggregate: CandidateCaptureMetrics;
   }>;
   overrides: {
     correct: number;
@@ -538,17 +704,53 @@ function aggregateCandidate(
   };
 } {
   const captures = [...new Set(results.map(({ evidence }) => evidence.captureType))];
-  const aggregates = Object.fromEntries(captures.map((capture) => {
-    const selected = results.filter(({ evidence }) => evidence.captureType === capture);
-    return [
-      capture,
-      aggregateEngineMetrics(
-        selected.map(({ metrics }) => metrics),
-        seed,
-        bootstrapIterations,
-      ),
-    ];
-  }));
+  const aggregateFast = (selected: CandidateTrackResult[]): CandidateCaptureMetrics => {
+    const duration = selected.reduce(
+      (sum, result) => sum + result.metrics.evaluatedDurationSeconds,
+      0,
+    );
+    const referenceRegions = selected.reduce(
+      (sum, result) => sum + result.metrics.referenceRegionCount,
+      0,
+    );
+    const predictedRegions = selected.reduce(
+      (sum, result) => sum + result.metrics.predictedRegionCount,
+      0,
+    );
+    const boundaryCount = selected.reduce(
+      (sum, result) => sum + result.metrics.finiteBoundaryCount,
+      0,
+    );
+    return {
+      detailedAccuracy: duration ? selected.reduce(
+        (sum, result) => sum + result.metrics.detailedCorrectSeconds,
+        0,
+      ) / duration : 0,
+      rootAccuracy: duration ? selected.reduce(
+        (sum, result) => sum + result.metrics.rootCorrectSeconds,
+        0,
+      ) / duration : 0,
+      fragmentationRate: referenceRegions ? selected.reduce(
+        (sum, result) => sum + result.metrics.fragmentedReferenceRegions,
+        0,
+      ) / referenceRegions : 0,
+      regionsPerMinute: duration ? predictedRegions / (duration / 60) : 0,
+      meanAbsoluteBoundaryErrorMs: boundaryCount ? selected.reduce(
+        (sum, result) => sum + result.metrics.absoluteBoundaryErrorSumMs,
+        0,
+      ) / boundaryCount : null,
+      incorrectOverrides:
+        selected.reduce((sum, result) => sum + result.incorrectOverrides, 0),
+      fallbacks: 0,
+      regionInvariantsValid:
+        selected.every(({ regionInvariantsValid }) => regionInvariantsValid),
+    };
+  };
+  const aggregates = Object.fromEntries(captures.map((capture) => [
+    capture,
+    aggregateFast(results.filter(({ evidence }) =>
+      evidence.captureType === capture)),
+  ]));
   const folds = [...new Set(results.map(({ evidence }) => evidence.foldId))]
     .flatMap((foldId) => captures.map((captureType) => {
       const selected = results.filter(({ evidence }) =>
@@ -557,22 +759,14 @@ function aggregateCandidate(
         foldId,
         captureType,
         performerId: selected[0]?.evidence.performerId ?? "unknown",
-        aggregate: aggregateEngineMetrics(
-          selected.map(({ metrics }) => metrics),
-          seed,
-          bootstrapIterations,
-        ),
+        aggregate: aggregateFast(selected),
       };
     }));
   const captureSelection = Object.fromEntries(captures.map((capture) => {
     const selected = results.filter(({ evidence }) => evidence.captureType === capture);
     return [
       capture,
-      captureMetrics(
-        aggregates[capture],
-        selected.reduce((sum, result) => sum + result.incorrectOverrides, 0),
-        selected.every(({ regionInvariantsValid }) => regionInvariantsValid),
-      ),
+      aggregates[capture],
     ];
   }));
   return {
@@ -584,7 +778,7 @@ function aggregateCandidate(
       meanRootAccuracy: mean(Object.values(captureSelection)
         .map((metrics) => metrics.rootAccuracy)),
       worstFoldDetailedAccuracy: Math.min(...folds.map(
-        ({ aggregate }) => aggregate.durationWeighted.detailedAccuracy,
+        ({ aggregate }) => aggregate.detailedAccuracy,
       )),
     },
     aggregates,
@@ -604,34 +798,43 @@ function aggregateRuleMetrics(
   evidence: PreparedCalibrationEvidence[],
   shortRegionThresholdSeconds: number,
   seed: number,
-  bootstrapIterations: number,
 ): Record<string, CandidateCaptureMetrics> {
   const byCapture: Record<string, CandidateCaptureMetrics> = {};
   for (const capture of [...new Set(evidence.map((item) => item.captureType))]) {
-    const metrics = evidence.filter((item) => item.captureType === capture).map((item) => {
-      const comparison = trackComparisonForCandidate(
-        item,
-        item.ruleAnalysis.regions,
-        item.ruleAnalysis,
-        {
-          alignedWindows: 0,
-          missingLearnedWindows: 0,
-          averageLearnedEntropy: 0,
-          ruleLearnedAgreementRate: 0,
-          ruleLearnedDisagreements: 0,
-          changedTopCandidateWindows: 0,
-          learnedBoundaryPeaksConsidered: 0,
-          effectiveLearnedWeight: { minimum: 0, maximum: 0, average: 0 },
-        },
-      );
-      comparison.predictions["observation-hybrid"] = undefined;
-      const scored = scoreTrackComparison(comparison, shortRegionThresholdSeconds);
-      const value = scored.engineMetrics["rule-only"];
-      if (!value) throw new Error(`${item.track.trackId}: rule scoring failed`);
-      return value;
-    });
-    const aggregate = aggregateEngineMetrics(metrics, seed, bootstrapIterations);
-    byCapture[capture] = captureMetrics(aggregate, 0, true);
+    const selected = evidence.filter((item) => item.captureType === capture);
+    const results = selected.map((item): CandidateTrackResult => ({
+      evidence: item,
+      metrics: fastTrackMetrics(item, item.ruleAnalysis.regions),
+      regions: item.ruleAnalysis.regions,
+      analysis: item.ruleAnalysis,
+      diagnostics: {
+        alignedWindows: 0,
+        missingLearnedWindows: 0,
+        averageLearnedEntropy: 0,
+        ruleLearnedAgreementRate: 0,
+        ruleLearnedDisagreements: 0,
+        changedTopCandidateWindows: 0,
+        learnedBoundaryPeaksConsidered: 0,
+        effectiveLearnedWeight: { minimum: 0, maximum: 0, average: 0 },
+      },
+      correctOverrides: 0,
+      incorrectOverrides: 0,
+      blockedCorrectMl: 0,
+      protectedCorrectRule: 0,
+      regionInvariantsValid: true,
+    }));
+    byCapture[capture] = aggregateCandidate(
+      {
+        id: "rule-only",
+        settings: CONSERVATIVE_HYBRID_SETTINGS,
+        adaptiveWeighting: true,
+        probabilityCalibration: "none",
+        description: "rule",
+        complexity: 0,
+      },
+      results,
+      seed,
+    ).selection.captures[capture];
   }
   return byCapture;
 }
@@ -641,6 +844,9 @@ function baselineGateDiagnostics(
   baselineResults: CandidateTrackResult[],
 ): {
   totalWindows: number;
+  averageEffectiveLearnedWeight: number;
+  minimumEffectiveLearnedWeight: number;
+  maximumEffectiveLearnedWeight: number;
   learnedWeightDistribution: Record<string, { count: number; percentage: number }>;
   gates: Record<string, {
     affectedWindows: number;
@@ -705,6 +911,19 @@ function baselineGateDiagnostics(
     }
   }
   const totalWindows = weights.length;
+  const allStages: HybridWeightStageId[] = [
+    "availability",
+    "minimum-learned-confidence",
+    "maximum-learned-entropy",
+    "learned-confidence-scaling",
+    "learned-entropy-scaling",
+    "rule-score-margin",
+    "rule-confidence-room",
+    "high-rule-confidence-protection",
+    "agreement-bonus",
+    "learned-flicker-suppression",
+    "source-specific-maximum",
+  ];
   const buckets: Array<[string, (weight: number) => boolean]> = [
     ["zero", (weight) => weight === 0],
     ["below-0.05", (weight) => weight > 0 && weight < 0.05],
@@ -714,21 +933,34 @@ function baselineGateDiagnostics(
   ];
   return {
     totalWindows,
+    averageEffectiveLearnedWeight: mean(weights),
+    minimumEffectiveLearnedWeight: weights.length ? Math.min(...weights) : 0,
+    maximumEffectiveLearnedWeight: weights.length ? Math.max(...weights) : 0,
     learnedWeightDistribution: Object.fromEntries(buckets.map(([label, predicate]) => {
       const count = weights.filter(predicate).length;
       return [label, { count, percentage: totalWindows ? count / totalWindows : 0 }];
     })),
-    gates: Object.fromEntries([...accumulators.entries()].map(([id, value]) => [
-      id,
-      {
-        affectedWindows: value.affectedWindows,
-        percentage: totalWindows ? value.affectedWindows / totalWindows : 0,
-        averageWeightBefore: value.sumBefore / value.affectedWindows,
-        averageWeightAfter: value.sumAfter / value.affectedWindows,
-        blockedCorrectMl: value.blockedCorrectMl,
-        protectedCorrectRule: value.protectedCorrectRule,
-      },
-    ])),
+    gates: Object.fromEntries(allStages.map((id) => {
+      const value = accumulators.get(id);
+      return [
+        id,
+        value ? {
+          affectedWindows: value.affectedWindows,
+          percentage: totalWindows ? value.affectedWindows / totalWindows : 0,
+          averageWeightBefore: value.sumBefore / value.affectedWindows,
+          averageWeightAfter: value.sumAfter / value.affectedWindows,
+          blockedCorrectMl: value.blockedCorrectMl,
+          protectedCorrectRule: value.protectedCorrectRule,
+        } : {
+          affectedWindows: 0,
+          percentage: 0,
+          averageWeightBefore: 0,
+          averageWeightAfter: 0,
+          blockedCorrectMl: 0,
+          protectedCorrectRule: 0,
+        },
+      ];
+    })),
     nonWeightLimiters: {
       disagreement: {
         affectedWindows: disagreementWindows,
@@ -745,6 +977,145 @@ function baselineGateDiagnostics(
       },
     },
   };
+}
+
+function fastBaselineByCapture(
+  evidence: PreparedCalibrationEvidence[],
+  regions: (item: PreparedCalibrationEvidence) => ChordEvent[],
+): Record<string, CandidateCaptureMetrics> {
+  const output: Record<string, CandidateCaptureMetrics> = {};
+  for (const capture of [...new Set(evidence.map(({ captureType }) => captureType))]) {
+    const selected = evidence.filter(({ captureType }) => captureType === capture);
+    const metrics = selected.map((item) => fastTrackMetrics(item, regions(item)));
+    const duration = metrics.reduce(
+      (sum, metric) => sum + metric.evaluatedDurationSeconds,
+      0,
+    );
+    const references = metrics.reduce(
+      (sum, metric) => sum + metric.referenceRegionCount,
+      0,
+    );
+    const predicted = metrics.reduce(
+      (sum, metric) => sum + metric.predictedRegionCount,
+      0,
+    );
+    const boundaries = metrics.reduce(
+      (sum, metric) => sum + metric.finiteBoundaryCount,
+      0,
+    );
+    output[capture] = {
+      detailedAccuracy: duration ? metrics.reduce(
+        (sum, metric) => sum + metric.detailedCorrectSeconds,
+        0,
+      ) / duration : 0,
+      rootAccuracy: duration ? metrics.reduce(
+        (sum, metric) => sum + metric.rootCorrectSeconds,
+        0,
+      ) / duration : 0,
+      fragmentationRate: references ? metrics.reduce(
+        (sum, metric) => sum + metric.fragmentedReferenceRegions,
+        0,
+      ) / references : 0,
+      regionsPerMinute: duration ? predicted / (duration / 60) : 0,
+      meanAbsoluteBoundaryErrorMs: boundaries ? metrics.reduce(
+        (sum, metric) => sum + metric.absoluteBoundaryErrorSumMs,
+        0,
+      ) / boundaries : null,
+      incorrectOverrides: 0,
+      fallbacks: 0,
+      regionInvariantsValid: selected.every((item) =>
+        regionInvariants(regions(item), item.observationPackage.duration)),
+    };
+  }
+  return output;
+}
+
+function fastAccuracy(metric: FastTrackMetrics, name: "root" | "detailed"): number {
+  if (!metric.evaluatedDurationSeconds) return 0;
+  return (name === "root"
+    ? metric.rootCorrectSeconds
+    : metric.detailedCorrectSeconds) / metric.evaluatedDurationSeconds;
+}
+
+function fastFragmentation(metric: FastTrackMetrics): number {
+  return metric.referenceRegionCount
+    ? metric.fragmentedReferenceRegions / metric.referenceRegionCount
+    : 0;
+}
+
+function fastBoundary(metric: FastTrackMetrics): number | null {
+  return metric.finiteBoundaryCount
+    ? metric.absoluteBoundaryErrorSumMs / metric.finiteBoundaryCount
+    : null;
+}
+
+function pairedFastDiagnostics(
+  selected: CandidateTrackResult[],
+  seed: number,
+): Record<string, unknown> {
+  const rows = selected.map((result) => ({
+    captureType: result.evidence.captureType,
+    hybrid: result.metrics,
+    rule: fastTrackMetrics(result.evidence, result.evidence.ruleAnalysis.regions),
+    mlOnly: fastTrackMetrics(result.evidence, result.evidence.mlOnlyRegions),
+  }));
+  const output: Record<string, unknown> = {};
+  for (const capture of [...new Set(rows.map(({ captureType }) => captureType))]) {
+    const captureRows = rows.filter(({ captureType }) => captureType === capture);
+    output[capture] = Object.fromEntries(
+      (["rule", "mlOnly"] as const).map((comparator) => {
+        const comparisons = [
+          {
+            metric: "rootAccuracy",
+            direction: 1,
+            values: captureRows.map((row) =>
+              fastAccuracy(row.hybrid, "root")
+              - fastAccuracy(row[comparator], "root")),
+          },
+          {
+            metric: "detailedAccuracy",
+            direction: 1,
+            values: captureRows.map((row) =>
+              fastAccuracy(row.hybrid, "detailed")
+              - fastAccuracy(row[comparator], "detailed")),
+          },
+          {
+            metric: "fragmentationRate",
+            direction: -1,
+            values: captureRows.map((row) =>
+              fastFragmentation(row.hybrid)
+              - fastFragmentation(row[comparator])),
+          },
+          {
+            metric: "meanAbsoluteBoundaryErrorMs",
+            direction: -1,
+            values: captureRows.flatMap((row) => {
+              const hybrid = fastBoundary(row.hybrid);
+              const compared = fastBoundary(row[comparator]);
+              return hybrid === null || compared === null ? [] : [hybrid - compared];
+            }),
+          },
+        ];
+        return [
+          `hybrid-minus-${comparator === "mlOnly" ? "ml-only" : comparator}`,
+          comparisons.map(({ metric, direction, values }, metricIndex) => ({
+            metric,
+            meanDifference: mean(values),
+            bootstrap95ConfidenceInterval:
+              bootstrapMeanConfidenceInterval(values, seed + metricIndex, 1000),
+            improvedTracks:
+              values.filter((value) => value * direction > 1e-9).length,
+            tiedTracks:
+              values.filter((value) => Math.abs(value) <= 1e-9).length,
+            worsenedTracks:
+              values.filter((value) => value * direction < -1e-9).length,
+            trackCount: values.length,
+          })),
+        ];
+      }),
+    );
+  }
+  return output;
 }
 
 function calibrationDiagnostics(
@@ -1052,13 +1423,27 @@ export async function runHybridCalibration(
     prepared.evidence,
     config.search.shortRegionThresholdSeconds,
     config.search.seed,
-    200,
+  );
+  const screening = candidates.map((candidate, index) => {
+    console.log(
+      `[calibration] screen ${index + 1}/${candidates.length}: ${candidate.id}`,
+    );
+    return screenCandidate(
+      prepared.evidence,
+      candidate,
+      temperatures.byPerformer,
+    );
+  });
+  const shortlistedCandidates = shortlistCandidates(candidates, screening);
+  console.log(
+    `[calibration] production-decoder shortlist:`
+      + ` ${shortlistedCandidates.map(({ id }) => id).join(", ")}`,
   );
   const evaluated: Array<ReturnType<typeof aggregateCandidate>> = [];
   let baselineResults: CandidateTrackResult[] | null = null;
-  for (const [candidateIndex, candidate] of candidates.entries()) {
+  for (const [candidateIndex, candidate] of shortlistedCandidates.entries()) {
     console.log(
-      `[calibration] candidate ${candidateIndex + 1}/${candidates.length}:`
+      `[calibration] full decoder ${candidateIndex + 1}/${shortlistedCandidates.length}:`
         + ` ${candidate.id}`,
     );
     const results = prepared.evidence.map((item) => evaluateCandidateTrack(
@@ -1077,20 +1462,27 @@ export async function runHybridCalibration(
       candidate,
       results,
       config.search.seed,
-      200,
     ));
   }
   if (!baselineResults) throw new Error("Current adaptive baseline was not evaluated");
+  const temperatureImprovedEceFolds = temperatures.folds.filter((fold) =>
+    fold.validation.temperature.expectedCalibrationError
+      < fold.validation.uncalibrated.expectedCalibrationError).length;
+  const temperatureCalibrationEligible =
+    temperatureImprovedEceFolds >= Math.ceil(temperatures.folds.length / 2);
   const selectionRows = evaluated.map(({ selection }) => ({
     ...selection,
     eligible: candidateSatisfiesConstraints(
       selection,
       ruleByCapture,
       config.search.constraints,
-    ),
+    ) && (selection.candidate.probabilityCalibration !== "temperature"
+      || temperatureCalibrationEligible),
   }));
   const selected = selectCalibrationCandidate(
-    evaluated.map(({ selection }) => selection),
+    evaluated.flatMap(({ selection }) =>
+      selection.candidate.probabilityCalibration === "temperature"
+        && !temperatureCalibrationEligible ? [] : [selection]),
     ruleByCapture,
     config.search.constraints,
   );
@@ -1113,6 +1505,22 @@ export async function runHybridCalibration(
     finalSelection.candidate.settings,
     selectedCalibration,
   );
+  const selectedResults = finalSelection.candidate.id === "current-adaptive"
+    ? baselineResults
+    : prepared.evidence.map((item) => evaluateCandidateTrack(
+      item,
+      finalSelection.candidate,
+      finalSelection.candidate.probabilityCalibration === "temperature"
+        ? {
+          kind: "temperature",
+          value: temperatures.byPerformer.get(item.performerId) ?? 1,
+        }
+        : { kind: "none", value: 1 },
+      config.search.shortRegionThresholdSeconds,
+    ));
+  const temperatureCalibrationRetained =
+    finalSelection.candidate.probabilityCalibration === "temperature"
+    && temperatureImprovedEceFolds >= Math.ceil(temperatures.folds.length / 2);
   const report: Record<string, any> = {
     schemaVersion: 1,
     status: "completed-non-p00-calibration",
@@ -1161,6 +1569,11 @@ export async function runHybridCalibration(
       folds: temperatures.folds,
       globalTemperature: globalTemperature.temperature,
       globalTrainingNll: globalTemperature.nll,
+      heldOutFoldsWithImprovedEce: temperatureImprovedEceFolds,
+      retainedInFrozenConfiguration: temperatureCalibrationRetained,
+      decision: temperatureCalibrationRetained
+        ? "Temperature scaling was retained because it improved held-out calibration across a majority of performer folds."
+        : "Temperature scaling was not retained: held-out ECE did not improve consistently across performer folds.",
       diagnostics: calibrationDiagnostics(
         prepared.evidence,
         temperatures.byPerformer,
@@ -1173,11 +1586,26 @@ export async function runHybridCalibration(
       folds: current.folds,
       overrides: current.overrides,
     },
+    referenceBaselines: {
+      ruleByCapture: fastBaselineByCapture(
+        prepared.evidence,
+        (item) => item.ruleAnalysis.regions,
+      ),
+      mlOnlyByCapture: fastBaselineByCapture(
+        prepared.evidence,
+        (item) => item.mlOnlyRegions,
+      ),
+    },
+    pairedComparisons: pairedFastDiagnostics(
+      selectedResults,
+      config.search.seed,
+    ),
     baselineWeightDiagnostics:
       baselineGateDiagnostics(prepared.evidence, baselineResults),
     search: {
       seed: config.search.seed,
       candidateCount: candidates.length,
+      fullyDecodedCandidateCount: shortlistedCandidates.length,
       randomCandidateCount: config.search.randomCandidateCount,
       searchSpace: {
         learnedChordWeight: [0.35, 0.85],
@@ -1192,6 +1620,7 @@ export async function runHybridCalibration(
       },
       constraints: config.search.constraints,
       ruleByCapture,
+      screening: screening.sort((left, right) => right.score - left.score),
       results: selectionRows.sort((left, right) =>
         right.meanDetailedAccuracy - left.meanDetailedAccuracy),
       detailedResults: evaluated.map((row) => ({
@@ -1271,10 +1700,10 @@ function parseConfigPath(argv: string[]): string {
   return path.resolve(target);
 }
 
-const invokedPath = process.argv[1]
-  ? pathToFileURL(path.resolve(process.argv[1])).href
-  : null;
-if (invokedPath === import.meta.url) {
+const invokedDirectly = process.env.npm_lifecycle_event === "calibrate:hybrid"
+  || process.argv.some((argument) =>
+    path.basename(argument).startsWith("run-hybrid-calibration.ts"));
+if (invokedDirectly) {
   await runHybridCalibration(parseConfigPath(process.argv.slice(2))).catch((error) => {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
