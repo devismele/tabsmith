@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen",
+  "decision": "retain-v1",
+  "selectedCandidate": null,
+  "selectedSmoothing": null,
+  "eligibleCandidateCount": 0,
+  "p00AccessAuthorized": false,
+  "p00Accessed": false,
+  "reason": "Every v2 candidate failed the frozen fragmentation and regions-per-minute gates on both microphone and pickup captures. Accuracy and boundary gains cannot override the predeclared stability requirements.",
+  "configurationChecksum": "b2450d5110e14b83d9c161bb8746cfbe2ceed167abce8f2906f0444cedc302d0",
+  "ablationReportChecksum": "f9217ead622100d3a5e4da69dbc8cb4dc342539a9ed7c692d2a3a6f409505a4a",
+  "gateEvidence": {
+    "longer-context": [
+      {
+        "capture": "audio_mono-mic",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.1261207970252319,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-mic",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.19305785123966937,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.1278650671376608,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.19617540389053725,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      }
+    ],
+    "duration-objective": [
+      {
+        "capture": "audio_mono-mic",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.11891594838750347,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-mic",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.1884297520661157,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.12111406563104479,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.18727332673920202,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      }
+    ],
+    "boundary-switch-objective": [
+      {
+        "capture": "audio_mono-mic",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.11621307159218092,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-mic",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.18082644628099162,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.12471351917542861,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.1836465545664357,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      }
+    ],
+    "full-objective-unsmoothed": [
+      {
+        "capture": "audio_mono-mic",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.10404877466492188,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-mic",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.16330578512396693,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.12111109400173027,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.1790306627101878,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      }
+    ],
+    "full-v2": [
+      {
+        "capture": "audio_mono-mic",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.08963871702991652,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-mic",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.1183471074380165,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "fragmentationRelativeReduction",
+        "value": -0.10040297994987671,
+        "threshold": 0.08,
+        "comparison": "minimum",
+        "passed": false
+      },
+      {
+        "capture": "audio_mono-pickup_mix",
+        "gate": "regionsPerMinuteRelativeReduction",
+        "value": -0.1259479063633365,
+        "threshold": 0.05,
+        "comparison": "minimum",
+        "passed": false
+      }
+    ]
+  },
+  "parity": {
+    "runCount": 30,
+    "allPythonOnnxPassed": true,
+    "allTypeScriptPassed": true,
+    "maximumPythonOnnxError": 1.0728836059570312e-05,
+    "maximumTypeScriptError": 3.823646775913403e-05,
+    "tolerance": 0.0001
+  },
+  "productionMutation": false,
+  "hybridDefaultMutation": false
+}
