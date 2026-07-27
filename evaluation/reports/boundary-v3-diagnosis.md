@@ -185,6 +185,22 @@ so every number below describes the model, not a decoder variant. p00 never load
 - true/false separation: 0.1922
 - F1 at 0.50: 0.4432; best F1 0.7689 at 0.25
 
+## Smoothed vs raw boundary channel
+
+The full-v2 decode applies EMA smoothing (boundaryAlpha 0.35) to the boundary
+channel. Everything above is measured through that smoothing, which is the
+configuration full-v2 actually runs. Measuring the raw head output separates a
+weak head from a head degraded downstream:
+
+| capture | channel | best F1 | at threshold | F1 at 0.50 | ECE | agreement at best |
+|---|---|---|---|---|---|---|
+| audio_mono-mic | smoothed | 0.7696 | 0.25 | 0.4361 | 0.0520 | 0.6705 |
+| audio_mono-mic | raw | 0.8170 | 0.50 | 0.8170 | 0.0370 | 0.6508 |
+| audio_mono-pickup_mix | smoothed | 0.7689 | 0.25 | 0.4432 | 0.0503 | 0.6581 |
+| audio_mono-pickup_mix | raw | 0.8194 | 0.50 | 0.8194 | 0.0363 | 0.6456 |
+
+Findings on the raw channel: audio_mono-mic: none triggered; audio_mono-pickup_mix: none triggered
+
 ## Microphone/pickup consistency
 
 - shared performances: 300

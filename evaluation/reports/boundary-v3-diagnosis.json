@@ -985,6 +985,810 @@
       }
     }
   },
+  "rawChannelDiagnoses": {
+    "audio_mono-mic": {
+      "captureEntries": 300,
+      "calibration": {
+        "frames": 36740,
+        "positiveRate": 0.179641,
+        "meanPredicted": 0.165479,
+        "expectedCalibrationError": 0.036986,
+        "maximumCalibrationError": 0.11029,
+        "reliability": [
+          {
+            "binLow": 0.0,
+            "binHigh": 0.1,
+            "count": 26816,
+            "meanPredicted": 0.006779,
+            "observedFrequency": 0.039156
+          },
+          {
+            "binLow": 0.1,
+            "binHigh": 0.2,
+            "count": 1411,
+            "meanPredicted": 0.145728,
+            "observedFrequency": 0.196315
+          },
+          {
+            "binLow": 0.2,
+            "binHigh": 0.3,
+            "count": 901,
+            "meanPredicted": 0.247298,
+            "observedFrequency": 0.220866
+          },
+          {
+            "binLow": 0.3,
+            "binHigh": 0.4,
+            "count": 775,
+            "meanPredicted": 0.349151,
+            "observedFrequency": 0.314839
+          },
+          {
+            "binLow": 0.4,
+            "binHigh": 0.5,
+            "count": 676,
+            "meanPredicted": 0.44879,
+            "observedFrequency": 0.35503
+          },
+          {
+            "binLow": 0.5,
+            "binHigh": 0.6,
+            "count": 725,
+            "meanPredicted": 0.55029,
+            "observedFrequency": 0.44
+          },
+          {
+            "binLow": 0.6,
+            "binHigh": 0.7,
+            "count": 875,
+            "meanPredicted": 0.653029,
+            "observedFrequency": 0.570286
+          },
+          {
+            "binLow": 0.7,
+            "binHigh": 0.8,
+            "count": 1089,
+            "meanPredicted": 0.752982,
+            "observedFrequency": 0.675849
+          },
+          {
+            "binLow": 0.8,
+            "binHigh": 0.9,
+            "count": 1827,
+            "meanPredicted": 0.853642,
+            "observedFrequency": 0.831965
+          },
+          {
+            "binLow": 0.9,
+            "binHigh": 1.0,
+            "count": 1645,
+            "meanPredicted": 0.939526,
+            "observedFrequency": 0.921581
+          }
+        ]
+      },
+      "boundaryThresholdSweep": {
+        "0.05": {
+          "precision": 0.6464,
+          "recall": 0.9245,
+          "f1": 0.7608,
+          "predicted": 4720,
+          "reference": 3300
+        },
+        "0.10": {
+          "precision": 0.6779,
+          "recall": 0.9145,
+          "f1": 0.7786,
+          "predicted": 4452,
+          "reference": 3300
+        },
+        "0.15": {
+          "precision": 0.6993,
+          "recall": 0.907,
+          "f1": 0.7897,
+          "predicted": 4280,
+          "reference": 3300
+        },
+        "0.20": {
+          "precision": 0.7155,
+          "recall": 0.8991,
+          "f1": 0.7968,
+          "predicted": 4147,
+          "reference": 3300
+        },
+        "0.25": {
+          "precision": 0.7289,
+          "recall": 0.8939,
+          "f1": 0.803,
+          "predicted": 4047,
+          "reference": 3300
+        },
+        "0.30": {
+          "precision": 0.7407,
+          "recall": 0.8864,
+          "f1": 0.807,
+          "predicted": 3949,
+          "reference": 3300
+        },
+        "0.35": {
+          "precision": 0.7551,
+          "recall": 0.8776,
+          "f1": 0.8118,
+          "predicted": 3835,
+          "reference": 3300
+        },
+        "0.40": {
+          "precision": 0.766,
+          "recall": 0.8661,
+          "f1": 0.813,
+          "predicted": 3731,
+          "reference": 3300
+        },
+        "0.45": {
+          "precision": 0.7789,
+          "recall": 0.8561,
+          "f1": 0.8156,
+          "predicted": 3627,
+          "reference": 3300
+        },
+        "0.50": {
+          "precision": 0.7909,
+          "recall": 0.8448,
+          "f1": 0.817,
+          "predicted": 3525,
+          "reference": 3300
+        },
+        "0.55": {
+          "precision": 0.8036,
+          "recall": 0.8297,
+          "f1": 0.8165,
+          "predicted": 3407,
+          "reference": 3300
+        },
+        "0.60": {
+          "precision": 0.8188,
+          "recall": 0.8106,
+          "f1": 0.8147,
+          "predicted": 3267,
+          "reference": 3300
+        },
+        "0.70": {
+          "precision": 0.849,
+          "recall": 0.7618,
+          "f1": 0.8031,
+          "predicted": 2961,
+          "reference": 3300
+        },
+        "0.80": {
+          "precision": 0.8967,
+          "recall": 0.6864,
+          "f1": 0.7775,
+          "predicted": 2526,
+          "reference": 3300
+        }
+      },
+      "bestF1Threshold": "0.50",
+      "stateSwitch": {
+        "precision": 0.6663,
+        "recall": 0.6788,
+        "f1": 0.6725
+      },
+      "stateChangeBoundaryAgreement": 0.6508,
+      "stateChangeBoundaryAgreementByThreshold": {
+        "0.05": 0.7168,
+        "0.10": 0.7049,
+        "0.15": 0.696,
+        "0.20": 0.6901,
+        "0.25": 0.6853,
+        "0.30": 0.6794,
+        "0.35": 0.6734,
+        "0.40": 0.6669,
+        "0.45": 0.6591,
+        "0.50": 0.6508,
+        "0.55": 0.6392,
+        "0.60": 0.627,
+        "0.70": 0.5946,
+        "0.80": 0.5422
+      },
+      "taxonomy": {
+        "true_boundary": 2244,
+        "false_aba_flicker": 127,
+        "false_long": 756,
+        "missed_boundary": 1060,
+        "false_short_multi_window": 229,
+        "false_one_window": 6
+      },
+      "categoryEvidence": {
+        "trueTransition": {
+          "boundaryProb": {
+            "count": 2244,
+            "mean": 0.7553,
+            "median": 0.8619,
+            "p10": 0.2857,
+            "p90": 0.9683
+          },
+          "margin": {
+            "count": 2244,
+            "mean": 0.5935,
+            "median": 0.6725,
+            "p10": 0.0921,
+            "p90": 0.9844
+          },
+          "topConfidence": {
+            "count": 2244,
+            "mean": 0.7334,
+            "median": 0.7966,
+            "p10": 0.3853,
+            "p90": 0.9906
+          }
+        },
+        "falseTransition": {
+          "boundaryProb": {
+            "count": 1118,
+            "mean": 0.2123,
+            "median": 0.0243,
+            "p10": 0.0,
+            "p90": 0.7615
+          },
+          "margin": {
+            "count": 1118,
+            "mean": 0.2985,
+            "median": 0.2321,
+            "p10": 0.0299,
+            "p90": 0.6967
+          },
+          "topConfidence": {
+            "count": 1118,
+            "mean": 0.5192,
+            "median": 0.5026,
+            "p10": 0.2709,
+            "p90": 0.8121
+          }
+        },
+        "missedTransition": {
+          "boundaryProb": {
+            "count": 1060,
+            "mean": 0.5951,
+            "median": 0.6993,
+            "p10": 0.0596,
+            "p90": 0.931
+          },
+          "margin": {
+            "count": 1060,
+            "mean": 0.4411,
+            "median": 0.3855,
+            "p10": 0.0517,
+            "p90": 0.9327
+          },
+          "topConfidence": {
+            "count": 1060,
+            "mean": 0.6185,
+            "median": 0.6065,
+            "p10": 0.3049,
+            "p90": 0.9562
+          }
+        },
+        "sustainedNonBoundary": {
+          "boundaryProb": {
+            "count": 30140,
+            "mean": 0.0659,
+            "median": 0.0001,
+            "p10": 0.0,
+            "p90": 0.2268
+          },
+          "margin": {
+            "count": 30140,
+            "mean": 0.6651,
+            "median": 0.809,
+            "p10": 0.1127,
+            "p90": 0.9985
+          },
+          "topConfidence": {
+            "count": 30140,
+            "mean": 0.7785,
+            "median": 0.8814,
+            "p10": 0.4056,
+            "p90": 0.9991
+          }
+        }
+      },
+      "regionShape": {
+        "falsePreviousDurationS": {
+          "count": 1118,
+          "mean": 2.2765,
+          "median": 1.9373,
+          "p10": 0.75,
+          "p90": 4.2496
+        },
+        "falseProposedDurationS": {
+          "count": 1118,
+          "mean": 2.2663,
+          "median": 1.9998,
+          "p10": 0.7499,
+          "p90": 3.9997
+        },
+        "truePreviousDurationS": {
+          "count": 2244,
+          "mean": 2.4565,
+          "median": 2.2498,
+          "p10": 1.2499,
+          "p90": 3.4997
+        },
+        "trueProposedDurationS": {
+          "count": 2244,
+          "mean": 2.4422,
+          "median": 2.2498,
+          "p10": 1.2499,
+          "p90": 3.9996
+        }
+      },
+      "timing": {
+        "meanSignedErrorMs": -5.8,
+        "medianSignedErrorMs": -13.2,
+        "meanAbsoluteErrorMs": 80.5,
+        "earlyCount": 1175,
+        "lateCount": 1069
+      },
+      "bassRootAgreement": 0.2605,
+      "perPerformer": {
+        "guitarset-p01": {
+          "trueTransitions": 381,
+          "falseTransitions": 270,
+          "missedTransitions": 279,
+          "predictedRegions": 711,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7282,
+          "meanFalseBoundaryProb": 0.2235
+        },
+        "guitarset-p02": {
+          "trueTransitions": 492,
+          "falseTransitions": 203,
+          "missedTransitions": 171,
+          "predictedRegions": 755,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7576,
+          "meanFalseBoundaryProb": 0.1853
+        },
+        "guitarset-p03": {
+          "trueTransitions": 502,
+          "falseTransitions": 178,
+          "missedTransitions": 159,
+          "predictedRegions": 740,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7643,
+          "meanFalseBoundaryProb": 0.2156
+        },
+        "guitarset-p04": {
+          "trueTransitions": 484,
+          "falseTransitions": 212,
+          "missedTransitions": 176,
+          "predictedRegions": 756,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7682,
+          "meanFalseBoundaryProb": 0.172
+        },
+        "guitarset-p05": {
+          "trueTransitions": 385,
+          "falseTransitions": 255,
+          "missedTransitions": 275,
+          "predictedRegions": 700,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7512,
+          "meanFalseBoundaryProb": 0.2531
+        }
+      }
+    },
+    "audio_mono-pickup_mix": {
+      "captureEntries": 300,
+      "calibration": {
+        "frames": 36740,
+        "positiveRate": 0.179641,
+        "meanPredicted": 0.166826,
+        "expectedCalibrationError": 0.03631,
+        "maximumCalibrationError": 0.103207,
+        "reliability": [
+          {
+            "binLow": 0.0,
+            "binHigh": 0.1,
+            "count": 26682,
+            "meanPredicted": 0.006779,
+            "observedFrequency": 0.037741
+          },
+          {
+            "binLow": 0.1,
+            "binHigh": 0.2,
+            "count": 1443,
+            "meanPredicted": 0.144632,
+            "observedFrequency": 0.197505
+          },
+          {
+            "binLow": 0.2,
+            "binHigh": 0.3,
+            "count": 944,
+            "meanPredicted": 0.248418,
+            "observedFrequency": 0.237288
+          },
+          {
+            "binLow": 0.3,
+            "binHigh": 0.4,
+            "count": 780,
+            "meanPredicted": 0.348991,
+            "observedFrequency": 0.302564
+          },
+          {
+            "binLow": 0.4,
+            "binHigh": 0.5,
+            "count": 712,
+            "meanPredicted": 0.450841,
+            "observedFrequency": 0.352528
+          },
+          {
+            "binLow": 0.5,
+            "binHigh": 0.6,
+            "count": 715,
+            "meanPredicted": 0.550759,
+            "observedFrequency": 0.447552
+          },
+          {
+            "binLow": 0.6,
+            "binHigh": 0.7,
+            "count": 844,
+            "meanPredicted": 0.652259,
+            "observedFrequency": 0.554502
+          },
+          {
+            "binLow": 0.7,
+            "binHigh": 0.8,
+            "count": 1150,
+            "meanPredicted": 0.75211,
+            "observedFrequency": 0.68
+          },
+          {
+            "binLow": 0.8,
+            "binHigh": 0.9,
+            "count": 1840,
+            "meanPredicted": 0.853425,
+            "observedFrequency": 0.827174
+          },
+          {
+            "binLow": 0.9,
+            "binHigh": 1.0,
+            "count": 1630,
+            "meanPredicted": 0.940094,
+            "observedFrequency": 0.923313
+          }
+        ]
+      },
+      "boundaryThresholdSweep": {
+        "0.05": {
+          "precision": 0.6459,
+          "recall": 0.9255,
+          "f1": 0.7608,
+          "predicted": 4728,
+          "reference": 3300
+        },
+        "0.10": {
+          "precision": 0.6742,
+          "recall": 0.9148,
+          "f1": 0.7763,
+          "predicted": 4478,
+          "reference": 3300
+        },
+        "0.15": {
+          "precision": 0.6939,
+          "recall": 0.9088,
+          "f1": 0.7869,
+          "predicted": 4322,
+          "reference": 3300
+        },
+        "0.20": {
+          "precision": 0.7087,
+          "recall": 0.9018,
+          "f1": 0.7937,
+          "predicted": 4199,
+          "reference": 3300
+        },
+        "0.25": {
+          "precision": 0.7247,
+          "recall": 0.8948,
+          "f1": 0.8008,
+          "predicted": 4075,
+          "reference": 3300
+        },
+        "0.30": {
+          "precision": 0.7391,
+          "recall": 0.8867,
+          "f1": 0.8062,
+          "predicted": 3959,
+          "reference": 3300
+        },
+        "0.35": {
+          "precision": 0.7535,
+          "recall": 0.8809,
+          "f1": 0.8122,
+          "predicted": 3858,
+          "reference": 3300
+        },
+        "0.40": {
+          "precision": 0.7684,
+          "recall": 0.8706,
+          "f1": 0.8163,
+          "predicted": 3739,
+          "reference": 3300
+        },
+        "0.45": {
+          "precision": 0.7816,
+          "recall": 0.8609,
+          "f1": 0.8193,
+          "predicted": 3635,
+          "reference": 3300
+        },
+        "0.50": {
+          "precision": 0.7937,
+          "recall": 0.8467,
+          "f1": 0.8194,
+          "predicted": 3520,
+          "reference": 3300
+        },
+        "0.55": {
+          "precision": 0.8068,
+          "recall": 0.8324,
+          "f1": 0.8194,
+          "predicted": 3405,
+          "reference": 3300
+        },
+        "0.60": {
+          "precision": 0.8197,
+          "recall": 0.8142,
+          "f1": 0.817,
+          "predicted": 3278,
+          "reference": 3300
+        },
+        "0.70": {
+          "precision": 0.8542,
+          "recall": 0.7721,
+          "f1": 0.8111,
+          "predicted": 2983,
+          "reference": 3300
+        },
+        "0.80": {
+          "precision": 0.8986,
+          "recall": 0.6903,
+          "f1": 0.7808,
+          "predicted": 2535,
+          "reference": 3300
+        }
+      },
+      "bestF1Threshold": "0.50",
+      "stateSwitch": {
+        "precision": 0.6635,
+        "recall": 0.6824,
+        "f1": 0.6728
+      },
+      "stateChangeBoundaryAgreement": 0.6456,
+      "stateChangeBoundaryAgreementByThreshold": {
+        "0.05": 0.7157,
+        "0.10": 0.7074,
+        "0.15": 0.7004,
+        "0.20": 0.693,
+        "0.25": 0.6871,
+        "0.30": 0.68,
+        "0.35": 0.6727,
+        "0.40": 0.6653,
+        "0.45": 0.657,
+        "0.50": 0.6456,
+        "0.55": 0.6367,
+        "0.60": 0.6232,
+        "0.70": 0.5937,
+        "0.80": 0.5362
+      },
+      "taxonomy": {
+        "true_boundary": 2254,
+        "false_aba_flicker": 156,
+        "missed_boundary": 1048,
+        "false_long": 764,
+        "false_short_multi_window": 215,
+        "false_one_window": 5
+      },
+      "categoryEvidence": {
+        "trueTransition": {
+          "boundaryProb": {
+            "count": 2254,
+            "mean": 0.7556,
+            "median": 0.8627,
+            "p10": 0.3051,
+            "p90": 0.9665
+          },
+          "margin": {
+            "count": 2254,
+            "mean": 0.5949,
+            "median": 0.6606,
+            "p10": 0.0881,
+            "p90": 0.9858
+          },
+          "topConfidence": {
+            "count": 2254,
+            "mean": 0.7373,
+            "median": 0.7904,
+            "p10": 0.3901,
+            "p90": 0.9911
+          }
+        },
+        "falseTransition": {
+          "boundaryProb": {
+            "count": 1140,
+            "mean": 0.2085,
+            "median": 0.0218,
+            "p10": 0.0,
+            "p90": 0.7614
+          },
+          "margin": {
+            "count": 1140,
+            "mean": 0.3175,
+            "median": 0.2331,
+            "p10": 0.0345,
+            "p90": 0.7348
+          },
+          "topConfidence": {
+            "count": 1140,
+            "mean": 0.5335,
+            "median": 0.5067,
+            "p10": 0.2841,
+            "p90": 0.8483
+          }
+        },
+        "missedTransition": {
+          "boundaryProb": {
+            "count": 1048,
+            "mean": 0.5944,
+            "median": 0.7068,
+            "p10": 0.0695,
+            "p90": 0.9307
+          },
+          "margin": {
+            "count": 1048,
+            "mean": 0.4416,
+            "median": 0.3804,
+            "p10": 0.0572,
+            "p90": 0.9198
+          },
+          "topConfidence": {
+            "count": 1048,
+            "mean": 0.6199,
+            "median": 0.603,
+            "p10": 0.3165,
+            "p90": 0.9503
+          }
+        },
+        "sustainedNonBoundary": {
+          "boundaryProb": {
+            "count": 30140,
+            "mean": 0.0671,
+            "median": 0.0001,
+            "p10": 0.0,
+            "p90": 0.2364
+          },
+          "margin": {
+            "count": 30140,
+            "mean": 0.673,
+            "median": 0.8192,
+            "p10": 0.1166,
+            "p90": 0.9987
+          },
+          "topConfidence": {
+            "count": 30140,
+            "mean": 0.7852,
+            "median": 0.8875,
+            "p10": 0.4161,
+            "p90": 0.9992
+          }
+        }
+      },
+      "regionShape": {
+        "falsePreviousDurationS": {
+          "count": 1140,
+          "mean": 2.2562,
+          "median": 1.8748,
+          "p10": 0.7499,
+          "p90": 4.2496
+        },
+        "falseProposedDurationS": {
+          "count": 1140,
+          "mean": 2.2259,
+          "median": 1.9998,
+          "p10": 0.7499,
+          "p90": 3.9996
+        },
+        "truePreviousDurationS": {
+          "count": 2254,
+          "mean": 2.453,
+          "median": 2.2498,
+          "p10": 1.2499,
+          "p90": 3.4997
+        },
+        "trueProposedDurationS": {
+          "count": 2254,
+          "mean": 2.4357,
+          "median": 2.2498,
+          "p10": 1.2499,
+          "p90": 3.9996
+        }
+      },
+      "timing": {
+        "meanSignedErrorMs": -6.72,
+        "medianSignedErrorMs": -15.5,
+        "meanAbsoluteErrorMs": 82.97,
+        "earlyCount": 1184,
+        "lateCount": 1070
+      },
+      "bassRootAgreement": 0.3028,
+      "perPerformer": {
+        "guitarset-p01": {
+          "trueTransitions": 401,
+          "falseTransitions": 253,
+          "missedTransitions": 259,
+          "predictedRegions": 714,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7338,
+          "meanFalseBoundaryProb": 0.2244
+        },
+        "guitarset-p02": {
+          "trueTransitions": 471,
+          "falseTransitions": 224,
+          "missedTransitions": 190,
+          "predictedRegions": 755,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7643,
+          "meanFalseBoundaryProb": 0.1784
+        },
+        "guitarset-p03": {
+          "trueTransitions": 508,
+          "falseTransitions": 184,
+          "missedTransitions": 153,
+          "predictedRegions": 752,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7577,
+          "meanFalseBoundaryProb": 0.1966
+        },
+        "guitarset-p04": {
+          "trueTransitions": 480,
+          "falseTransitions": 226,
+          "missedTransitions": 180,
+          "predictedRegions": 766,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7707,
+          "meanFalseBoundaryProb": 0.1992
+        },
+        "guitarset-p05": {
+          "trueTransitions": 394,
+          "falseTransitions": 253,
+          "missedTransitions": 266,
+          "predictedRegions": 707,
+          "referenceRegions": 720,
+          "meanTrueBoundaryProb": 0.7466,
+          "meanFalseBoundaryProb": 0.2361
+        }
+      }
+    }
+  },
+  "rawChannelDominantIssues": {
+    "audio_mono-mic": {
+      "findings": [],
+      "confidenceSkew": -0.014162,
+      "trueFalseSeparation": 0.543,
+      "f1AtHalf": 0.817,
+      "bestF1": 0.817,
+      "bestThreshold": "0.50"
+    },
+    "audio_mono-pickup_mix": {
+      "findings": [],
+      "confidenceSkew": -0.012815,
+      "trueFalseSeparation": 0.5471,
+      "f1AtHalf": 0.8194,
+      "bestF1": 0.8194,
+      "bestThreshold": "0.50"
+    }
+  },
   "dominantIssues": {
     "audio_mono-mic": {
       "findings": [

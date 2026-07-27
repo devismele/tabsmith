@@ -40,6 +40,7 @@ def build_cache(
     split_manifest: dict,
     cache_dir: Path,
     checkpoints_root: Path = FULLV2_CHECKPOINTS,
+    candidate_dir: str = "full-v2",
 ) -> dict:
     from ...preprocessing.feature_source import frames_for_track
     from ...training.checkpoint import load_checkpoint
@@ -62,7 +63,7 @@ def build_cache(
     start = time.time()
     for fold in split_manifest["folds"]:
         fold_id = fold["foldId"]
-        ckpt_path = checkpoints_root / fold_id / "full-v2" / "model.pt"
+        ckpt_path = checkpoints_root / fold_id / candidate_dir / "model.pt"
         model = meta = None
         for track in by_fold[fold_id]:
             capture = _capture(track)

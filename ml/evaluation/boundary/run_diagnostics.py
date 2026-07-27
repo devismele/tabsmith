@@ -62,8 +62,41 @@ def _sweep_table(sweep: dict[str, dict]) -> list[str]:
     return out
 
 
+def build_smoothing_section(diagnoses: dict, raw: dict, raw_issues: dict) -> list[str]:
+    """Smoothed vs raw boundary channel, so downstream damage is attributable."""
+    lines = [
+        "## Smoothed vs raw boundary channel",
+        "",
+        "The full-v2 decode applies EMA smoothing (boundaryAlpha 0.35) to the boundary",
+        "channel. Everything above is measured through that smoothing, which is the",
+        "configuration full-v2 actually runs. Measuring the raw head output separates a",
+        "weak head from a head degraded downstream:",
+        "",
+        "| capture | channel | best F1 | at threshold | F1 at 0.50 | ECE | agreement at best |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for cap in CAPTURES:
+        for label, d in (("smoothed", diagnoses[cap]), ("raw", raw[cap])):
+            sweep = d["boundaryThresholdSweep"]
+            best = d["bestF1Threshold"]
+            agreement = d["stateChangeBoundaryAgreementByThreshold"].get(best, 0.0)
+            lines.append(
+                f"| {cap} | {label} | {sweep[best]['f1']:.4f} | {best} | "
+                f"{sweep.get('0.50', {}).get('f1', 0.0):.4f} | "
+                f"{d['calibration']['expectedCalibrationError']:.4f} | {agreement:.4f} |")
+    lines += [
+        "",
+        "Findings on the raw channel: "
+        + "; ".join(f"{cap}: {', '.join(raw_issues[cap]['findings']) or 'none triggered'}"
+                    for cap in CAPTURES),
+        "",
+    ]
+    return lines
+
+
 def build_markdown(reconciliation: dict, diagnoses: dict, issues: dict,
-                   disagreement: dict) -> str:
+                   disagreement: dict, raw: dict | None = None,
+                   raw_issues: dict | None = None) -> str:
     lines = [
         "# Boundary-calibration-v3 diagnosis (full-v2, p01-p05)",
         "",
@@ -180,6 +213,9 @@ def build_markdown(reconciliation: dict, diagnoses: dict, issues: dict,
             "",
         ]
 
+    if raw is not None and raw_issues is not None:
+        lines += build_smoothing_section(diagnoses, raw, raw_issues)
+
     lines += [
         "## Microphone/pickup consistency",
         "",
@@ -209,14 +245,24 @@ def main() -> None:
     issues = {cap: classify_dominant_issue(diagnoses[cap]) for cap in CAPTURES}
     disagreement = capture_disagreement(diagnoses[CAPTURES[0]], diagnoses[CAPTURES[1]])
 
+    # The full-v2 path smooths the boundary channel (EMA, boundaryAlpha 0.35)
+    # before anything sees it. Diagnosing only the smoothed channel cannot tell
+    # a weak head apart from a head degraded downstream, so the raw responses
+    # are diagnosed alongside it and the two are reported together.
+    raw = {cap: diagnose_entries([e for e in entries if e.capture == cap], None)
+           for cap in CAPTURES}
+    raw_issues = {cap: classify_dominant_issue(raw[cap]) for cap in CAPTURES}
+
     report_dir = Path(args.report_dir)
     _write(report_dir / "boundary-v3-diagnosis.md",
-           build_markdown(reconciliation, diagnoses, issues, disagreement))
+           build_markdown(reconciliation, diagnoses, issues, disagreement, raw, raw_issues))
     _write(report_dir / "boundary-v3-diagnosis.json", json.dumps(_strip_private({
         "reconciliation": reconciliation,
         "smoothing": smoothing,
         "tolerance": 0.25,
         "diagnoses": diagnoses,
+        "rawChannelDiagnoses": raw,
+        "rawChannelDominantIssues": raw_issues,
         "dominantIssues": issues,
         "captureConsistency": disagreement,
         "p00Accessed": False,

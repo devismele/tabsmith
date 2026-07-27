@@ -8,8 +8,9 @@
   "candidates": [
     {
       "id": "full-v2-control",
-      "description": "Unmodified full-v2 objective and architecture, retrained on each fold with the frozen seed. Control: reproduces the frozen full-v2 baseline and isolates run-to-run variance from candidate effects.",
+      "description": "Unmodified full-v2. Reuses the frozen per-fold full-v2 checkpoints rather than retraining them: those checkpoints ARE the baseline this study must be measured against, and Phase 4 proved the cached responses reproduce the frozen segmental-v3 fold results byte-identically. Retraining under the same seed and config would spend ~4.5 CPU-hours to approximate a checkpoint already in hand.",
       "interventions": [],
+      "reusesCheckpoint": "full-v2",
       "trainingOverrides": {},
       "labelOverrides": {},
       "smoothing": {
