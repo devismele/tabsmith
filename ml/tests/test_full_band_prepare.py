@@ -465,6 +465,34 @@ class BoundedExtractionTests(unittest.TestCase):
             with self.assertRaises(SlakhIntegrityError):
                 extract_audio_for(archive, {"escape"}, Path(tmp) / "out")
 
+    def test_stem_directories_are_selected_by_prefix(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "a.tar.gz"
+            archive.write_bytes(_archive({
+                f"{TOP}/train/Track00001/mix.flac": b"M" * 64,
+                f"{TOP}/train/Track00001/stems/S00.flac": b"A" * 64,
+                f"{TOP}/train/Track00001/stems/S01.flac": b"B" * 64,
+                f"{TOP}/train/Track00001/MIDI/S00.mid": b"skip me",
+            }))
+            destination = Path(tmp) / "out"
+            summary = extract_audio_for(
+                archive, {"Track00001"}, destination,
+                members=("mix.flac",), member_prefixes=("stems/",))
+            self.assertEqual(summary["writtenMembers"], 3)
+            self.assertTrue((destination / "Track00001" / "stems" / "S01.flac").exists())
+            self.assertFalse((destination / "Track00001" / "MIDI").exists())
+
+    def test_existing_members_are_skipped_so_extraction_resumes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "a.tar.gz"
+            archive.write_bytes(_standard_archive())
+            destination = Path(tmp) / "out"
+            first = extract_audio_for(archive, {"Track00001"}, destination)
+            second = extract_audio_for(archive, {"Track00001"}, destination)
+            self.assertEqual(first["writtenMembers"], 1)
+            self.assertEqual(second["writtenMembers"], 0)
+            self.assertEqual(second["skippedExisting"], 1)
+
     def test_nothing_is_written_for_an_empty_track_set(self):
         with tempfile.TemporaryDirectory() as tmp:
             archive = Path(tmp) / "a.tar.gz"

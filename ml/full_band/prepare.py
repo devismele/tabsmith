@@ -437,17 +437,26 @@ def extract_audio_for(
     destination: Path,
     *,
     members: tuple[str, ...] = ("mix.flac",),
+    member_prefixes: tuple[str, ...] = (),
+    skip_existing: bool = True,
     top_level: str = SLAKH_ZENODO["topLevelDir"],
 ) -> dict[str, Any]:
     """Extract only the named members of an explicit track list.
 
-    Every member path is traversal-checked before it is written, and only paths
-    under ``destination`` are ever created.
+    ``members`` matches exact relative names; ``member_prefixes`` matches
+    directories such as ``stems/``, which is how a whole stem set is selected
+    without enumerating names that vary per track.
+
+    Every member path is traversal-checked *and* its resolved destination is
+    confirmed to stay under ``destination`` before anything is written. With
+    ``skip_existing`` an interrupted extraction resumes instead of rewriting
+    gigabytes it already has.
     """
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
     written: list[str] = []
     total_bytes = 0
+    skipped = 0
     with Path(archive_path).open("rb") as handle:
         tar = tarfile.open(fileobj=handle, mode="r|gz")
         for member in tar:
@@ -459,11 +468,18 @@ def extract_audio_for(
                 continue
             track_id = parts[2]
             relative = "/".join(parts[3:])
-            if track_id not in track_ids or relative not in members:
+            if track_id not in track_ids:
+                continue
+            wanted = relative in members or relative.startswith(member_prefixes) \
+                if member_prefixes else relative in members
+            if not wanted:
                 continue
             target = (destination / track_id / relative).resolve()
             if not str(target).startswith(str(destination.resolve())):
                 raise SlakhIntegrityError(f"member escapes destination: {name}")
+            if skip_existing and target.exists() and target.stat().st_size == member.size:
+                skipped += 1
+                continue
             target.parent.mkdir(parents=True, exist_ok=True)
             extracted = tar.extractfile(member)
             if extracted is None:
@@ -475,6 +491,7 @@ def extract_audio_for(
     return {
         "requestedTracks": len(track_ids),
         "writtenMembers": len(written),
+        "skippedExisting": skipped,
         "totalBytes": total_bytes,
         "totalGigabytes": round(total_bytes / (1 << 30), 3),
     }
