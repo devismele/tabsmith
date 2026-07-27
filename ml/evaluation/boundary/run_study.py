@@ -13,8 +13,15 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ..segmental.evaluate import load_cache_entries
 from ..segmental.seg_metrics import CAPTURES
 from ..temporal_v2_ablation import _read_json
+from .attribution import (
+    boundary_channel_summary,
+    chord_channel_summary,
+    decompose,
+    interpret,
+)
 from .evaluate import DEFAULT_CANDIDATES, DEFAULT_RUN_DIR, candidate_cache_dir, evaluate_candidate
 from .gates import DEFAULT_GATES, evaluate_candidate_gates, load_gates
 
@@ -45,8 +52,66 @@ def _row(m: dict[str, Any]) -> str:
             f"{int(m['abaCount'])} | {int(m['flickerCount'])}")
 
 
+def build_attribution_section(attribution: dict[str, Any]) -> list[str]:
+    """Separate boundary retraining from decoder and chord-posterior effects."""
+    if not attribution:
+        return []
+    lines = [
+        "## Effect attribution: boundary vs decoder vs chord posterior",
+        "",
+        "The full-v2 decode does not read the boundary head. A model effect visible",
+        "under that decoder is therefore chord-posterior movement by definition, and the",
+        "extra effect that only appears under segmental-full is the boundary channel:",
+        "",
+        "```",
+        "decoder effect          = control(segmental)   - control(existing)",
+        "chord-posterior channel = candidate(existing)  - control(existing)",
+        "boundary channel        = [candidate(segmental) - control(segmental)]",
+        "                          - chord-posterior channel",
+        "```",
+        "",
+        "Signs are normalised so positive always means better.",
+        "",
+    ]
+    for cid, payload in attribution.items():
+        lines += [f"### {cid}", ""]
+        for capture in CAPTURES:
+            frag = payload["decomposition"][capture]["fragmentationRate"]
+            root = payload["decomposition"][capture]["rootAccuracy"]
+            finding = payload["interpretation"][capture]
+            lines += [
+                f"**{capture}**",
+                "",
+                "| effect | fragmentation | root accuracy |",
+                "|---|---|---|",
+                f"| decoder (control only) | {frag['decoderEffect']:+.4f} | {root['decoderEffect']:+.4f} |",
+                f"| model under full-v2 decode (chord posterior) | {frag['chordPosteriorChannel']:+.4f} | {root['chordPosteriorChannel']:+.4f} |",
+                f"| model under segmental-full | {frag['modelEffectUnderSegmental']:+.4f} | {root['modelEffectUnderSegmental']:+.4f} |",
+                f"| boundary channel (interaction) | {frag['boundaryChannel']:+.4f} | {root['boundaryChannel']:+.4f} |",
+                "",
+                f"- total fragmentation improvement: {finding['fragmentationImprovementTotal']:+.4f} "
+                f"(**dominant channel: {finding['dominantChannel']}**)",
+                f"- boundary head F1 delta: {finding['boundaryF1Delta']:+.4f}",
+                "",
+            ]
+        chord = payload["chordChannel"]
+        lines += [
+            "Chord posterior compared frame-by-frame against the control "
+            f"({chord['comparedCaptures']} captures):",
+            "",
+            f"- top-1 argmax agreement with control: {chord['top1AgreementWithControl']:.4f}",
+            f"- mean posterior margin: control {chord['controlMeanMargin']:.4f} -> "
+            f"candidate {chord['candidateMeanMargin']:.4f} ({chord['marginDelta']:+.4f})",
+            f"- mean no-chord probability: control {chord['controlMeanNoChord']:.4f} -> "
+            f"candidate {chord['candidateMeanNoChord']:.4f}",
+            "",
+        ]
+    return lines
+
+
 def build_markdown(evaluations: dict[str, Any], gate_results: dict[str, Any],
-                   eligible: list[str], gates: dict[str, Any]) -> str:
+                   eligible: list[str], gates: dict[str, Any],
+                   attribution: dict[str, Any] | None = None) -> str:
     lines = [
         "# Boundary-calibration-v3 candidate comparison (p01-p05 development)",
         "",
@@ -101,6 +166,7 @@ def build_markdown(evaluations: dict[str, Any], gate_results: dict[str, Any],
         lines.append(f"| {cid} | {result['eligible']} | {result['firstFailure'] or '-'} |")
     lines += ["", f"**Eligible candidates: {len(eligible)}** "
                   f"({', '.join(eligible) if eligible else 'none'})", ""]
+    lines += build_attribution_section(attribution or {})
 
     lines += ["## Per-fold calibration fitted on training performers", "",
               "| candidate | decoder / fold | calibrator | threshold | train ECE before | after |",
@@ -207,9 +273,28 @@ def main() -> None:
             baseline_full_v2=baseline_full_v2, baseline_boundary=baseline_boundary)
     eligible = [cid for cid, r in gate_results.items() if r["eligible"]]
 
+    # Attribution: which channel actually moved, boundary or chord posterior?
+    control_entries = load_cache_entries(candidate_cache_dir(
+        next(c for c in manifest["candidates"] if c["id"] == CONTROL_ID), run_dir))
+    attribution: dict[str, Any] = {}
+    for cid, ev in evaluations.items():
+        if "error" in ev or cid == CONTROL_ID:
+            continue
+        candidate_def = next(c for c in manifest["candidates"] if c["id"] == cid)
+        decomposition = decompose(control["decoders"], ev["decoders"])
+        boundary = boundary_channel_summary(control["decoders"], ev["decoders"])
+        chord = chord_channel_summary(
+            control_entries, load_cache_entries(candidate_cache_dir(candidate_def, run_dir)))
+        attribution[cid] = {
+            "decomposition": decomposition,
+            "boundaryChannel": boundary,
+            "chordChannel": chord,
+            "interpretation": interpret(decomposition, boundary, chord),
+        }
+
     report_dir = Path(args.report_dir)
     _write(report_dir / "boundary-v3-comparison.md",
-           build_markdown(evaluations, gate_results, eligible, gates))
+           build_markdown(evaluations, gate_results, eligible, gates, attribution))
     write_fold_csv(evaluations, report_dir / "boundary-v3-fold-results.csv")
     _write(report_dir / "boundary-v3-results.json", json.dumps({
         "candidateSetId": manifest["ablationId"],
@@ -218,6 +303,7 @@ def main() -> None:
         "baselineBoundary": baseline_boundary,
         "evaluations": evaluations,
         "gateResults": gate_results,
+        "attribution": attribution,
         "eligibleCandidates": eligible,
         "p00Accessed": False,
     }, indent=2, default=float))
