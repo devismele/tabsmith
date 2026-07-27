@@ -12,11 +12,16 @@ from __future__ import annotations
 import gzip
 import hashlib
 import io
+import json
 import tarfile
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
+from ml.full_band import download_slakh as dl
+from ml.full_band.download_slakh import _open_range
+from ml.full_band.download_slakh import download as download_archive
 from ml.full_band.midi import read_note_events
 from ml.full_band.slakh import (
     SLAKH_ZENODO,
@@ -128,11 +133,141 @@ class ArchiveVerificationTests(unittest.TestCase):
                 verify_archive(path, expected_size=999, expected_md5=md5)
 
 
+class _FakeResponse:
+    """Minimal stand-in for a streamed ``requests`` response."""
+
+    def __init__(self, status_code, body=b"", headers=None):
+        self.status_code = status_code
+        self._body = body
+        self.headers = headers or {}
+        self.closed = False
+
+    def iter_content(self, chunk_size):
+        for i in range(0, len(self._body), chunk_size):
+            yield self._body[i:i + chunk_size]
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
+
+    def close(self):
+        self.closed = True
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
+
+
+class _FakeSession:
+    """Replays a scripted list of responses and records the Range headers seen."""
+
+    def __init__(self, responses):
+        self._responses = list(responses)
+        self.headers = {}
+        self.ranges = []
+
+    def get(self, url, headers=None, stream=False, timeout=None):
+        self.ranges.append((headers or {}).get("Range"))
+        return self._responses.pop(0)
+
+
+class ResumeSafetyTests(unittest.TestCase):
+    """The resume path must never append to a partial without proof of offset."""
+
+    def test_range_ignored_is_rejected(self):
+        session = _FakeSession([_FakeResponse(200, b"whole file again")])
+        with self.assertRaises(SlakhIntegrityError) as ctx:
+            _open_range(session, "http://example/x", 4096, 30)
+        self.assertIn("ignored Range", str(ctx.exception))
+
+    def test_wrong_resume_offset_is_rejected(self):
+        session = _FakeSession([
+            _FakeResponse(206, b"", {"Content-Range": "bytes 0-99/100000"}),
+        ])
+        with self.assertRaises(SlakhIntegrityError) as ctx:
+            _open_range(session, "http://example/x", 4096, 30)
+        self.assertIn("resumed at 0", str(ctx.exception))
+
+    def test_unparsable_content_range_is_rejected(self):
+        session = _FakeSession([_FakeResponse(206, b"", {"Content-Range": "garbage"})])
+        with self.assertRaises(SlakhIntegrityError):
+            _open_range(session, "http://example/x", 4096, 30)
+
+    def test_correct_offset_accepted(self):
+        resp = _FakeResponse(206, b"tail", {"Content-Range": "bytes 4096-9999/10000"})
+        session = _FakeSession([resp])
+        self.assertIs(_open_range(session, "http://example/x", 4096, 30), resp)
+        self.assertEqual(session.ranges, ["bytes=4096-"])
+
+    def test_partial_larger_than_official_size_refuses(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            downloads = root / "downloads"
+            downloads.mkdir()
+            partial = downloads / (SLAKH_ZENODO["archiveName"] + ".download")
+            partial.write_bytes(b"X" * 50)
+            with self.assertRaises(SlakhIntegrityError):
+                download_archive(downloads, expected_size=10, expected_md5="0" * 32)
+
+
+class DownloadOutcomeTests(unittest.TestCase):
+    def _run(self, body, expected_md5):
+        tmp = tempfile.mkdtemp()
+        root = Path(tmp)
+        downloads = root / "downloads"
+        session = _FakeSession([_FakeResponse(200, body)])
+        return root, downloads, session, expected_md5
+
+    def test_verified_download_renames_and_reports_progress(self):
+        body = b"slakh-bytes" * 100
+        md5 = hashlib.md5(body).hexdigest()
+        root, downloads, session, md5 = self._run(body, md5)
+        with unittest.mock.patch.object(dl, "requests", create=True):
+            path = download_archive(
+                downloads, expected_size=len(body), expected_md5=md5,
+                quarantine_dir=root / "quarantine", session=session,
+            )
+        self.assertEqual(path.name, SLAKH_ZENODO["archiveName"])
+        self.assertEqual(path.read_bytes(), body)
+        self.assertFalse(path.with_suffix(path.suffix + ".download").exists())
+        progress = json.loads(
+            (downloads / (SLAKH_ZENODO["archiveName"] + ".progress.json")).read_text()
+        )
+        self.assertEqual(progress["state"], "verified")
+        self.assertEqual(progress["bytes_done"], len(body))
+
+    def test_md5_mismatch_quarantines_and_raises(self):
+        body = b"corrupted-payload"
+        root, downloads, session, _ = self._run(body, "0" * 32)
+        with self.assertRaises(SlakhIntegrityError):
+            download_archive(
+                downloads, expected_size=len(body), expected_md5="0" * 32,
+                quarantine_dir=root / "quarantine", session=session,
+            )
+        # The bad archive never takes the final name and is moved outside downloads.
+        self.assertFalse((downloads / SLAKH_ZENODO["archiveName"]).exists())
+        quarantined = list((root / "quarantine").glob("*.badmd5"))
+        self.assertEqual(len(quarantined), 1)
+        self.assertEqual(quarantined[0].read_bytes(), body)
+        progress = json.loads(
+            (downloads / (SLAKH_ZENODO["archiveName"] + ".progress.json")).read_text()
+        )
+        self.assertEqual(progress["state"], "failed")
+
+
 class LicenceTests(unittest.TestCase):
     def test_pinned_licence_is_commercial_compatible(self):
         self.assertEqual(SLAKH_ZENODO["license"], "cc-by-4.0")
         self.assertTrue(SLAKH_ZENODO["commercialUseCompatible"])
         self.assertEqual(len(SLAKH_ZENODO["archiveMd5"]), 32)
+
+    def test_download_url_targets_the_official_record(self):
+        self.assertIn(SLAKH_ZENODO["recid"], dl.API_CONTENT_URL)
+        self.assertIn(SLAKH_ZENODO["archiveName"], dl.API_CONTENT_URL)
+        self.assertTrue(dl.API_CONTENT_URL.startswith("https://zenodo.org/"))
 
 
 if __name__ == "__main__":
