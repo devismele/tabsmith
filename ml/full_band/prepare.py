@@ -34,11 +34,14 @@ from .slakh import SLAKH_ZENODO, SlakhIntegrityError, safe_member_name
 from .symbolic import derive_chord_regions
 
 # Instrument classes Slakh uses; these three drive the guitar/harmony views.
+# The exact ``inst_class`` vocabulary this dataset uses, confirmed by scanning
+# the verified archive. Note "Strings (continued)" -- a distinct class name that
+# covers 1389 of 1709 tracks and is easy to miss by guessing.
 GUITAR_CLASSES = {"Guitar"}
 BASS_CLASSES = {"Bass"}
-HARMONIC_CLASSES = {"Guitar", "Bass", "Piano", "Organ", "Strings", "Ensemble",
-                    "Brass", "Reed", "Pipe", "Synth Lead", "Synth Pad",
-                    "Chromatic Percussion"}
+HARMONIC_CLASSES = {"Guitar", "Bass", "Piano", "Organ", "Strings",
+                    "Strings (continued)", "Brass", "Reed", "Pipe",
+                    "Synth Lead", "Synth Pad", "Chromatic Percussion"}
 PERCUSSIVE_CLASSES = {"Drums", "Percussive"}
 
 METADATA_NAME = "metadata.yaml"

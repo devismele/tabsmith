@@ -108,6 +108,7 @@ def build_markdown(report: dict[str, Any]) -> str:
         for failure in report["failures"]:
             lines.append(f"| {failure['trackId']} | {failure['error']} |")
         lines.append("")
+    lines += _label_density_section(labels)
     lines += [
         "## Interpretation limit",
         "",
@@ -117,6 +118,54 @@ def build_markdown(report: dict[str, Any]) -> str:
         "",
     ]
     return "\n".join(lines)
+
+
+# GuitarSet human annotations run near this density; the frozen full-band gates
+# were written assuming reference labels of a comparable granularity.
+GUITARSET_REFERENCE_RPM = 20.0
+
+
+def _label_density_section(labels: dict[str, Any]) -> list[str]:
+    """Flag when derived labels are not at chord granularity.
+
+    The symbolic derivation segments on note content. On dense full-band
+    arrangements it can emit a new region per passing note, which produces
+    *note-level* rather than *chord-level* labels. Accuracy metrics survive
+    that, but fragmentation and regions/minute stop being comparable to
+    GuitarSet, so it has to be stated wherever the numbers are read.
+    """
+    rpm = labels["meanRegionsPerMinute"]
+    seconds = labels["totalDurationSeconds"]
+    regions = labels["chordRegionCount"]
+    mean_region = seconds / regions if regions else 0.0
+    ratio = rpm / GUITARSET_REFERENCE_RPM if GUITARSET_REFERENCE_RPM else 0.0
+    lines = [
+        "## Label granularity (read before comparing fragmentation)",
+        "",
+        f"- mean derived region duration: **{mean_region:.3f} s**",
+        f"- derived regions/minute: **{rpm:.1f}** vs GuitarSet reference "
+        f"~{GUITARSET_REFERENCE_RPM:.0f} ({ratio:.1f}x denser)",
+        "",
+    ]
+    if ratio >= 2.0:
+        lines += [
+            "**These labels are note-level, not chord-level.** The symbolic derivation",
+            "segments on note content, and dense full-band arrangements change notes far",
+            "more often than they change chords. Consequences:",
+            "",
+            "- Root, quality, detailed accuracy and no-chord metrics remain meaningful.",
+            "- Fragmentation rate and regions/minute are **not** comparable to GuitarSet,",
+            "  and a fragmentation gate calibrated on GuitarSet cannot be applied to these",
+            "  labels as-is.",
+            "- A chord-level derivation (harmonic-rhythm aware segmentation, or a minimum",
+            "  region on the order of a beat rather than 0.10 s) is prerequisite work",
+            "  before full-band stability gates mean anything.",
+            "",
+            "This is reported rather than silently corrected: retuning the derivation after",
+            "seeing the numbers would be fitting labels to a desired result.",
+            "",
+        ]
+    return lines
 
 
 def main() -> None:

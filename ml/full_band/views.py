@@ -34,9 +34,11 @@ GUITAR_CLASSES = {"Guitar"}
 BASS_CLASSES = {"Bass"}
 PERCUSSIVE_CLASSES = {"Drums", "Percussive"}
 # Everything pitched that can carry harmony. Deliberately excludes percussion.
+# Vocabulary confirmed against the verified archive; "Strings (continued)" is a
+# real class name covering 1389 of 1709 tracks.
 HARMONIC_CLASSES = {
-    "Guitar", "Bass", "Piano", "Organ", "Strings", "Ensemble", "Brass", "Reed",
-    "Pipe", "Synth Lead", "Synth Pad", "Chromatic Percussion",
+    "Guitar", "Bass", "Piano", "Organ", "Strings", "Strings (continued)",
+    "Brass", "Reed", "Pipe", "Synth Lead", "Synth Pad", "Chromatic Percussion",
 }
 
 VIEW_NAMES = (

@@ -12,6 +12,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
+# General MIDI reserves channel 10 (0-indexed 9) for percussion. Note numbers on
+# that channel select drum sounds and carry no pitch, so they must be excluded
+# from any harmonic analysis.
+DRUM_CHANNEL = 9
+
+
 class MidiError(ValueError):
     pass
 
@@ -36,7 +42,8 @@ class NoteEvent:
     velocity: float
 
 
-def _parse_track(data: bytes, division: int, default_us_per_qn: int):
+def _parse_track(data: bytes, division: int, default_us_per_qn: int,
+                 include_drum_channel: bool = False):
     """Yield (tick, kind, pitch, velocity) note edges plus tempo changes."""
     i = 0
     tick = 0
@@ -68,7 +75,12 @@ def _parse_track(data: bytes, division: int, default_us_per_qn: int):
             if event in (0x80, 0x90):
                 pitch = data[i]; vel = data[i + 1]; i += 2
                 on = event == 0x90 and vel > 0
-                edges.append((tick, pitch, vel if on else 0))
+                # GM channel 10 (0-indexed 9) is percussion: its "pitches" are
+                # drum sounds, not harmony. Slakh's all_src.mid merges every
+                # stem including Drums, so keeping these would feed kick/snare
+                # note numbers straight into chord derivation.
+                if (status & 0x0F) != DRUM_CHANNEL or include_drum_channel:
+                    edges.append((tick, pitch, vel if on else 0))
             elif event in (0xA0, 0xB0, 0xE0):  # 2 data bytes
                 i += 2
             elif event in (0xC0, 0xD0):        # 1 data byte
@@ -78,8 +90,15 @@ def _parse_track(data: bytes, division: int, default_us_per_qn: int):
     return edges, tempos
 
 
-def read_note_events(data: bytes) -> tuple[list[dict], float]:
-    """Parse SMF bytes into note events and total duration in seconds."""
+def read_note_events(data: bytes, *,
+                     include_drum_channel: bool = False) -> tuple[list[dict], float]:
+    """Parse SMF bytes into note events and total duration in seconds.
+
+    Percussion (GM channel 10) is excluded by default: those note numbers are
+    drum sounds, not pitches, and Slakh's ``all_src.mid`` merges every stem
+    including Drums. Including them feeds kick/snare note numbers into chord
+    derivation as if they were harmony.
+    """
     if data[:4] != b"MThd":
         raise MidiError("not a Standard MIDI File (missing MThd)")
     header_len = int.from_bytes(data[4:8], "big")
@@ -101,7 +120,8 @@ def read_note_events(data: bytes) -> tuple[list[dict], float]:
         length = int.from_bytes(data[pos + 4:pos + 8], "big")
         chunk = data[pos + 8:pos + 8 + length]
         pos += 8 + length
-        edges, tempos = _parse_track(chunk, division, 500000)
+        edges, tempos = _parse_track(chunk, division, 500000,
+                                     include_drum_channel=include_drum_channel)
         all_edges.extend(edges)
         all_tempos.extend(tempos)
 

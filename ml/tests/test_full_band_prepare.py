@@ -56,6 +56,37 @@ def _midi(pitches=(60, 64, 67), quarter_ticks=480, quarters=4) -> bytes:
     return header + track
 
 
+def _midi_with_drums(pitches=(60, 64, 67), drum_hits=(36, 38, 42, 46),
+                     quarter_ticks=480, quarters=4) -> bytes:
+    """A sustained triad on channel 0 plus a busy drum pattern on channel 9.
+
+    Built from absolute ticks and delta-encoded at the end so every drum hit has
+    a real (non-zero) duration; zero-length notes would be discarded by the
+    reader and would not exercise the channel filter at all.
+    """
+    total = quarter_ticks * quarters
+    step = quarter_ticks // 4
+    events: list[tuple[int, int, bytes]] = []   # (tick, order, message)
+    for p in pitches:
+        events.append((0, 0, bytes([0x90, p, 64])))
+        events.append((total, 2, bytes([0x80, p, 0])))
+    for start in range(0, total, step):
+        for d in drum_hits:
+            events.append((start, 1, bytes([0x99, d, 100])))
+            events.append((min(start + step // 2, total), 1, bytes([0x89, d, 0])))
+    events.sort(key=lambda e: (e[0], e[1]))
+
+    body = bytearray()
+    previous = 0
+    for tick, _order, message in events:
+        body += _varlen(tick - previous) + message
+        previous = tick
+    body += _varlen(0) + bytes([0xFF, 0x2F, 0x00])
+    header = (b"MThd" + (6).to_bytes(4, "big") + (0).to_bytes(2, "big")
+              + (1).to_bytes(2, "big") + quarter_ticks.to_bytes(2, "big"))
+    return header + b"MTrk" + len(body).to_bytes(4, "big") + bytes(body)
+
+
 def _metadata(classes=("Guitar", "Bass", "Drums")) -> bytes:
     lines = ["stems:"]
     for i, name in enumerate(classes):
@@ -248,6 +279,75 @@ class SymbolicPassTests(unittest.TestCase):
         record = next(iter_symbolic_tracks(io.BytesIO(archive), splits=("train",)))
         self.assertIsNone(record.error)
         self.assertEqual(record.chord_regions[0].label, "C:maj")
+
+
+class DrumChannelTests(unittest.TestCase):
+    """Regression: all_src.mid merges Drums, whose notes are not pitches."""
+
+    def test_percussion_is_excluded_from_harmony(self):
+        from ml.full_band.midi import read_note_events
+
+        clean, _ = read_note_events(_midi((60, 64, 67)))
+        with_drums, _ = read_note_events(_midi_with_drums((60, 64, 67)))
+        self.assertEqual(len(with_drums), len(clean))
+        self.assertEqual(sorted({p for e in with_drums for p in e["pitches"]}),
+                         [60, 64, 67])
+
+    def test_percussion_can_be_included_explicitly(self):
+        from ml.full_band.midi import read_note_events
+
+        kept, _ = read_note_events(_midi_with_drums(), include_drum_channel=True)
+        pitches = {p for e in kept for p in e["pitches"]}
+        self.assertTrue({36, 38, 42, 46} & pitches)
+
+    def test_drums_do_not_fragment_the_derived_chord(self):
+        """Kick/snare note numbers must not create spurious chord regions."""
+        clean = derive_track_chords_for_test(_midi((60, 64, 67)))
+        noisy = derive_track_chords_for_test(_midi_with_drums((60, 64, 67)))
+        self.assertEqual([r.label for r in noisy], [r.label for r in clean])
+        self.assertEqual(noisy[0].label, "C:maj")
+
+    def test_drum_heavy_track_stays_low_density(self):
+        archive = _archive({
+            f"{TOP}/train/Track00001/all_src.mid": _midi_with_drums((60, 64, 67)),
+            f"{TOP}/train/Track00001/metadata.yaml": _metadata(("Guitar", "Drums")),
+        })
+        record = next(iter_symbolic_tracks(io.BytesIO(archive), splits=("train",)))
+        rpm = len(record.chord_regions) * 60.0 / record.duration_seconds
+        # A single sustained triad over a busy drum pattern is one chord.
+        self.assertLess(rpm, 60.0)
+
+
+def derive_track_chords_for_test(midi_bytes):
+    from ml.full_band.midi import read_note_events
+    from ml.full_band.symbolic import derive_chord_regions
+
+    events, duration = read_note_events(midi_bytes)
+    return derive_chord_regions(events, duration)
+
+
+class InstrumentVocabularyTests(unittest.TestCase):
+    def test_strings_continued_counts_as_harmonic(self):
+        """The dataset's real class name, covering 1389 of 1709 tracks."""
+        from ml.full_band.prepare import HARMONIC_CLASSES
+        from ml.full_band.views import HARMONIC_CLASSES as VIEW_HARMONIC
+
+        self.assertIn("Strings (continued)", HARMONIC_CLASSES)
+        self.assertIn("Strings (continued)", VIEW_HARMONIC)
+
+    def test_drums_are_never_harmonic(self):
+        from ml.full_band.prepare import HARMONIC_CLASSES
+
+        self.assertNotIn("Drums", HARMONIC_CLASSES)
+
+    def test_guitar_absent_harmonic_keeps_strings_continued(self):
+        from ml.full_band.views import Stem, select_stems
+
+        stems = [Stem("S00", "Guitar", Path(".")),
+                 Stem("S01", "Strings (continued)", Path(".")),
+                 Stem("S02", "Drums", Path("."))]
+        picked = [s.stem_id for s in select_stems(stems, "guitar-absent-harmonic")]
+        self.assertEqual(picked, ["S01"])
 
 
 class CompositionGroupingTests(unittest.TestCase):
