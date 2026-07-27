@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "gateSetId": "full-band-pilot-gates-20260727",
+  "frozenBefore": "any full-band baseline or pilot result was measured",
+  "policy": "A full-band pilot may only be recommended if it BOTH preserves GuitarSet development performance within the regression gates AND shows the required full-band improvement. Gates are not weakened after results are seen. Failing either half means retaining v1.",
+  "domain": {
+    "guitarSetDevelopmentPerformers": ["guitarset-p01", "guitarset-p02", "guitarset-p03", "guitarset-p04", "guitarset-p05"],
+    "p00": "sealed; not used for pilot selection",
+    "slakhTestSplit": "untouched; not used for model selection at any point",
+    "slakhSelectionSplits": ["train", "validation"],
+    "compositionGrouping": "aligned-MIDI SHA-256; duplicate renderings and alternate views never cross a partition"
+  },
+  "preservationGatesVsV1GuitarSetDevelopment": {
+    "rationale": "A full-band model that forgets solo guitar is not an improvement to Tabsmith's actual use case, so GuitarSet regression is a hard gate rather than a reported statistic.",
+    "rootAccuracyRegressionMaximumPercentagePoints": 2.0,
+    "detailedAccuracyRegressionMaximumPercentagePoints": 2.0,
+    "fragmentationRateIncreaseMaximum": 0.015,
+    "regionsPerMinuteIncreaseMaximum": 0.75,
+    "appliesToBothCaptures": true
+  },
+  "fullBandDevelopmentGates": {
+    "detailedAccuracyImprovementMinimumPercentagePoints": 2.0,
+    "noChordF1MustImprove": true,
+    "noChordF1ImprovementMinimum": 0.02,
+    "fragmentationRateMaximum": 0.70,
+    "mustImproveOnFullMix": true,
+    "mustImproveOnImperfectSeparatedViews": true,
+    "guitarAbsentCollapseForbidden": true,
+    "guitarAbsentDetailedAccuracyFloorRelativeToGuitarPresent": 0.75,
+    "percussionOnlyControl": {
+      "description": "A drums-only signal carries no harmony; a model that invents chords there is hallucinating from rhythm.",
+      "noChordRecallMinimum": 0.8
+    }
+  },
+  "engineeringGates": {
+    "pytorchOnnxParityMaximum": 1e-4,
+    "typescriptParityMaximum": 1e-4,
+    "exportedHeads": ["root", "quality", "nochord", "boundary"],
+    "requiresValidNonOverlappingRegions": true,
+    "requiresCompleteTimelineCoverage": true,
+    "unexpectedFallbackMaximum": 0,
+    "productionWeightsUnchanged": true,
+    "applicationDefaultsUnchanged": true,
+    "releaseGatingUnchanged": true
+  },
+  "cpuOnlyPolicy": {
+    "primaryCandidates": 1,
+    "controls": 1,
+    "rationale": "No CUDA is available and one GuitarSet fold already costs roughly 80 minutes on 12 logical cores. A broad search is not affordable and is not attempted; one technically defensible strategy is chosen from the measured baseline bottleneck.",
+    "resumable": true,
+    "checkpointEveryEpoch": true,
+    "singleHeavyJobAtATime": true,
+    "featureCacheReused": true,
+    "honestPartialReporting": "If the pilot cannot finish in the available window it stays resumable and is reported as incomplete with measured progress, never as a result."
+  },
+  "reportingRequirements": [
+    "results by source view",
+    "results by guitar presence",
+    "results by instrument family",
+    "separation versus oracle comparison",
+    "GuitarSet p01-p05 preservation, both captures",
+    "composition counts and durations reconciled before training"
+  ],
+  "interpretationLimit": "Slakh2100 is synthetic (rendered from MIDI). Even a fully passing pilot is synthetic-domain evidence only and does not establish production readiness. A future untouched, real-recorded, legally licensed full-band benchmark remains required."
+}
