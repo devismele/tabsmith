@@ -21,6 +21,8 @@ from .gates import DEFAULT_GATES, evaluate_candidate_gates, load_gates
 REPO_ROOT = Path(__file__).resolve().parents[3]
 REPORT_DIR = REPO_ROOT / "evaluation" / "reports"
 CONTROL_ID = "full-v2-control"
+# Gates are applied on the decoder that actually consumes the boundary head.
+GATING_DECODER = "segmental-full"
 
 
 def _assert_portable(text: str) -> str:
@@ -178,13 +180,22 @@ def main() -> None:
         raise SystemExit(f"control {CONTROL_ID} is required as the gate baseline")
 
     control_existing = control["decoders"]["full-v2-existing"]
+    # The flicker gate keeps the frozen segmental-v3 convention: the reference is
+    # full-v2 under its own decode, because that is the baseline being replaced.
     baseline_full_v2 = control_existing["byCapture"]
+
+    # Boundary quality and false-long counts must come from the control under the
+    # SAME decoder the candidate is gated on. The two decoders read different
+    # channels -- full-v2 smooths the boundary head, segmental-full does not --
+    # so a cross-decoder baseline would compare a smoothed reference against a
+    # raw candidate and make the precision gate trivially passable.
+    control_gating = control["decoders"][GATING_DECODER]
     baseline_boundary = {
-        "precision": {c: control_existing["boundaryQuality"][c]["precision"] for c in CAPTURES},
-        "recall": {c: control_existing["boundaryQuality"][c]["recall"] for c in CAPTURES},
-        "agreement": {c: control_existing["boundaryQuality"][c]["stateChangeBoundaryAgreement"]
+        "precision": {c: control_gating["boundaryQuality"][c]["precision"] for c in CAPTURES},
+        "recall": {c: control_gating["boundaryQuality"][c]["recall"] for c in CAPTURES},
+        "agreement": {c: control_gating["boundaryQuality"][c]["stateChangeBoundaryAgreement"]
                       for c in CAPTURES},
-        "falseLong": {c: control_existing["regionTaxonomy"][c].get("false_long", 0) for c in CAPTURES},
+        "falseLong": {c: control_gating["regionTaxonomy"][c].get("false_long", 0) for c in CAPTURES},
     }
 
     gate_results: dict[str, Any] = {}
@@ -192,7 +203,7 @@ def main() -> None:
         if "error" in ev or cid == CONTROL_ID:
             continue
         gate_results[cid] = evaluate_candidate_gates(
-            cid, ev["decoders"]["segmental-full"], gates=gates,
+            cid, ev["decoders"][GATING_DECODER], gates=gates,
             baseline_full_v2=baseline_full_v2, baseline_boundary=baseline_boundary)
     eligible = [cid for cid, r in gate_results.items() if r["eligible"]]
 
