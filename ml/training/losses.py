@@ -45,6 +45,24 @@ def _masked_mean(values: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     return (values * mask).sum() / mask.sum().clamp(min=1.0)
 
 
+def focal_modulation(logits: torch.Tensor, targets: torch.Tensor, gamma: float) -> torch.Tensor:
+    """``(1 - p_t) ** gamma`` for a soft-target binary problem.
+
+    ``p_t`` is the probability assigned to the *observed* target mass, so a
+    frame the head already predicts well is down-weighted and the ambiguous
+    mid-range keeps its gradient. Soft boundary targets interpolate between the
+    positive and negative branch, which keeps the triangular tolerance window
+    meaningful instead of collapsing it to a hard label.
+
+    ``gamma <= 0`` returns ones, so omitting it leaves the objective unchanged.
+    """
+    if gamma <= 0.0:
+        return torch.ones_like(logits)
+    probability = torch.sigmoid(logits)
+    p_t = targets * probability + (1.0 - targets) * (1.0 - probability)
+    return (1.0 - p_t).clamp(min=0.0, max=1.0).pow(gamma)
+
+
 def combined_loss(outputs: dict, targets: dict, weights: dict, config: dict) -> tuple[torch.Tensor, dict]:
     training = config.get("training", {})
     pad = targets["pad_mask"]
@@ -76,8 +94,11 @@ def combined_loss(outputs: dict, targets: dict, weights: dict, config: dict) -> 
         float(training.get("boundaryPosWeight", 8.0)),
         device=outputs["boundary"].device,
     )
+    boundary_gamma = float(training.get("boundaryFocalGamma", 0.0))
     boundary_bce = F.binary_cross_entropy_with_logits(
         outputs["boundary"], targets["boundary"], pos_weight=pos_weight, reduction="none")
+    boundary_bce = boundary_bce * focal_modulation(
+        outputs["boundary"], targets["boundary"], boundary_gamma)
     boundary_bce = (boundary_bce * pad).sum() / pad_sum
 
     zero = outputs["root"].new_zeros(())
@@ -114,6 +135,10 @@ def combined_loss(outputs: dict, targets: dict, weights: dict, config: dict) -> 
             targets["change"][:, 1:],
             pos_weight=hard_pos_weight,
             reduction="none",
+        )
+        hard_boundary = hard_boundary * focal_modulation(
+            outputs["boundary"][:, 1:], targets["change"][:, 1:],
+            float(training.get("hardBoundaryFocalGamma", boundary_gamma)),
         )
         hard_boundary_bce = _masked_mean(hard_boundary, transition_mask)
 

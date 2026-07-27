@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "gateSetId": "boundary-calibration-v3-gates-20260727",
+  "frozenBefore": "any aggregate candidate result was inspected",
+  "appliesTo": "every candidate on both captures, aggregated over the p01-p05 leave-one-performer-out folds",
+  "policy": "A candidate is eligible only if it passes EVERY gate on BOTH captures. Gates are not weakened after results are seen. If no candidate is eligible, v1 is retained and p00 stays sealed.",
+  "baselines": {
+    "fullV2": {
+      "audio_mono-mic": {"rootAccuracy": 0.7565, "detailedAccuracy": 0.7081, "fragmentationRate": 0.6719, "regionsPerMinute": 22.207, "meanAbsoluteBoundaryErrorMs": 429.6, "flickerCount": 5},
+      "audio_mono-pickup_mix": {"rootAccuracy": 0.7543, "detailedAccuracy": 0.7051, "fragmentationRate": 0.6789, "regionsPerMinute": 22.417, "meanAbsoluteBoundaryErrorMs": 410.7, "flickerCount": 6}
+    },
+    "segmentalFull": {
+      "audio_mono-mic": {"rootAccuracy": 0.7583, "detailedAccuracy": 0.7133, "fragmentationRate": 0.6486, "regionsPerMinute": 20.783, "meanAbsoluteBoundaryErrorMs": 479.0, "flickerCount": 4},
+      "audio_mono-pickup_mix": {"rootAccuracy": 0.7571, "detailedAccuracy": 0.7089, "fragmentationRate": 0.6481, "regionsPerMinute": 20.927, "meanAbsoluteBoundaryErrorMs": 475.7, "flickerCount": 5}
+    },
+    "boundaryDiagnosis": {
+      "stateChangeBoundaryAgreementAtHalf": {"audio_mono-mic": 0.2692, "audio_mono-pickup_mix": 0.2607},
+      "boundaryF1AtHalf": {"audio_mono-mic": 0.4361, "audio_mono-pickup_mix": 0.4432},
+      "expectedCalibrationError": {"audio_mono-mic": 0.052, "audio_mono-pickup_mix": 0.0503}
+    }
+  },
+  "gates": {
+    "accuracy": {
+      "rootAccuracyMinimum": 0.73,
+      "detailedAccuracyMinimum": 0.68,
+      "perPerformerRootAccuracyMinimum": 0.6,
+      "perPerformerCollapseNote": "No performer may fall below the per-performer floor on either capture."
+    },
+    "stabilityThroughSegmentalDecoding": {
+      "fragmentationRateMaximum": 0.635,
+      "regionsPerMinuteMaximum": 20.75,
+      "flickerCountMustBeBelowFullV2": true,
+      "falseLongRegionCountMustBeMateriallyLower": true,
+      "falseLongRelativeReductionMinimum": 0.1
+    },
+    "boundary": {
+      "meanAbsoluteBoundaryErrorMsMaximum": 650.0,
+      "boundaryPrecisionMustMateriallyImprove": true,
+      "boundaryPrecisionAbsoluteImprovementMinimum": 0.02,
+      "boundaryRecallMustNotCollapse": true,
+      "boundaryRecallRelativeFloorVsFullV2": 0.9,
+      "stateChangeBoundaryAgreementMustMateriallyImprove": true,
+      "stateChangeBoundaryAgreementAbsoluteImprovementMinimum": 0.1
+    },
+    "engineering": {
+      "pytorchOnnxParityMaximum": 1e-4,
+      "typescriptParityMaximum": 1e-4,
+      "requiresValidNonOverlappingRegions": true,
+      "requiresCompleteTimelineCoverage": true,
+      "unexpectedFallbackMaximum": 0,
+      "releaseSafeguardsUnchanged": true
+    }
+  },
+  "comparisonMatrix": [
+    "v1 model with existing decoder",
+    "original full-v2 with existing decoder",
+    "original full-v2 with segmental-full decoder",
+    "each boundary candidate with existing decoder",
+    "each boundary candidate with segmental-full decoder"
+  ],
+  "statistics": {
+    "confidenceIntervals": "95% performer-paired bootstrap, 1000 iterations, seed 20260727",
+    "pairingRule": "Microphone and pickup captures of a performance are resampled together; alternate captures are never treated as independent songs."
+  },
+  "protocol": {
+    "folds": "p01-p05 leave-one-performer-out; train on four performers, validate on the held-out performer",
+    "calibrationFitting": "training performers only",
+    "thresholdAndPriorFitting": "training performers only",
+    "p00": "sealed until a frozen, eligible selection decision is committed"
+  }
+}

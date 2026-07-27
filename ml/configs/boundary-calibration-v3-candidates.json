@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "ablationId": "boundary-calibration-v3-frozen-20260727",
+  "seed": 20260726,
+  "selectionMetric": "detailedAccuracy",
+  "parameterPolicy": "Every scalar below is frozen a-priori from the Phase 5 diagnosis and is NOT tuned on p01-p05 aggregate results. Post-hoc calibrators, boundary operating thresholds and decoder duration/boundary priors are fitted per fold on the TRAINING performers only, never on the held-out fold and never on p00.",
+  "diagnosisBasis": "evaluation/reports/boundary-v3-diagnosis.md",
+  "candidates": [
+    {
+      "id": "full-v2-control",
+      "description": "Unmodified full-v2 objective and architecture, retrained on each fold with the frozen seed. Control: reproduces the frozen full-v2 baseline and isolates run-to-run variance from candidate effects.",
+      "interventions": [],
+      "trainingOverrides": {},
+      "labelOverrides": {},
+      "smoothing": {
+        "method": "ema",
+        "alpha": 0.65,
+        "boundaryAlpha": 0.35
+      },
+      "useAugmentation": true,
+      "boundaryCalibration": "identity"
+    },
+    {
+      "id": "calibrated-boundary",
+      "description": "No retraining. The frozen full-v2 checkpoints are reused and only the boundary channel is recalibrated post-hoc (isotonic, fitted on training performers) with the operating threshold selected on training performers. Directly tests the dominant measured cause: the operating point, not the head's quality.",
+      "interventions": ["post-hoc boundary calibration", "fold-derived operating threshold"],
+      "reusesCheckpoint": "full-v2",
+      "trainingOverrides": {},
+      "labelOverrides": {},
+      "smoothing": {
+        "method": "ema",
+        "alpha": 0.65,
+        "boundaryAlpha": 0.35
+      },
+      "useAugmentation": true,
+      "boundaryCalibration": "isotonic"
+    },
+    {
+      "id": "precision-boundary-loss",
+      "description": "Precision-oriented boundary objective: focal down-weighting of already-easy frames concentrates capacity on the ambiguous mid-range where the reliability diagram is worst, and the positive weighting is cut to attack the measured top-bin overconfidence (0.83 predicted vs 0.43 observed). Targets miscalibration at the top of the range.",
+      "interventions": ["focal boundary loss", "reduced boundary positive weighting"],
+      "trainingOverrides": {
+        "boundaryPosWeight": 3.0,
+        "hardBoundaryPosWeight": 4.0,
+        "boundaryFocalGamma": 2.0
+      },
+      "labelOverrides": {},
+      "smoothing": {
+        "method": "ema",
+        "alpha": 0.65,
+        "boundaryAlpha": 0.35
+      },
+      "useAugmentation": true,
+      "boundaryCalibration": "isotonic"
+    },
+    {
+      "id": "agreement-coupled",
+      "description": "Stronger coupling between the boundary head and chord-state switching, with a tighter boundary target window. Targets the measured finding that missed transitions carry near-true boundary probability (0.397 vs 0.424) but are overridden by a confident chord posterior (margin 0.332 vs 0.218).",
+      "interventions": ["stronger boundary/switch agreement", "stronger switch supervision", "narrower boundary target window"],
+      "trainingOverrides": {
+        "boundarySwitchAgreementLossWeight": 0.5,
+        "switchLossWeight": 0.6
+      },
+      "labelOverrides": {
+        "boundaryToleranceSeconds": 0.1
+      },
+      "smoothing": {
+        "method": "ema",
+        "alpha": 0.65,
+        "boundaryAlpha": 0.35
+      },
+      "useAugmentation": true,
+      "boundaryCalibration": "isotonic"
+    }
+  ],
+  "calibrationPolicy": {
+    "family": "isotonic",
+    "fittedOn": "training performers of the fold only",
+    "frameLabel": "reference chord change within +/-0.25 s of the frame",
+    "thresholdSelection": "maximise peak-picked boundary F1 on training performers only",
+    "alternativesConsidered": ["identity", "temperature", "platt"],
+    "rationale": "The measured reliability curve is non-monotonic at the top (bins 0.3-0.6 underconfident, 0.7-0.9 overconfident), which a single temperature cannot correct in both directions. Isotonic is the least-assumption monotone fit and stays ranking-preserving, so it changes calibration without changing the head's discrimination."
+  },
+  "decoders": [
+    {
+      "id": "full-v2-existing",
+      "description": "Existing full-v2 decode (EMA smoothing + penalty-4 Viterbi). Does NOT consume the boundary head, so post-hoc boundary calibration is inert here by construction; reported to keep model effects separable from decoder effects."
+    },
+    {
+      "id": "segmental-full",
+      "description": "Frozen segmental-v3 segmental-full decoder, unchanged. Consumes the boundary channel via boundary gating and flicker reconciliation, so it is the path on which calibration can act."
+    }
+  ],
+  "constraints": {
+    "modelSelectionPerformers": ["guitarset-p01", "guitarset-p02", "guitarset-p03", "guitarset-p04", "guitarset-p05"],
+    "p00UsedForSelection": false,
+    "capturesPaired": true,
+    "productionMutation": false,
+    "hybridDefaultMutation": false,
+    "exportedHeads": ["root", "quality", "nochord", "boundary"],
+    "auxiliaryTrainingOnlyHeads": []
+  },
+  "notes": [
+    "Four candidates including the control, one training run per fold, chosen to test the causes actually measured in Phase 5 rather than to search architectures.",
+    "Interventions ruled out by measurement and deliberately NOT included: duration-aware negative supervision (false regions are as long as true ones, 2.52 s vs 2.60 s), boundary target realignment (timing is unbiased at +7.3 ms with 1045 early vs 1076 late), and any change to the chord architecture (discrimination is adequate; F1 0.77 is reachable from the existing head).",
+    "calibrated-boundary requires no training at all: it reuses the frozen full-v2 fold checkpoints and only transforms the boundary channel."
+  ]
+}
