@@ -41,8 +41,15 @@ HARMONIC_CLASSES = {"Guitar", "Bass", "Piano", "Organ", "Strings", "Ensemble",
                     "Chromatic Percussion"}
 PERCUSSIVE_CLASSES = {"Drums", "Percussive"}
 
-METADATA_NAMES = ("metadata.yaml",)
-MIDI_NAMES = ("all_src.mid", "MIDI/all_src.mid")
+METADATA_NAME = "metadata.yaml"
+# The aligned, all-source MIDI at the track root. Per-stem MIDI lives under
+# ``MIDI/SXX.mid`` and must NOT be used for chord derivation: a single stem is
+# one instrument, not the harmony.
+MIDI_NAME = "all_src.mid"
+# Slakh2100-redux ships its own exclusions under this split. They are scanned so
+# they can be counted and audited, but never offered for selection.
+OMITTED_SPLIT = "omitted"
+SELECTABLE_SPLITS = ("train", "validation", "test")
 
 
 @dataclass
@@ -110,106 +117,101 @@ def _instrument_classes(metadata: dict[str, Any]) -> tuple[list[str], int]:
     return classes, len(classes)
 
 
-def iter_symbolic_tracks(
+def collect_symbolic_members(
     fileobj: BinaryIO,
     *,
-    splits: tuple[str, ...] = ("train", "validation", "test"),
-    max_tracks_per_split: int | None = None,
+    splits: tuple[str, ...],
     top_level: str = SLAKH_ZENODO["topLevelDir"],
-) -> Iterator[TrackRecord]:
-    """Stream the archive once, reading only metadata + MIDI members.
+) -> dict[tuple[str, str], dict[str, bytes]]:
+    """Buffer every track's ``metadata.yaml`` and ``all_src.mid`` in one pass.
 
-    Yields one :class:`TrackRecord` per track in archive order. A track whose
-    MIDI is corrupt yields a record carrying ``error`` rather than aborting the
-    pass, so one bad file cannot invalidate an eight-hour download.
+    **Members in this archive are interleaved, not grouped by track.** Files
+    belonging to one track are scattered throughout the tar, so a streaming
+    reader must not assume it has seen a whole track when the track id changes:
+    doing so pairs a track with whatever fragment happened to be adjacent and
+    silently derives chords from a single instrument stem.
+
+    Only the two small root members are read. Per-stem ``MIDI/SXX.mid`` and all
+    audio are skipped, which keeps the buffer near 100 MB for the full 2100-track
+    archive instead of holding the 100 GB of FLAC.
     """
+    collected: dict[tuple[str, str], dict[str, bytes]] = {}
     tar = tarfile.open(fileobj=fileobj, mode="r|gz")
-    current_id: str | None = None
-    current_split: str | None = None
-    buffer: dict[str, bytes] = {}
-    per_split: Counter[str] = Counter()
-
-    def finish(track_id: str, split: str, files: dict[str, bytes]) -> TrackRecord | None:
-        midi_bytes = None
-        for name in MIDI_NAMES:
-            if name in files:
-                midi_bytes = files[name]
-                break
-        if midi_bytes is None:
-            for name, blob in files.items():
-                if name.endswith(".mid"):
-                    midi_bytes = blob
-                    break
-        if midi_bytes is None:
-            return TrackRecord(track_id, split, "", 0.0, error="no MIDI member")
-
-        digest = hashlib.sha256(midi_bytes).hexdigest()
-        metadata: dict[str, Any] = {}
-        for name in METADATA_NAMES:
-            if name in files:
-                metadata = _parse_metadata(files[name])
-                break
-        classes, stem_count = _instrument_classes(metadata)
-
-        try:
-            events, duration = read_note_events(midi_bytes)
-        except (MidiError, Exception) as exc:  # noqa: BLE001 - record and continue
-            return TrackRecord(track_id, split, digest, 0.0,
-                               instrument_classes=classes, stem_count=stem_count,
-                               error=f"midi parse failed: {exc}")
-        if duration <= 0:
-            return TrackRecord(track_id, split, digest, 0.0,
-                               instrument_classes=classes, stem_count=stem_count,
-                               error="non-positive duration")
-        regions = derive_chord_regions(events, duration)
-        return TrackRecord(
-            track_id=track_id,
-            official_split=split,
-            midi_sha256=digest,
-            duration_seconds=duration,
-            chord_regions=regions,
-            instrument_classes=classes,
-            stem_count=stem_count,
-            has_guitar=any(c in GUITAR_CLASSES for c in classes),
-            has_bass=any(c in BASS_CLASSES for c in classes),
-            has_harmonic=any(c in HARMONIC_CLASSES for c in classes),
-        )
-
     for member in tar:
         if not member.isfile():
             continue
         name = safe_member_name(member.name, top_level=top_level)
         parts = name.split("/")
-        if len(parts) < 3:
+        if len(parts) < 4:
             continue
         split, track_id = parts[1], parts[2]
         if split not in splits:
             continue
         relative = "/".join(parts[3:])
-
-        if track_id != current_id:
-            if current_id is not None and buffer:
-                record = finish(current_id, current_split or "", buffer)
-                if record is not None:
-                    per_split[record.official_split] += 1
-                    yield record
-            if (max_tracks_per_split is not None
-                    and all(per_split[s] >= max_tracks_per_split for s in splits)):
-                return
-            current_id, current_split, buffer = track_id, split, {}
-
-        if (max_tracks_per_split is not None
-                and per_split[split] >= max_tracks_per_split):
+        if relative not in (METADATA_NAME, MIDI_NAME):
             continue
-        if relative.endswith((".mid", ".yaml")):
-            extracted = tar.extractfile(member)
-            if extracted is not None:
-                buffer[relative] = extracted.read()
+        extracted = tar.extractfile(member)
+        if extracted is not None:
+            collected.setdefault((split, track_id), {})[relative] = extracted.read()
+    return collected
 
-    if current_id is not None and buffer:
-        record = finish(current_id, current_split or "", buffer)
-        if record is not None:
-            yield record
+
+def _record_from_members(split: str, track_id: str,
+                         files: dict[str, bytes]) -> TrackRecord:
+    """Turn one track's buffered members into a labelled record."""
+    midi_bytes = files.get(MIDI_NAME)
+    if midi_bytes is None:
+        return TrackRecord(track_id, split, "", 0.0, error=f"no {MIDI_NAME}")
+
+    digest = hashlib.sha256(midi_bytes).hexdigest()
+    metadata = _parse_metadata(files[METADATA_NAME]) if METADATA_NAME in files else {}
+    classes, stem_count = _instrument_classes(metadata)
+
+    try:
+        events, duration = read_note_events(midi_bytes)
+    except Exception as exc:  # noqa: BLE001 - record and continue
+        return TrackRecord(track_id, split, digest, 0.0,
+                           instrument_classes=classes, stem_count=stem_count,
+                           error=f"midi parse failed: {exc}")
+    if duration <= 0:
+        return TrackRecord(track_id, split, digest, 0.0,
+                           instrument_classes=classes, stem_count=stem_count,
+                           error="non-positive duration")
+    return TrackRecord(
+        track_id=track_id,
+        official_split=split,
+        midi_sha256=digest,
+        duration_seconds=duration,
+        chord_regions=derive_chord_regions(events, duration),
+        instrument_classes=classes,
+        stem_count=stem_count,
+        has_guitar=any(c in GUITAR_CLASSES for c in classes),
+        has_bass=any(c in BASS_CLASSES for c in classes),
+        has_harmonic=any(c in HARMONIC_CLASSES for c in classes),
+    )
+
+
+def iter_symbolic_tracks(
+    fileobj: BinaryIO,
+    *,
+    splits: tuple[str, ...] = SELECTABLE_SPLITS,
+    max_tracks_per_split: int | None = None,
+    top_level: str = SLAKH_ZENODO["topLevelDir"],
+) -> Iterator[TrackRecord]:
+    """Yield one labelled record per track, in deterministic (split, id) order.
+
+    The whole archive is streamed before anything is yielded, because members
+    are interleaved (see :func:`collect_symbolic_members`). A track whose MIDI
+    is corrupt yields a record carrying ``error`` rather than aborting the pass,
+    so one bad file cannot invalidate a multi-hour scan.
+    """
+    collected = collect_symbolic_members(fileobj, splits=splits, top_level=top_level)
+    per_split: Counter[str] = Counter()
+    for split, track_id in sorted(collected):
+        if max_tracks_per_split is not None and per_split[split] >= max_tracks_per_split:
+            continue
+        per_split[split] += 1
+        yield _record_from_members(split, track_id, collected[(split, track_id)])
 
 
 def group_by_composition(records: list[TrackRecord]) -> dict[str, list[TrackRecord]]:
@@ -334,24 +336,45 @@ def deterministic_pilot_subset(
 
 
 def build_report(records: list[TrackRecord], *, pilot_size: int = 0) -> dict[str, Any]:
-    """One portable summary of everything the symbolic pass established."""
-    groups = group_by_composition(records)
+    """One portable summary of everything the symbolic pass established.
+
+    Tracks under the dataset's own ``omitted`` split are counted and audited but
+    excluded from every statistic and from selection, because Slakh2100-redux
+    ships them as its own exclusions.
+    """
+    omitted = [r for r in records if r.official_split == OMITTED_SPLIT]
+    selectable = [r for r in records if r.official_split != OMITTED_SPLIT]
+
+    groups = group_by_composition(selectable)
     leakage = audit_split_leakage(groups)
-    failed = [r for r in records if r.error]
-    by_split: Counter[str] = Counter(r.official_split for r in records if not r.error)
+    failed = [r for r in selectable if r.error]
+    by_split: Counter[str] = Counter(r.official_split for r in selectable if not r.error)
+
+    # Does anything the dataset omitted share a composition with a kept track?
+    omitted_digests = {r.midi_sha256 for r in omitted if r.midi_sha256 and not r.error}
+    collisions = sorted(d for d in omitted_digests if d in groups)
+
     report = {
         "schemaVersion": 1,
         "datasetId": "slakh2100-flac-redux",
         "zenodoRecord": SLAKH_ZENODO["recid"],
         "license": SLAKH_ZENODO["license"],
         "scannedTracks": len(records),
-        "usableTracks": len(records) - len(failed),
+        "usableTracks": len(selectable) - len(failed),
         "failedTracks": len(failed),
         "failures": [{"trackId": r.track_id, "error": r.error} for r in failed[:50]],
         "tracksByOfficialSplit": dict(sorted(by_split.items())),
+        "officiallyOmitted": {
+            "trackCount": len(omitted),
+            "distinctCompositions": len(omitted_digests),
+            "compositionsSharedWithSelectableSplits": len(collisions),
+            "note": ("Slakh2100-redux ships these exclusions itself. They are excluded "
+                     "from all statistics and from selection; the shared-composition "
+                     "count shows whether keeping them would have leaked."),
+        },
         "compositionGrouping": leakage,
-        "labelStatistics": label_statistics(records),
-        "instrumentStatistics": instrument_statistics(records),
+        "labelStatistics": label_statistics(selectable),
+        "instrumentStatistics": instrument_statistics(selectable),
     }
     if pilot_size:
         pilot = deterministic_pilot_subset(groups, size=pilot_size)

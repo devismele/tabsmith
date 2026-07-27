@@ -90,15 +90,97 @@ def _standard_archive() -> bytes:
     })
 
 
+def _interleaved_archive() -> bytes:
+    """Members scattered across tracks, as the real Slakh2100 archive is.
+
+    A track's metadata, aligned MIDI and per-stem MIDI are deliberately placed
+    far apart and out of order, with other tracks' members in between.
+    """
+    guitar_midi = _midi((60, 64, 67))
+    piano_midi = _midi((62, 65, 69))
+    stem_midi = _midi((48,))          # one instrument: must never become the label
+    return _archive({
+        f"{TOP}/train/Track00001/MIDI/S00.mid": stem_midi,
+        f"{TOP}/train/Track00002/MIDI/S03.mid": stem_midi,
+        f"{TOP}/train/Track00002/metadata.yaml": _metadata(("Piano", "Drums")),
+        f"{TOP}/omitted/Track01627/all_src.mid": guitar_midi,
+        f"{TOP}/train/Track00001/stems/S00.flac": b"X" * 4096,
+        f"{TOP}/train/Track00002/all_src.mid": piano_midi,
+        f"{TOP}/train/Track00001/MIDI/S07.mid": stem_midi,
+        f"{TOP}/omitted/Track01627/metadata.yaml": _metadata(("Guitar",)),
+        f"{TOP}/train/Track00001/metadata.yaml": _metadata(("Guitar", "Bass", "Drums")),
+        f"{TOP}/validation/Track01500/all_src.mid": _midi((57, 60, 64)),
+        f"{TOP}/train/Track00001/all_src.mid": guitar_midi,
+        f"{TOP}/validation/Track01500/metadata.yaml": _metadata(("Guitar", "Strings")),
+    })
+
+
+class InterleavedArchiveTests(unittest.TestCase):
+    """Regression: the real archive interleaves members across tracks."""
+
+    def test_scattered_members_are_paired_with_the_right_track(self):
+        records = {r.track_id: r for r in iter_symbolic_tracks(
+            io.BytesIO(_interleaved_archive()), splits=("train", "validation"))}
+        self.assertEqual(sorted(records), ["Track00001", "Track00002", "Track01500"])
+        # Metadata reached its own track despite being far from its MIDI.
+        self.assertEqual(records["Track00001"].instrument_classes, ["Guitar", "Bass", "Drums"])
+        self.assertTrue(records["Track00001"].has_guitar)
+        self.assertEqual(records["Track00002"].instrument_classes, ["Piano", "Drums"])
+        self.assertFalse(records["Track00002"].has_guitar)
+
+    def test_chords_come_from_all_src_not_a_single_stem(self):
+        """A per-stem MIDI is one instrument, not the harmony."""
+        records = {r.track_id: r for r in iter_symbolic_tracks(
+            io.BytesIO(_interleaved_archive()), splits=("train",))}
+        # all_src for Track00001 is a C major triad; the stem MIDI is a lone C2.
+        self.assertEqual(records["Track00001"].chord_regions[0].label, "C:maj")
+        self.assertEqual(records["Track00002"].chord_regions[0].label, "D:min")
+
+    def test_omitted_split_is_only_scanned_when_requested(self):
+        without = {r.track_id for r in iter_symbolic_tracks(
+            io.BytesIO(_interleaved_archive()), splits=("train", "validation"))}
+        self.assertNotIn("Track01627", without)
+        with_omitted = {r.track_id for r in iter_symbolic_tracks(
+            io.BytesIO(_interleaved_archive()), splits=("train", "omitted"))}
+        self.assertIn("Track01627", with_omitted)
+
+    def test_omitted_tracks_are_excluded_from_statistics_and_reported(self):
+        records = list(iter_symbolic_tracks(
+            io.BytesIO(_interleaved_archive()),
+            splits=("train", "validation", "omitted")))
+        report = build_report(records)
+        self.assertEqual(report["officiallyOmitted"]["trackCount"], 1)
+        self.assertNotIn("omitted", report["tracksByOfficialSplit"])
+        self.assertEqual(report["usableTracks"], 3)
+
+    def test_omitted_composition_shared_with_a_kept_track_is_surfaced(self):
+        """The omitted track shares Track00001's composition; that must show."""
+        records = list(iter_symbolic_tracks(
+            io.BytesIO(_interleaved_archive()),
+            splits=("train", "validation", "omitted")))
+        report = build_report(records)
+        self.assertEqual(
+            report["officiallyOmitted"]["compositionsSharedWithSelectableSplits"], 1)
+
+    def test_output_order_is_deterministic(self):
+        archive = _interleaved_archive()
+        first = [r.track_id for r in iter_symbolic_tracks(io.BytesIO(archive), splits=("train",))]
+        second = [r.track_id for r in iter_symbolic_tracks(io.BytesIO(archive), splits=("train",))]
+        self.assertEqual(first, second)
+        self.assertEqual(first, sorted(first))
+
+
 class SymbolicPassTests(unittest.TestCase):
     def test_reads_all_splits_and_derives_chords(self):
         records = list(iter_symbolic_tracks(io.BytesIO(_standard_archive())))
-        self.assertEqual([r.track_id for r in records],
-                         ["Track00001", "Track00002", "Track01500", "Track01900"])
-        self.assertEqual(records[0].official_split, "train")
-        self.assertEqual(records[2].official_split, "validation")
+        # Deterministic (split, trackId) order, not archive order: the real
+        # archive interleaves members so archive order is not meaningful.
+        self.assertEqual([(r.official_split, r.track_id) for r in records],
+                         [("test", "Track01900"), ("train", "Track00001"),
+                          ("train", "Track00002"), ("validation", "Track01500")])
         self.assertTrue(all(r.error is None for r in records))
-        self.assertEqual(records[0].chord_regions[0].label, "C:maj")
+        by_id = {r.track_id: r for r in records}
+        self.assertEqual(by_id["Track00001"].chord_regions[0].label, "C:maj")
 
     def test_split_filter_is_respected(self):
         records = list(iter_symbolic_tracks(io.BytesIO(_standard_archive()), splits=("test",)))
@@ -136,10 +218,14 @@ class SymbolicPassTests(unittest.TestCase):
         self.assertIsNotNone(records[0].error)
         self.assertIsNone(records[1].error)
 
-    def test_missing_midi_is_recorded(self):
-        archive = _archive({f"{TOP}/train/Track00001/metadata.yaml": _metadata()})
+    def test_missing_aligned_midi_is_recorded(self):
+        """Per-stem MIDI must not stand in for a missing all_src.mid."""
+        archive = _archive({
+            f"{TOP}/train/Track00001/metadata.yaml": _metadata(),
+            f"{TOP}/train/Track00001/MIDI/S00.mid": _midi((48,)),
+        })
         records = list(iter_symbolic_tracks(io.BytesIO(archive), splits=("train",)))
-        self.assertEqual(records[0].error, "no MIDI member")
+        self.assertEqual(records[0].error, "no all_src.mid")
 
     def test_bounded_scan_stops_early(self):
         archive = _archive({
