@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "status": "blocked",
+  "trainingAuthorized": false,
+  "largeTrainingRunAuthorized": false,
+  "dataset": {
+    "datasetId": "full-band-dataset-not-configured",
+    "datasetVersion": "not-configured",
+    "portableManifestChecksum": "1964d157e44f09ba2ccf266ac09e851602d8bc8130b72819cf4a4efc404da573",
+    "licenseId": "not-configured",
+    "licenseStatus": "unverified",
+    "licenseGate": "blocked",
+    "audioRedistributionAllowed": false,
+    "modelArtifactDistributionAllowed": false
+  },
+  "evaluationProtocol": {
+    "protocolId": "full-band-harmony-v1-paired-view-baselines-20260727",
+    "checksum": "b7130d792aff88cbc7850b3539e6623e0c937a2b81200a2d5b9279c469474650",
+    "statistics": {
+      "unit": "composition-group",
+      "pairedCaptures": true,
+      "alternateViewsAreIndependentSongs": false,
+      "bootstrapSeed": 20260727,
+      "bootstrapIterations": 10000
+    },
+    "gates": {
+      "sameTracksAndDurationsAcrossViews": true,
+      "zeroUnexpectedFallback": true,
+      "untouchedArtistCompositionTestSet": true,
+      "fullBandRequiredForPromotion": true
+    }
+  },
+  "inventory": {
+    "trackCount": 0,
+    "artistCount": 0,
+    "compositionCount": 0,
+    "recordingCount": 0,
+    "genreCounts": {},
+    "durationSeconds": 0,
+    "labelledDurationSeconds": 0.0,
+    "noChordDurationSeconds": 0.0,
+    "viewTrackCounts": {
+      "full-mix": 0,
+      "harmony-stem": 0,
+      "guitar-stem": 0,
+      "guitar-plus-bass": 0
+    }
+  },
+  "splitAudit": {
+    "status": "blocked",
+    "strategy": null,
+    "seed": null,
+    "assignments": {}
+  },
+  "annotationFailures": [],
+  "localFileAudit": {
+    "checked": false,
+    "expected": 0,
+    "present": 0,
+    "checksumMatched": 0,
+    "missingPortableIds": [],
+    "checksumMismatchPortableIds": []
+  },
+  "baselineMatrix": [
+    {
+      "baselineId": "rule-v3:full-mix",
+      "engine": "rule-v3",
+      "inputView": "full-mix",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "v1-ml-only:full-mix",
+      "engine": "v1-ml-only",
+      "inputView": "full-mix",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "v1-hybrid:full-mix",
+      "engine": "v1-hybrid",
+      "inputView": "full-mix",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "rule-v3:harmony-stem",
+      "engine": "rule-v3",
+      "inputView": "harmony-stem",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "v1-ml-only:harmony-stem",
+      "engine": "v1-ml-only",
+      "inputView": "harmony-stem",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "v1-hybrid:harmony-stem",
+      "engine": "v1-hybrid",
+      "inputView": "harmony-stem",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "rule-v3:guitar-stem",
+      "engine": "rule-v3",
+      "inputView": "guitar-stem",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "v1-ml-only:guitar-stem",
+      "engine": "v1-ml-only",
+      "inputView": "guitar-stem",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "v1-hybrid:guitar-stem",
+      "engine": "v1-hybrid",
+      "inputView": "guitar-stem",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "rule-v3:guitar-plus-bass",
+      "engine": "rule-v3",
+      "inputView": "guitar-plus-bass",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "v1-ml-only:guitar-plus-bass",
+      "engine": "v1-ml-only",
+      "inputView": "guitar-plus-bass",
+      "trackCount": 0,
+      "ready": false
+    },
+    {
+      "baselineId": "v1-hybrid:guitar-plus-bass",
+      "engine": "v1-hybrid",
+      "inputView": "guitar-plus-bass",
+      "trackCount": 0,
+      "ready": false
+    }
+  ],
+  "sourceSeparationComparisons": [
+    {
+      "comparisonId": "full-mix-vs-harmony-stem",
+      "referenceInputView": "full-mix",
+      "candidateInputView": "harmony-stem",
+      "pairedBy": [
+        "trackId",
+        "recordingId",
+        "compositionId"
+      ],
+      "metrics": [
+        "rootAccuracy",
+        "majorMinorAccuracy",
+        "detailedAccuracy",
+        "noChordPrecision",
+        "noChordRecall",
+        "noChordF1",
+        "fragmentationRate",
+        "regionsPerMinute",
+        "boundaryMeanAbsoluteErrorMs",
+        "boundaryMedianAbsoluteErrorMs",
+        "noteAccuracy",
+        "tabAccuracy",
+        "tuningAccuracy",
+        "playableStringAssignmentAccuracy"
+      ],
+      "ready": false
+    },
+    {
+      "comparisonId": "full-mix-vs-guitar-stem",
+      "referenceInputView": "full-mix",
+      "candidateInputView": "guitar-stem",
+      "pairedBy": [
+        "trackId",
+        "recordingId",
+        "compositionId"
+      ],
+      "metrics": [
+        "rootAccuracy",
+        "majorMinorAccuracy",
+        "detailedAccuracy",
+        "noChordPrecision",
+        "noChordRecall",
+        "noChordF1",
+        "fragmentationRate",
+        "regionsPerMinute",
+        "boundaryMeanAbsoluteErrorMs",
+        "boundaryMedianAbsoluteErrorMs",
+        "noteAccuracy",
+        "tabAccuracy",
+        "tuningAccuracy",
+        "playableStringAssignmentAccuracy"
+      ],
+      "ready": false
+    },
+    {
+      "comparisonId": "full-mix-vs-guitar-plus-bass",
+      "referenceInputView": "full-mix",
+      "candidateInputView": "guitar-plus-bass",
+      "pairedBy": [
+        "trackId",
+        "recordingId",
+        "compositionId"
+      ],
+      "metrics": [
+        "rootAccuracy",
+        "majorMinorAccuracy",
+        "detailedAccuracy",
+        "noChordPrecision",
+        "noChordRecall",
+        "noChordF1",
+        "fragmentationRate",
+        "regionsPerMinute",
+        "boundaryMeanAbsoluteErrorMs",
+        "boundaryMedianAbsoluteErrorMs",
+        "noteAccuracy",
+        "tabAccuracy",
+        "tuningAccuracy",
+        "playableStringAssignmentAccuracy"
+      ],
+      "ready": false
+    }
+  ],
+  "methodology": {
+    "alternateViewsArePaired": true,
+    "alternateViewsCountAsIndependentSongs": false,
+    "selectionUnit": "composition/artist/split-group connected component",
+    "noChordPolicy": "explicit N fills every unlabelled interval",
+    "labelDerivation": "Timed chord regions when present; otherwise deterministic symbolic-pitch-sets-v1.",
+    "trainingLoader": "ml.full_band.loader materializes approved views into existing Track schema",
+    "guitarSetSupportPreserved": true
+  },
+  "blockers": [
+    "License/provenance gate: license.status must be verified before data use",
+    "No legally approved full-band tracks are configured."
+  ],
+  "warnings": []
+}
