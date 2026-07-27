@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "diagnosticId": "temporal-harmony-v2-fixed-smoothing-diagnostics-v1",
+  "seed": 20260726,
+  "selectionEligible": false,
+  "parameterSource": "Defaults implemented before the frozen ablation in ml/evaluation/probability_smoothing.py and temporal-harmony-v2.json.",
+  "checkpointCandidate": "full-objective-unsmoothed",
+  "methods": [
+    {
+      "id": "none",
+      "settings": {
+        "method": "none"
+      }
+    },
+    {
+      "id": "ema",
+      "settings": {
+        "method": "ema",
+        "alpha": 0.65,
+        "boundaryAlpha": 0.35
+      }
+    },
+    {
+      "id": "mean",
+      "settings": {
+        "method": "mean",
+        "radiusFrames": 2
+      }
+    },
+    {
+      "id": "median",
+      "settings": {
+        "method": "median",
+        "radiusFrames": 2
+      }
+    },
+    {
+      "id": "persistence-aware",
+      "settings": {
+        "method": "persistence-ema",
+        "alpha": 0.65,
+        "boundaryAlpha": 0.35
+      }
+    }
+  ],
+  "notes": [
+    "These are fixed diagnostic transforms, not additional training candidates.",
+    "No method or parameter may be selected from held-out-fold results.",
+    "The frozen six-candidate replacement decision remains governed only by temporal-harmony-v2-ablations.json and temporal-harmony-v2.json."
+  ]
+}

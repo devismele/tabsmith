@@ -1,0 +1,2557 @@
+{
+  "schemaVersion": 1,
+  "status": "completed",
+  "study": "temporal-harmony-v2-bounded-ablation-v1",
+  "seed": 20260726,
+  "configurationChecksum": "b2450d5110e14b83d9c161bb8746cfbe2ceed167abce8f2906f0444cedc302d0",
+  "reportChecksum": "f9217ead622100d3a5e4da69dbc8cb4dc342539a9ed7c692d2a3a6f409505a4a",
+  "splitId": "temporal-harmony-v2-guitarset-lopo-20260726",
+  "datasetIdentity": {
+    "datasetId": "guitarset-zenodo-3371780-v1.1.0",
+    "officialDistributionRecord": "zenodo-3371780",
+    "annotationArchiveMd5": "b39b78e63d3446f2e54ddb7a54df9b10",
+    "microphoneArchiveMd5": "275966d6610ac34999b58426beb119c3",
+    "pickupMixArchiveMd5": "aecce79f425a44e2055e46f680e10f6a",
+    "portableAnnotationManifestChecksum": "36c928feb1efa474031927513d10d0c4a9b7037c2f8d6f56456d88f146c020ed",
+    "modelSelectionAnnotationManifestChecksum": "01ea5a6e628bc7b1d0b2cbbe51719f2052af2e90d0e3fde8d1834d9f25782ced",
+    "manifestChecksumMethod": "sha256 of sorted portable track ID, performer ID, duration, and chord-region JSON"
+  },
+  "folds": [
+    {
+      "foldId": "lopo-p01",
+      "trainPerformers": [
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p04",
+        "guitarset-p05"
+      ],
+      "validationPerformers": [
+        "guitarset-p01"
+      ]
+    },
+    {
+      "foldId": "lopo-p02",
+      "trainPerformers": [
+        "guitarset-p01",
+        "guitarset-p03",
+        "guitarset-p04",
+        "guitarset-p05"
+      ],
+      "validationPerformers": [
+        "guitarset-p02"
+      ]
+    },
+    {
+      "foldId": "lopo-p03",
+      "trainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p04",
+        "guitarset-p05"
+      ],
+      "validationPerformers": [
+        "guitarset-p03"
+      ]
+    },
+    {
+      "foldId": "lopo-p04",
+      "trainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p05"
+      ],
+      "validationPerformers": [
+        "guitarset-p04"
+      ]
+    },
+    {
+      "foldId": "lopo-p05",
+      "trainPerformers": [
+        "guitarset-p01",
+        "guitarset-p02",
+        "guitarset-p03",
+        "guitarset-p04"
+      ],
+      "validationPerformers": [
+        "guitarset-p05"
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "id": "v1-objective",
+      "description": "Same architecture and objective as v1, retrained on each grouped fold.",
+      "configChecksum": "72ce0d8d612227a6787c779981bc1c5dd86c1b4071f14761cee37af235e761d5",
+      "receptiveFieldFrames": 125,
+      "receptiveFieldSecondsAt250msHop": 31.25,
+      "useAugmentation": false,
+      "smoothing": {
+        "method": "none"
+      },
+      "temporalLossWeights": {
+        "durationConsistencyLossWeight": 0.0,
+        "switchLossWeight": 0.0,
+        "hardBoundaryLossWeight": 0.0,
+        "boundarySwitchAgreementLossWeight": 0.0
+      }
+    },
+    {
+      "id": "longer-context",
+      "description": "Longer receptive field only.",
+      "configChecksum": "ac461530f0f035efd04b5148f1fdd2d7977cd3800b183e012ef17e83fff59095",
+      "receptiveFieldFrames": 509,
+      "receptiveFieldSecondsAt250msHop": 127.25,
+      "useAugmentation": false,
+      "smoothing": {
+        "method": "none"
+      },
+      "temporalLossWeights": {
+        "durationConsistencyLossWeight": 0.0,
+        "switchLossWeight": 0.0,
+        "hardBoundaryLossWeight": 0.0,
+        "boundarySwitchAgreementLossWeight": 0.0
+      }
+    },
+    {
+      "id": "duration-objective",
+      "description": "Longer context plus within-chord distribution consistency.",
+      "configChecksum": "0e756adccb2fca752f0c9660ed1b88cc8b403e7cf5b065f2e4f6ab0a04e2329c",
+      "receptiveFieldFrames": 509,
+      "receptiveFieldSecondsAt250msHop": 127.25,
+      "useAugmentation": false,
+      "smoothing": {
+        "method": "none"
+      },
+      "temporalLossWeights": {
+        "durationConsistencyLossWeight": 0.2,
+        "switchLossWeight": 0.0,
+        "hardBoundaryLossWeight": 0.0,
+        "boundarySwitchAgreementLossWeight": 0.0
+      }
+    },
+    {
+      "id": "boundary-switch-objective",
+      "description": "Longer context plus supervised identity switching and stronger boundary targets.",
+      "configChecksum": "362c67aabc2895a5875262691a53333f6a3b90e3d359493395ef8d7032813af1",
+      "receptiveFieldFrames": 509,
+      "receptiveFieldSecondsAt250msHop": 127.25,
+      "useAugmentation": false,
+      "smoothing": {
+        "method": "none"
+      },
+      "temporalLossWeights": {
+        "durationConsistencyLossWeight": 0.0,
+        "switchLossWeight": 0.35,
+        "hardBoundaryLossWeight": 0.5,
+        "boundarySwitchAgreementLossWeight": 0.1
+      }
+    },
+    {
+      "id": "full-objective-unsmoothed",
+      "description": "All sequence objectives without probability filtering.",
+      "configChecksum": "9af650f9e6dfe40a04046e5ca3573ef8078ff65bc9f93c6af81a7bf15087e035",
+      "receptiveFieldFrames": 509,
+      "receptiveFieldSecondsAt250msHop": 127.25,
+      "useAugmentation": false,
+      "smoothing": {
+        "method": "none"
+      },
+      "temporalLossWeights": {
+        "durationConsistencyLossWeight": 0.2,
+        "switchLossWeight": 0.35,
+        "hardBoundaryLossWeight": 0.5,
+        "boundarySwitchAgreementLossWeight": 0.1
+      }
+    },
+    {
+      "id": "full-v2",
+      "description": "All sequence objectives, deterministic augmentation, and probability-domain EMA.",
+      "configChecksum": "350b480192a971aa7b2c2e8e82852ce10df3c83b874ae1b31c51b834cd076156",
+      "receptiveFieldFrames": 509,
+      "receptiveFieldSecondsAt250msHop": 127.25,
+      "useAugmentation": true,
+      "smoothing": {
+        "method": "ema",
+        "alpha": 0.65,
+        "boundaryAlpha": 0.35
+      },
+      "temporalLossWeights": {
+        "durationConsistencyLossWeight": 0.2,
+        "switchLossWeight": 0.35,
+        "hardBoundaryLossWeight": 0.5,
+        "boundarySwitchAgreementLossWeight": 0.1
+      }
+    }
+  ],
+  "expectedRunCount": 30,
+  "completedRunCount": 30,
+  "failedRunCount": 0,
+  "loadedPerformanceCount": 300,
+  "loadedTrackCaptureCount": 600,
+  "totalTrainingSeconds": 55180.95,
+  "bootstrap": {
+    "seed": 20260726,
+    "iterations": 10000,
+    "unit": "paired performance clustered by held-out performer fold"
+  },
+  "selectionPerformers": [
+    "guitarset-p01",
+    "guitarset-p02",
+    "guitarset-p03",
+    "guitarset-p04",
+    "guitarset-p05"
+  ],
+  "p00UsedForSelection": false,
+  "audit": {
+    "status": "passed",
+    "runCount": 30,
+    "foldCounts": {
+      "lopo-p01": 6,
+      "lopo-p02": 6,
+      "lopo-p03": 6,
+      "lopo-p04": 6,
+      "lopo-p05": 6
+    },
+    "candidateCounts": {
+      "boundary-switch-objective": 5,
+      "duration-objective": 5,
+      "full-objective-unsmoothed": 5,
+      "full-v2": 5,
+      "longer-context": 5,
+      "v1-objective": 5
+    },
+    "p00UsedForSelection": false,
+    "allPythonOnnxParityPassed": true,
+    "allTypeScriptParityPassed": true
+  },
+  "aggregates": {
+    "v1-objective": {
+      "byCapture": {
+        "audio_mono-mic": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.6025531237384208,
+          "majorMinorAccuracy": 0.5503003092886143,
+          "detailedAccuracy": 0.528368163348588,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6166680555555556,
+          "regionsPerMinute": 19.857051113034213,
+          "predictedRegionCount": 3025.0,
+          "shortRegionRate": 0.00033057851239669424,
+          "oneWindowRegionRate": 0.00033057851239669424,
+          "flickerCount": 1.0,
+          "meanTopChordConfidence": 0.5657346199177262,
+          "meanLearnedEntropy": 0.389284409919697,
+          "meanFrameSwitchProbability": 0.18244104205371559,
+          "meanBoundaryProbability": 0.16614445171579548,
+          "meanAbsoluteBoundaryErrorMs": 1027.3582424242425,
+          "medianAbsoluteBoundaryErrorMs": 769.3124545454546,
+          "boundaryF1At100ms": 0.21376839393939392,
+          "boundaryF1At250ms": 0.4343783939393939,
+          "boundaryF1At500ms": 0.6087851818181818,
+          "boundaryF1At1000ms": 0.7525429696969697,
+          "weightedChordSymbolRecall": 0.528368163348588,
+          "noChordF1": 0.0,
+          "extraRegionCount": 131.0,
+          "missingRegionCount": 706.0,
+          "averageChordRegionDurationSeconds": 3.021596694214876,
+          "meanSignedBoundaryErrorMs": 69.84048484848485,
+          "boundariesWithin100ms": 0.2069670909090909,
+          "boundariesWithin250ms": 0.4175757575757576,
+          "boundariesWithin500ms": 0.5787879696969697,
+          "boundariesWithin1000ms": 0.7066677272727272,
+          "chordSwitchPrecision": 0.5056897981651376,
+          "chordSwitchRecall": 0.4175757575757576,
+          "chordSwitchF1": 0.45742809152603153,
+          "referenceRegionCount": 3600.0
+        },
+        "audio_mono-pickup_mix": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.608215080899705,
+          "majorMinorAccuracy": 0.5541720687218077,
+          "detailedAccuracy": 0.5310956239873178,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6169455,
+          "regionsPerMinute": 19.90956562837447,
+          "predictedRegionCount": 3033.0,
+          "shortRegionRate": 0.0009891196834817012,
+          "oneWindowRegionRate": 0.0,
+          "flickerCount": 1.0,
+          "meanTopChordConfidence": 0.5812041136243611,
+          "meanLearnedEntropy": 0.3735464095143631,
+          "meanFrameSwitchProbability": 0.18757186863869676,
+          "meanBoundaryProbability": 0.1656556326769093,
+          "meanAbsoluteBoundaryErrorMs": 1143.5648484848484,
+          "medianAbsoluteBoundaryErrorMs": 880.1421212121212,
+          "boundaryF1At100ms": 0.20927915151515153,
+          "boundaryF1At250ms": 0.4330170909090909,
+          "boundaryF1At500ms": 0.6121697575757575,
+          "boundaryF1At1000ms": 0.7576481212121212,
+          "weightedChordSymbolRecall": 0.5310956239873178,
+          "noChordF1": 0.0,
+          "extraRegionCount": 137.0,
+          "missingRegionCount": 704.0,
+          "averageChordRegionDurationSeconds": 3.013626772172766,
+          "meanSignedBoundaryErrorMs": 62.46657575757576,
+          "boundariesWithin100ms": 0.20332766666666668,
+          "boundariesWithin250ms": 0.41818072727272726,
+          "boundariesWithin500ms": 0.5851537878787879,
+          "boundariesWithin1000ms": 0.7148495151515152,
+          "chordSwitchPrecision": 0.5049393706549579,
+          "chordSwitchRecall": 0.41818072727272726,
+          "chordSwitchF1": 0.4574830809623753,
+          "referenceRegionCount": 3600.0
+        }
+      },
+      "pairedPerformances": {
+        "trackCount": 300.0,
+        "evaluatedDurationSeconds": 9140.33,
+        "rootAccuracy": 0.6053841023190629,
+        "majorMinorAccuracy": 0.552236189005211,
+        "detailedAccuracy": 0.5297318936679529,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "fragmentationRate": 0.6168067777777777,
+        "regionsPerMinute": 19.88330837070434,
+        "predictedRegionCount": 3029.0,
+        "shortRegionRate": 0.0006602839220864972,
+        "oneWindowRegionRate": 0.0001650709805216243,
+        "flickerCount": 1.0,
+        "meanTopChordConfidence": 0.5734693667710438,
+        "meanLearnedEntropy": 0.38141540971703003,
+        "meanFrameSwitchProbability": 0.18500645534620616,
+        "meanBoundaryProbability": 0.1659000421963524,
+        "meanAbsoluteBoundaryErrorMs": 1127.1506363636363,
+        "medianAbsoluteBoundaryErrorMs": 859.6478181818181,
+        "boundaryF1At100ms": 0.21152377272727274,
+        "boundaryF1At250ms": 0.4336977424242424,
+        "boundaryF1At500ms": 0.6104774696969697,
+        "boundaryF1At1000ms": 0.7550955454545455,
+        "weightedChordSymbolRecall": 0.5297318936679529,
+        "noChordF1": 0.0,
+        "extraRegionCount": 134.0,
+        "missingRegionCount": 705.0,
+        "averageChordRegionDurationSeconds": 3.0176064707824364,
+        "meanSignedBoundaryErrorMs": 102.2749696969697,
+        "boundariesWithin100ms": 0.20514737878787878,
+        "boundariesWithin250ms": 0.41787824242424243,
+        "boundariesWithin500ms": 0.5819708787878788,
+        "boundariesWithin1000ms": 0.7107586212121213,
+        "chordSwitchPrecision": 0.5054344814950531,
+        "chordSwitchRecall": 0.41787824242424243,
+        "chordSwitchF1": 0.4575049543153971,
+        "referenceRegionCount": 3600.0
+      }
+    },
+    "longer-context": {
+      "byCapture": {
+        "audio_mono-mic": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.6721439826023787,
+          "majorMinorAccuracy": 0.6141742706554358,
+          "detailedAccuracy": 0.60023022882106,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6944427222222223,
+          "regionsPerMinute": 23.690610732872884,
+          "predictedRegionCount": 3609.0,
+          "shortRegionRate": 0.00997506234413965,
+          "oneWindowRegionRate": 0.002770850651149903,
+          "flickerCount": 19.0,
+          "meanTopChordConfidence": 0.7122940164840742,
+          "meanLearnedEntropy": 0.2397284179671414,
+          "meanFrameSwitchProbability": 0.24665202140855824,
+          "meanBoundaryProbability": 0.1533862828049875,
+          "meanAbsoluteBoundaryErrorMs": 539.4482727272728,
+          "medianAbsoluteBoundaryErrorMs": 376.23357575757575,
+          "boundaryF1At100ms": 0.304036696969697,
+          "boundaryF1At250ms": 0.5148015151515152,
+          "boundaryF1At500ms": 0.7019470909090909,
+          "boundaryF1At1000ms": 0.8252258484848485,
+          "weightedChordSymbolRecall": 0.60023022882106,
+          "noChordF1": 0.0,
+          "extraRegionCount": 341.0,
+          "missingRegionCount": 332.0,
+          "averageChordRegionDurationSeconds": 2.5326489332224993,
+          "meanSignedBoundaryErrorMs": -65.92869696969697,
+          "boundariesWithin100ms": 0.3072702727272727,
+          "boundariesWithin250ms": 0.5178773030303031,
+          "boundariesWithin500ms": 0.7042437878787878,
+          "boundariesWithin1000ms": 0.8245465454545454,
+          "chordSwitchPrecision": 0.5164677243880327,
+          "chordSwitchRecall": 0.5178773030303031,
+          "chordSwitchF1": 0.5171715532405158,
+          "referenceRegionCount": 3600.0
+        },
+        "audio_mono-pickup_mix": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.673724805439191,
+          "majorMinorAccuracy": 0.6195695119104015,
+          "detailedAccuracy": 0.6065406837718113,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6958312777777778,
+          "regionsPerMinute": 23.81533270680599,
+          "predictedRegionCount": 3628.0,
+          "shortRegionRate": 0.011576626240352812,
+          "oneWindowRegionRate": 0.0027563395810363835,
+          "flickerCount": 25.0,
+          "meanTopChordConfidence": 0.7177840548444028,
+          "meanLearnedEntropy": 0.23474135824203335,
+          "meanFrameSwitchProbability": 0.24763117504760104,
+          "meanBoundaryProbability": 0.1529856633760132,
+          "meanAbsoluteBoundaryErrorMs": 520.823303030303,
+          "medianAbsoluteBoundaryErrorMs": 371.0709393939394,
+          "boundaryF1At100ms": 0.3076487575757576,
+          "boundaryF1At250ms": 0.5363858181818182,
+          "boundaryF1At500ms": 0.7062653333333333,
+          "boundaryF1At1000ms": 0.825033393939394,
+          "weightedChordSymbolRecall": 0.6065406837718113,
+          "noChordF1": 0.0,
+          "extraRegionCount": 351.0,
+          "missingRegionCount": 323.0,
+          "averageChordRegionDurationSeconds": 2.519385336273429,
+          "meanSignedBoundaryErrorMs": -44.56933333333333,
+          "boundariesWithin100ms": 0.31151121212121213,
+          "boundariesWithin250ms": 0.5390923333333333,
+          "boundariesWithin500ms": 0.7090947272727273,
+          "boundariesWithin1000ms": 0.8272751818181818,
+          "chordSwitchPrecision": 0.5345520733173077,
+          "chordSwitchRecall": 0.5390923333333333,
+          "chordSwitchF1": 0.5368126033307201,
+          "referenceRegionCount": 3600.0
+        }
+      },
+      "pairedPerformances": {
+        "trackCount": 300.0,
+        "evaluatedDurationSeconds": 9140.33,
+        "rootAccuracy": 0.6729343940207848,
+        "majorMinorAccuracy": 0.6168718912829186,
+        "detailedAccuracy": 0.6033854562964357,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "fragmentationRate": 0.695137,
+        "regionsPerMinute": 23.752971719839437,
+        "predictedRegionCount": 3618.5,
+        "shortRegionRate": 0.010777946662981899,
+        "oneWindowRegionRate": 0.002763576067431256,
+        "flickerCount": 22.0,
+        "meanTopChordConfidence": 0.7150390356642384,
+        "meanLearnedEntropy": 0.2372348881045874,
+        "meanFrameSwitchProbability": 0.24714159822807966,
+        "meanBoundaryProbability": 0.15318597309050033,
+        "meanAbsoluteBoundaryErrorMs": 530.1357878787879,
+        "medianAbsoluteBoundaryErrorMs": 373.6522575757576,
+        "boundaryF1At100ms": 0.30584272727272727,
+        "boundaryF1At250ms": 0.5255936666666666,
+        "boundaryF1At500ms": 0.704106212121212,
+        "boundaryF1At1000ms": 0.8251296212121212,
+        "weightedChordSymbolRecall": 0.6033854562964357,
+        "noChordF1": 0.0,
+        "extraRegionCount": 346.0,
+        "missingRegionCount": 327.5,
+        "averageChordRegionDurationSeconds": 2.5259997236423932,
+        "meanSignedBoundaryErrorMs": -55.24901515151515,
+        "boundariesWithin100ms": 0.3093907424242424,
+        "boundariesWithin250ms": 0.5284848181818181,
+        "boundariesWithin500ms": 0.7066692575757576,
+        "boundariesWithin1000ms": 0.8259108636363637,
+        "chordSwitchPrecision": 0.526690635829441,
+        "chordSwitchRecall": 0.5284848181818181,
+        "chordSwitchF1": 0.5275862016240918,
+        "referenceRegionCount": 3600.0
+      }
+    },
+    "duration-objective": {
+      "byCapture": {
+        "audio_mono-mic": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.666222492295136,
+          "majorMinorAccuracy": 0.6167266168726949,
+          "detailedAccuracy": 0.6024903006456003,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6899997222222222,
+          "regionsPerMinute": 23.598710331027437,
+          "predictedRegionCount": 3595.0,
+          "shortRegionRate": 0.009735744089012517,
+          "oneWindowRegionRate": 0.005006954102920723,
+          "flickerCount": 17.0,
+          "meanTopChordConfidence": 0.7117479150430593,
+          "meanLearnedEntropy": 0.24081945840883015,
+          "meanFrameSwitchProbability": 0.23880981506689974,
+          "meanBoundaryProbability": 0.1694364990612654,
+          "meanAbsoluteBoundaryErrorMs": 525.8099090909091,
+          "medianAbsoluteBoundaryErrorMs": 381.13006060606057,
+          "boundaryF1At100ms": 0.31569869696969693,
+          "boundaryF1At250ms": 0.5338332727272727,
+          "boundaryF1At500ms": 0.7081415454545454,
+          "boundaryF1At1000ms": 0.8207254848484848,
+          "weightedChordSymbolRecall": 0.6024903006456003,
+          "noChordF1": 0.0,
+          "extraRegionCount": 339.0,
+          "missingRegionCount": 344.0,
+          "averageChordRegionDurationSeconds": 2.542511821974965,
+          "meanSignedBoundaryErrorMs": -65.64251515151514,
+          "boundariesWithin100ms": 0.31848278787878787,
+          "boundariesWithin250ms": 0.5360618787878787,
+          "boundariesWithin500ms": 0.7100014545454546,
+          "boundariesWithin1000ms": 0.8209105151515151,
+          "chordSwitchPrecision": 0.5368724430955993,
+          "chordSwitchRecall": 0.5360618787878787,
+          "chordSwitchF1": 0.5364668547652641,
+          "referenceRegionCount": 3600.0
+        },
+        "audio_mono-pickup_mix": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.672207050566008,
+          "majorMinorAccuracy": 0.6236416025460788,
+          "detailedAccuracy": 0.6110298393384046,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6916662777777778,
+          "regionsPerMinute": 23.638096217532627,
+          "predictedRegionCount": 3601.0,
+          "shortRegionRate": 0.009997222993612885,
+          "oneWindowRegionRate": 0.0016662038322688142,
+          "flickerCount": 10.0,
+          "meanTopChordConfidence": 0.716018735103234,
+          "meanLearnedEntropy": 0.2361413167322655,
+          "meanFrameSwitchProbability": 0.2409929896109232,
+          "meanBoundaryProbability": 0.16916936157125523,
+          "meanAbsoluteBoundaryErrorMs": 502.495,
+          "medianAbsoluteBoundaryErrorMs": 347.8491515151515,
+          "boundaryF1At100ms": 0.311849696969697,
+          "boundaryF1At250ms": 0.5313729393939394,
+          "boundaryF1At500ms": 0.7075627272727273,
+          "boundaryF1At1000ms": 0.8220915454545454,
+          "weightedChordSymbolRecall": 0.6110298393384046,
+          "noChordF1": 0.0,
+          "extraRegionCount": 338.0,
+          "missingRegionCount": 337.0,
+          "averageChordRegionDurationSeconds": 2.5382754790336017,
+          "meanSignedBoundaryErrorMs": -56.80145454545454,
+          "boundariesWithin100ms": 0.31424396969696966,
+          "boundariesWithin250ms": 0.5342416969696969,
+          "boundariesWithin500ms": 0.7103044848484849,
+          "boundariesWithin1000ms": 0.8221245454545455,
+          "chordSwitchPrecision": 0.5340790669494092,
+          "chordSwitchRecall": 0.5342416969696969,
+          "chordSwitchF1": 0.5341603695810033,
+          "referenceRegionCount": 3600.0
+        }
+      },
+      "pairedPerformances": {
+        "trackCount": 300.0,
+        "evaluatedDurationSeconds": 9140.33,
+        "rootAccuracy": 0.669214771430572,
+        "majorMinorAccuracy": 0.6201841097093869,
+        "detailedAccuracy": 0.6067600699920025,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "fragmentationRate": 0.6908329999999999,
+        "regionsPerMinute": 23.61840327428003,
+        "predictedRegionCount": 3598.0,
+        "shortRegionRate": 0.009866592551417454,
+        "oneWindowRegionRate": 0.0033351862145636463,
+        "flickerCount": 13.5,
+        "meanTopChordConfidence": 0.7138833250731467,
+        "meanLearnedEntropy": 0.2384803875705478,
+        "meanFrameSwitchProbability": 0.2399014023389115,
+        "meanBoundaryProbability": 0.1693029303162603,
+        "meanAbsoluteBoundaryErrorMs": 515.2905606060606,
+        "medianAbsoluteBoundaryErrorMs": 365.05157575757573,
+        "boundaryF1At100ms": 0.313774196969697,
+        "boundaryF1At250ms": 0.532603106060606,
+        "boundaryF1At500ms": 0.7078521363636363,
+        "boundaryF1At1000ms": 0.8214085151515151,
+        "weightedChordSymbolRecall": 0.6067600699920025,
+        "noChordF1": 0.0,
+        "extraRegionCount": 338.5,
+        "missingRegionCount": 340.5,
+        "averageChordRegionDurationSeconds": 2.5403918843802114,
+        "meanSignedBoundaryErrorMs": -61.28842424242424,
+        "boundariesWithin100ms": 0.31636337878787874,
+        "boundariesWithin250ms": 0.5351517878787879,
+        "boundariesWithin500ms": 0.7101529696969697,
+        "boundariesWithin1000ms": 0.8215175303030303,
+        "chordSwitchPrecision": 0.536300447240752,
+        "chordSwitchRecall": 0.5351517878787879,
+        "chordSwitchF1": 0.5357255018448148,
+        "referenceRegionCount": 3600.0
+      }
+    },
+    "boundary-switch-objective": {
+      "byCapture": {
+        "audio_mono-mic": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.6621735373777533,
+          "majorMinorAccuracy": 0.6095448702617958,
+          "detailedAccuracy": 0.5953654383047439,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6883329444444444,
+          "regionsPerMinute": 23.4477310994242,
+          "predictedRegionCount": 3572.0,
+          "shortRegionRate": 0.005039193729003359,
+          "oneWindowRegionRate": 0.0011198208286674132,
+          "flickerCount": 11.0,
+          "meanTopChordConfidence": 0.6947701206125813,
+          "meanLearnedEntropy": 0.2565837007109353,
+          "meanFrameSwitchProbability": 0.23405689130689533,
+          "meanBoundaryProbability": 0.18185937675204286,
+          "meanAbsoluteBoundaryErrorMs": 537.1505454545455,
+          "medianAbsoluteBoundaryErrorMs": 382.4804242424242,
+          "boundaryF1At100ms": 0.32723148484848485,
+          "boundaryF1At250ms": 0.5372458484848485,
+          "boundaryF1At500ms": 0.7011468484848484,
+          "boundaryF1At1000ms": 0.8208498787878787,
+          "weightedChordSymbolRecall": 0.5953654383047439,
+          "noChordF1": 0.0,
+          "extraRegionCount": 318.0,
+          "missingRegionCount": 346.0,
+          "averageChordRegionDurationSeconds": 2.558882978723404,
+          "meanSignedBoundaryErrorMs": -55.16884848484849,
+          "boundariesWithin100ms": 0.32818166666666665,
+          "boundariesWithin250ms": 0.5378802727272727,
+          "boundariesWithin500ms": 0.7015181515151515,
+          "boundariesWithin1000ms": 0.8181831818181818,
+          "chordSwitchPrecision": 0.5424822432762836,
+          "chordSwitchRecall": 0.5378802727272727,
+          "chordSwitchF1": 0.5401714566005724,
+          "referenceRegionCount": 3600.0
+        },
+        "audio_mono-pickup_mix": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.6715807267243087,
+          "majorMinorAccuracy": 0.6215280084417084,
+          "detailedAccuracy": 0.6079568208915871,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6938869444444444,
+          "regionsPerMinute": 23.565888758939774,
+          "predictedRegionCount": 3590.0,
+          "shortRegionRate": 0.006406685236768802,
+          "oneWindowRegionRate": 0.001671309192200557,
+          "flickerCount": 20.0,
+          "meanTopChordConfidence": 0.7095686626150849,
+          "meanLearnedEntropy": 0.2425555600466745,
+          "meanFrameSwitchProbability": 0.23390746131919884,
+          "meanBoundaryProbability": 0.17928287151046948,
+          "meanAbsoluteBoundaryErrorMs": 540.8245757575758,
+          "medianAbsoluteBoundaryErrorMs": 378.05321212121214,
+          "boundaryF1At100ms": 0.320025696969697,
+          "boundaryF1At250ms": 0.5469025454545454,
+          "boundaryF1At500ms": 0.7124866666666667,
+          "boundaryF1At1000ms": 0.822991696969697,
+          "weightedChordSymbolRecall": 0.6079568208915871,
+          "noChordF1": 0.0,
+          "extraRegionCount": 343.0,
+          "missingRegionCount": 353.0,
+          "averageChordRegionDurationSeconds": 2.5460529247910864,
+          "meanSignedBoundaryErrorMs": -61.7640606060606,
+          "boundariesWithin100ms": 0.3215129696969697,
+          "boundariesWithin250ms": 0.547881393939394,
+          "boundariesWithin500ms": 0.7145464545454545,
+          "boundariesWithin1000ms": 0.8239418787878788,
+          "chordSwitchPrecision": 0.5495438905775075,
+          "chordSwitchRecall": 0.547881393939394,
+          "chordSwitchF1": 0.5487113829950134,
+          "referenceRegionCount": 3600.0
+        }
+      },
+      "pairedPerformances": {
+        "trackCount": 300.0,
+        "evaluatedDurationSeconds": 9140.33,
+        "rootAccuracy": 0.6668771320510309,
+        "majorMinorAccuracy": 0.6155364393517521,
+        "detailedAccuracy": 0.6016611295981655,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "fragmentationRate": 0.6911099444444445,
+        "regionsPerMinute": 23.506809929181987,
+        "predictedRegionCount": 3581.0,
+        "shortRegionRate": 0.005724657916783021,
+        "oneWindowRegionRate": 0.0013962580284836638,
+        "flickerCount": 15.5,
+        "meanTopChordConfidence": 0.7021693916138331,
+        "meanLearnedEntropy": 0.2495696303788049,
+        "meanFrameSwitchProbability": 0.23398217631304707,
+        "meanBoundaryProbability": 0.18057112413125617,
+        "meanAbsoluteBoundaryErrorMs": 538.9875606060606,
+        "medianAbsoluteBoundaryErrorMs": 380.26681818181817,
+        "boundaryF1At100ms": 0.3236285909090909,
+        "boundaryF1At250ms": 0.5420741969696969,
+        "boundaryF1At500ms": 0.7068167575757576,
+        "boundaryF1At1000ms": 0.8219207878787879,
+        "weightedChordSymbolRecall": 0.6016611295981655,
+        "noChordF1": 0.0,
+        "extraRegionCount": 330.5,
+        "missingRegionCount": 349.5,
+        "averageChordRegionDurationSeconds": 2.5524518290980174,
+        "meanSignedBoundaryErrorMs": -58.46645454545455,
+        "boundariesWithin100ms": 0.32484731818181817,
+        "boundariesWithin250ms": 0.5428808333333334,
+        "boundariesWithin500ms": 0.7080323030303031,
+        "boundariesWithin1000ms": 0.8210625303030303,
+        "chordSwitchPrecision": 0.5467516077415422,
+        "chordSwitchRecall": 0.5428808333333334,
+        "chordSwitchF1": 0.5448093453316553,
+        "referenceRegionCount": 3600.0
+      }
+    },
+    "full-objective-unsmoothed": {
+      "byCapture": {
+        "audio_mono-mic": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.6673483531338584,
+          "majorMinorAccuracy": 0.6149391484333716,
+          "detailedAccuracy": 0.6025304297109623,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6808316111111111,
+          "regionsPerMinute": 23.099822435295007,
+          "predictedRegionCount": 3519.0,
+          "shortRegionRate": 0.00966183574879227,
+          "oneWindowRegionRate": 0.0017050298380221654,
+          "flickerCount": 13.0,
+          "meanTopChordConfidence": 0.6950771782263794,
+          "meanLearnedEntropy": 0.2570016025641539,
+          "meanFrameSwitchProbability": 0.22554344974295784,
+          "meanBoundaryProbability": 0.17833673448244955,
+          "meanAbsoluteBoundaryErrorMs": 566.5412424242425,
+          "medianAbsoluteBoundaryErrorMs": 384.9228181818182,
+          "boundaryF1At100ms": 0.3272673939393939,
+          "boundaryF1At250ms": 0.5363253333333333,
+          "boundaryF1At500ms": 0.711140393939394,
+          "boundaryF1At1000ms": 0.8214395454545455,
+          "weightedChordSymbolRecall": 0.6025304297109623,
+          "noChordF1": 0.0,
+          "extraRegionCount": 300.0,
+          "missingRegionCount": 381.0,
+          "averageChordRegionDurationSeconds": 2.5974225632281898,
+          "meanSignedBoundaryErrorMs": -42.368303030303025,
+          "boundariesWithin100ms": 0.3287860606060606,
+          "boundariesWithin250ms": 0.5369703333333333,
+          "boundariesWithin500ms": 0.7087895454545455,
+          "boundariesWithin1000ms": 0.8139417272727273,
+          "chordSwitchPrecision": 0.5504803044423734,
+          "chordSwitchRecall": 0.5369703333333333,
+          "chordSwitchF1": 0.5436413981502002,
+          "referenceRegionCount": 3600.0
+        },
+        "audio_mono-pickup_mix": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.6798109377998387,
+          "majorMinorAccuracy": 0.6280037766470139,
+          "detailedAccuracy": 0.6159640996441047,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6916644444444445,
+          "regionsPerMinute": 23.473988357094328,
+          "predictedRegionCount": 3576.0,
+          "shortRegionRate": 0.010067114093959731,
+          "oneWindowRegionRate": 0.0022371364653243847,
+          "flickerCount": 16.0,
+          "meanTopChordConfidence": 0.7103142603358159,
+          "meanLearnedEntropy": 0.2433144580021219,
+          "meanFrameSwitchProbability": 0.2252839919080888,
+          "meanBoundaryProbability": 0.17739907829227458,
+          "meanAbsoluteBoundaryErrorMs": 529.5870303030302,
+          "medianAbsoluteBoundaryErrorMs": 373.86475757575755,
+          "boundaryF1At100ms": 0.3324036060606061,
+          "boundaryF1At250ms": 0.5487430303030303,
+          "boundaryF1At500ms": 0.7200361212121212,
+          "boundaryF1At1000ms": 0.8280458484848485,
+          "weightedChordSymbolRecall": 0.6159640996441047,
+          "noChordF1": 0.0,
+          "extraRegionCount": 323.0,
+          "missingRegionCount": 347.0,
+          "averageChordRegionDurationSeconds": 2.556020693512304,
+          "meanSignedBoundaryErrorMs": -31.086000000000002,
+          "boundariesWithin100ms": 0.33393775757575755,
+          "boundariesWithin250ms": 0.5506050909090908,
+          "boundariesWithin500ms": 0.7203055454545454,
+          "boundariesWithin1000ms": 0.8248510909090909,
+          "chordSwitchPrecision": 0.5546385225885225,
+          "chordSwitchRecall": 0.5506050909090908,
+          "chordSwitchF1": 0.5526144470269707,
+          "referenceRegionCount": 3600.0
+        }
+      },
+      "pairedPerformances": {
+        "trackCount": 300.0,
+        "evaluatedDurationSeconds": 9140.33,
+        "rootAccuracy": 0.6735796454668486,
+        "majorMinorAccuracy": 0.6214714625401927,
+        "detailedAccuracy": 0.6092472646775335,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "fragmentationRate": 0.6862480277777778,
+        "regionsPerMinute": 23.286905396194665,
+        "predictedRegionCount": 3547.5,
+        "shortRegionRate": 0.009866102889358703,
+        "oneWindowRegionRate": 0.001973220577871741,
+        "flickerCount": 14.5,
+        "meanTopChordConfidence": 0.7026957192810976,
+        "meanLearnedEntropy": 0.2501580302831379,
+        "meanFrameSwitchProbability": 0.2254137208255233,
+        "meanBoundaryProbability": 0.17786790638736208,
+        "meanAbsoluteBoundaryErrorMs": 548.0641363636363,
+        "medianAbsoluteBoundaryErrorMs": 379.39378787878786,
+        "boundaryF1At100ms": 0.3298355,
+        "boundaryF1At250ms": 0.5425341818181818,
+        "boundaryF1At500ms": 0.7155882575757575,
+        "boundaryF1At1000ms": 0.824742696969697,
+        "weightedChordSymbolRecall": 0.6092472646775335,
+        "noChordF1": 0.0,
+        "extraRegionCount": 311.5,
+        "missingRegionCount": 364.0,
+        "averageChordRegionDurationSeconds": 2.576555320648344,
+        "meanSignedBoundaryErrorMs": -36.72715151515152,
+        "boundariesWithin100ms": 0.3313619090909091,
+        "boundariesWithin250ms": 0.5437877121212121,
+        "boundariesWithin500ms": 0.7145475454545455,
+        "boundariesWithin1000ms": 0.8193964090909092,
+        "chordSwitchPrecision": 0.5534769207082372,
+        "chordSwitchRecall": 0.5437877121212121,
+        "chordSwitchF1": 0.548589536961057,
+        "referenceRegionCount": 3600.0
+      }
+    },
+    "full-v2": {
+      "byCapture": {
+        "audio_mono-mic": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.7564952815270346,
+          "majorMinorAccuracy": 0.7141524480516568,
+          "detailedAccuracy": 0.7081050083421496,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6719453888888889,
+          "regionsPerMinute": 22.20707567451066,
+          "predictedRegionCount": 3383.0,
+          "shortRegionRate": 0.002069169376293231,
+          "oneWindowRegionRate": 0.0,
+          "flickerCount": 5.0,
+          "meanTopChordConfidence": 0.7126095879467258,
+          "meanLearnedEntropy": 0.24076982607012418,
+          "meanFrameSwitchProbability": 0.16817600246314157,
+          "meanBoundaryProbability": 0.1653138842899633,
+          "meanAbsoluteBoundaryErrorMs": 429.5573333333333,
+          "medianAbsoluteBoundaryErrorMs": 270.0415454545454,
+          "boundaryF1At100ms": 0.4379189090909091,
+          "boundaryF1At250ms": 0.6572433636363636,
+          "boundaryF1At500ms": 0.8048839393939394,
+          "boundaryF1At1000ms": 0.8846822424242424,
+          "weightedChordSymbolRecall": 0.7081050083421496,
+          "noChordF1": 0.0,
+          "extraRegionCount": 111.0,
+          "missingRegionCount": 328.0,
+          "averageChordRegionDurationSeconds": 2.701841560744901,
+          "meanSignedBoundaryErrorMs": 1.1701818181818204,
+          "boundariesWithin100ms": 0.43000163636363636,
+          "boundariesWithin250ms": 0.642727090909091,
+          "boundariesWithin500ms": 0.785152696969697,
+          "boundariesWithin1000ms": 0.8612125151515151,
+          "chordSwitchPrecision": 0.6879673370094064,
+          "chordSwitchRecall": 0.642727090909091,
+          "chordSwitchF1": 0.6645781869669216,
+          "referenceRegionCount": 3600.0
+        },
+        "audio_mono-pickup_mix": {
+          "trackCount": 300.0,
+          "evaluatedDurationSeconds": 9140.33,
+          "rootAccuracy": 0.7543081386777064,
+          "majorMinorAccuracy": 0.7125809243211131,
+          "detailedAccuracy": 0.7050638899033186,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "fragmentationRate": 0.6788886666666667,
+          "regionsPerMinute": 22.41713373587168,
+          "predictedRegionCount": 3415.0,
+          "shortRegionRate": 0.0020497803806734994,
+          "oneWindowRegionRate": 0.0,
+          "flickerCount": 6.0,
+          "meanTopChordConfidence": 0.7176648490093414,
+          "meanLearnedEntropy": 0.2349183660111286,
+          "meanFrameSwitchProbability": 0.16951721725032765,
+          "meanBoundaryProbability": 0.16665486724830078,
+          "meanAbsoluteBoundaryErrorMs": 410.6545454545454,
+          "medianAbsoluteBoundaryErrorMs": 261.80442424242426,
+          "boundaryF1At100ms": 0.42976457575757576,
+          "boundaryF1At250ms": 0.6563745757575757,
+          "boundaryF1At500ms": 0.8034287878787879,
+          "boundaryF1At1000ms": 0.8858810303030303,
+          "weightedChordSymbolRecall": 0.7050638899033186,
+          "noChordF1": 0.0,
+          "extraRegionCount": 133.0,
+          "missingRegionCount": 318.0,
+          "averageChordRegionDurationSeconds": 2.676524158125915,
+          "meanSignedBoundaryErrorMs": 19.651,
+          "boundariesWithin100ms": 0.4239377878787879,
+          "boundariesWithin250ms": 0.6451499393939394,
+          "boundariesWithin500ms": 0.7872736363636365,
+          "boundariesWithin1000ms": 0.8657581212121213,
+          "chordSwitchPrecision": 0.6834661316211877,
+          "chordSwitchRecall": 0.6451499393939394,
+          "chordSwitchF1": 0.6637555318088564,
+          "referenceRegionCount": 3600.0
+        }
+      },
+      "pairedPerformances": {
+        "trackCount": 300.0,
+        "evaluatedDurationSeconds": 9140.33,
+        "rootAccuracy": 0.7554017101023704,
+        "majorMinorAccuracy": 0.713366686186385,
+        "detailedAccuracy": 0.7065844491227341,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "fragmentationRate": 0.6754170277777778,
+        "regionsPerMinute": 22.31210470519117,
+        "predictedRegionCount": 3399.0,
+        "shortRegionRate": 0.002059429243895263,
+        "oneWindowRegionRate": 0.0,
+        "flickerCount": 5.5,
+        "meanTopChordConfidence": 0.7151372184780336,
+        "meanLearnedEntropy": 0.2378440960406264,
+        "meanFrameSwitchProbability": 0.1688466098567346,
+        "meanBoundaryProbability": 0.16598437576913203,
+        "meanAbsoluteBoundaryErrorMs": 420.1059393939394,
+        "medianAbsoluteBoundaryErrorMs": 265.9229848484848,
+        "boundaryF1At100ms": 0.43384174242424245,
+        "boundaryF1At250ms": 0.6568089696969697,
+        "boundaryF1At500ms": 0.8041563636363636,
+        "boundaryF1At1000ms": 0.8852816363636363,
+        "weightedChordSymbolRecall": 0.7065844491227341,
+        "noChordF1": 0.0,
+        "extraRegionCount": 122.0,
+        "missingRegionCount": 323.0,
+        "averageChordRegionDurationSeconds": 2.689123271550456,
+        "meanSignedBoundaryErrorMs": 10.410590909090908,
+        "boundariesWithin100ms": 0.42696971212121215,
+        "boundariesWithin250ms": 0.6439385151515151,
+        "boundariesWithin500ms": 0.7862131666666667,
+        "boundariesWithin1000ms": 0.8634853181818182,
+        "chordSwitchPrecision": 0.6860979428848015,
+        "chordSwitchRecall": 0.6439385151515151,
+        "chordSwitchF1": 0.6643500453243736,
+        "referenceRegionCount": 3600.0
+      }
+    }
+  },
+  "ablationContrasts": {
+    "longerReceptiveField": {
+      "baselineCandidate": "v1-objective",
+      "candidate": "longer-context",
+      "interpretation": "Longer receptive field; all sequence-loss weights remain zero.",
+      "byCaptureDelta": {
+        "audio_mono-mic": {
+          "rootAccuracy": 0.06959085886395788,
+          "detailedAccuracy": 0.07186206547247198,
+          "fragmentationRate": 0.07777466666666666,
+          "regionsPerMinute": 3.8335596198386703,
+          "meanAbsoluteBoundaryErrorMs": -487.9099696969697,
+          "chordSwitchPrecision": 0.010777926222895085,
+          "chordSwitchRecall": 0.1003015454545455,
+          "chordSwitchF1": 0.05974346171448425
+        },
+        "audio_mono-pickup_mix": {
+          "rootAccuracy": 0.065509724539486,
+          "detailedAccuracy": 0.07544505978449345,
+          "fragmentationRate": 0.07888577777777772,
+          "regionsPerMinute": 3.90576707843152,
+          "meanAbsoluteBoundaryErrorMs": -622.7415454545454,
+          "chordSwitchPrecision": 0.029612702662349832,
+          "chordSwitchRecall": 0.12091160606060603,
+          "chordSwitchF1": 0.07932952236834484
+        }
+      }
+    },
+    "durationConsistency": {
+      "baselineCandidate": "longer-context",
+      "candidate": "duration-objective",
+      "interpretation": "Duration-consistency loss added to the longer-context model.",
+      "byCaptureDelta": {
+        "audio_mono-mic": {
+          "rootAccuracy": -0.0059214903072427605,
+          "detailedAccuracy": 0.002260071824540244,
+          "fragmentationRate": -0.004443000000000086,
+          "regionsPerMinute": -0.09190040184544657,
+          "meanAbsoluteBoundaryErrorMs": -13.638363636363692,
+          "chordSwitchPrecision": 0.02040471870756666,
+          "chordSwitchRecall": 0.018184575757575594,
+          "chordSwitchF1": 0.019295301524748343
+        },
+        "audio_mono-pickup_mix": {
+          "rootAccuracy": -0.0015177548731829527,
+          "detailedAccuracy": 0.00448915556659335,
+          "fragmentationRate": -0.004164999999999974,
+          "regionsPerMinute": -0.177236489273362,
+          "meanAbsoluteBoundaryErrorMs": -18.328303030303005,
+          "chordSwitchPrecision": -0.0004730063678984875,
+          "chordSwitchRecall": -0.0048506363636363625,
+          "chordSwitchF1": -0.0026522337497167925
+        }
+      }
+    },
+    "boundaryAndSwitchSupervision": {
+      "baselineCandidate": "longer-context",
+      "candidate": "boundary-switch-objective",
+      "interpretation": "Switch, hard-boundary, and boundary/state agreement losses added together.",
+      "byCaptureDelta": {
+        "audio_mono-mic": {
+          "rootAccuracy": -0.009970445224625424,
+          "detailedAccuracy": -0.004864790516316164,
+          "fragmentationRate": -0.0061097777777778806,
+          "regionsPerMinute": -0.24287963344868402,
+          "meanAbsoluteBoundaryErrorMs": -2.2977272727272293,
+          "chordSwitchPrecision": 0.026014518888250904,
+          "chordSwitchRecall": 0.020002969696969575,
+          "chordSwitchF1": 0.02299990336005664
+        },
+        "audio_mono-pickup_mix": {
+          "rootAccuracy": -0.0021440787148823137,
+          "detailedAccuracy": 0.00141613711977584,
+          "fragmentationRate": -0.0019443333333333257,
+          "regionsPerMinute": -0.24944394786621515,
+          "meanAbsoluteBoundaryErrorMs": 20.00127272727275,
+          "chordSwitchPrecision": 0.014991817260199825,
+          "chordSwitchRecall": 0.008789060606060661,
+          "chordSwitchF1": 0.011898779664293313
+        }
+      }
+    },
+    "combinedSequenceObjectives": {
+      "baselineCandidate": "longer-context",
+      "candidate": "full-objective-unsmoothed",
+      "interpretation": "All sequence objectives added together without augmentation or smoothing.",
+      "byCaptureDelta": {
+        "audio_mono-mic": {
+          "rootAccuracy": -0.004795629468520302,
+          "detailedAccuracy": 0.0023002008899022375,
+          "fragmentationRate": -0.01361111111111113,
+          "regionsPerMinute": -0.5907882975778769,
+          "meanAbsoluteBoundaryErrorMs": 27.092969696969703,
+          "chordSwitchPrecision": 0.03401258005434071,
+          "chordSwitchRecall": 0.019093030303030223,
+          "chordSwitchF1": 0.026469844909684404
+        },
+        "audio_mono-pickup_mix": {
+          "rootAccuracy": 0.0060861323606477,
+          "detailedAccuracy": 0.00942341587229345,
+          "fragmentationRate": -0.004166833333333231,
+          "regionsPerMinute": -0.3413443497116617,
+          "meanAbsoluteBoundaryErrorMs": 8.763727272727238,
+          "chordSwitchPrecision": 0.020086449271214835,
+          "chordSwitchRecall": 0.011512757575757537,
+          "chordSwitchF1": 0.015801843696250595
+        }
+      }
+    },
+    "augmentationAndEma": {
+      "baselineCandidate": "full-objective-unsmoothed",
+      "candidate": "full-v2",
+      "interpretation": "Deterministic feature augmentation and EMA are added together; this contrast cannot isolate either component.",
+      "byCaptureDelta": {
+        "audio_mono-mic": {
+          "rootAccuracy": 0.08914692839317617,
+          "detailedAccuracy": 0.10557457863118735,
+          "fragmentationRate": -0.00888622222222224,
+          "regionsPerMinute": -0.8927467607843482,
+          "meanAbsoluteBoundaryErrorMs": -136.98390909090915,
+          "chordSwitchPrecision": 0.13748703256703299,
+          "chordSwitchRecall": 0.10575675757575764,
+          "chordSwitchF1": 0.12093678881672143
+        },
+        "audio_mono-pickup_mix": {
+          "rootAccuracy": 0.07449720087786771,
+          "detailedAccuracy": 0.08909979025921388,
+          "fragmentationRate": -0.01277577777777783,
+          "regionsPerMinute": -1.056854621222648,
+          "meanAbsoluteBoundaryErrorMs": -118.93248484848482,
+          "chordSwitchPrecision": 0.1288276090326652,
+          "chordSwitchRecall": 0.09454484848484856,
+          "chordSwitchF1": 0.11114108478188567
+        }
+      }
+    }
+  },
+  "pairedDifferencesVersusV1Objective": {
+    "longer-context": {
+      "rootAccuracy": {
+        "meanDifference": 0.05543049999999999,
+        "medianDifference": 0.01827499999999993,
+        "confidenceInterval95": [
+          0.026609666666666667,
+          0.08610099999999998
+        ],
+        "improved": 187,
+        "tied": 2,
+        "worsened": 111,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "detailedAccuracy": {
+        "meanDifference": 0.06258383333333334,
+        "medianDifference": 0.019450000000000002,
+        "confidenceInterval95": [
+          0.023179166666666664,
+          0.10644783333333331
+        ],
+        "improved": 182,
+        "tied": 3,
+        "worsened": 115,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "fragmentationRate": {
+        "meanDifference": 0.07714066666666666,
+        "medianDifference": 0.0625,
+        "confidenceInterval95": [
+          0.05190983333333332,
+          0.09316033333333332
+        ],
+        "improved": 86,
+        "tied": 37,
+        "worsened": 177,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "regionsPerMinute": {
+        "meanDifference": 4.001518922003506,
+        "medianDifference": 2.218770800976264,
+        "confidenceInterval95": [
+          3.369579369377395,
+          4.459510210012304
+        ],
+        "improved": 52,
+        "tied": 60,
+        "worsened": 188,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "meanDifference": -559.5706666666667,
+        "medianDifference": -141.52499999999992,
+        "confidenceInterval95": [
+          -705.8326666666667,
+          -435.3468333333333
+        ],
+        "improved": 219,
+        "tied": 2,
+        "worsened": 79,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      }
+    },
+    "duration-objective": {
+      "rootAccuracy": {
+        "meanDifference": 0.0531165,
+        "medianDifference": 0.01984999999999998,
+        "confidenceInterval95": [
+          0.037280333333333325,
+          0.0680025
+        ],
+        "improved": 188,
+        "tied": 0,
+        "worsened": 112,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "detailedAccuracy": {
+        "meanDifference": 0.06640516666666665,
+        "medianDifference": 0.03325000000000006,
+        "confidenceInterval95": [
+          0.0381515,
+          0.0907705
+        ],
+        "improved": 197,
+        "tied": 0,
+        "worsened": 103,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "fragmentationRate": {
+        "meanDifference": 0.07174466666666666,
+        "medianDifference": 0.0625,
+        "confidenceInterval95": [
+          0.06017616666666666,
+          0.08569949999999998
+        ],
+        "improved": 93,
+        "tied": 38,
+        "worsened": 169,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "regionsPerMinute": {
+        "meanDifference": 3.8063100196568675,
+        "medianDifference": 2.34375,
+        "confidenceInterval95": [
+          3.4553548264141827,
+          4.210695687189065
+        ],
+        "improved": 55,
+        "tied": 65,
+        "worsened": 180,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "meanDifference": -578.8085,
+        "medianDifference": -110.67499999999998,
+        "confidenceInterval95": [
+          -729.55,
+          -448.7756666666667
+        ],
+        "improved": 218,
+        "tied": 0,
+        "worsened": 82,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      }
+    },
+    "boundary-switch-objective": {
+      "rootAccuracy": {
+        "meanDifference": 0.05176599999999999,
+        "medianDifference": 0.025524999999999992,
+        "confidenceInterval95": [
+          0.018828499999999995,
+          0.08652116666666666
+        ],
+        "improved": 199,
+        "tied": 2,
+        "worsened": 99,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "detailedAccuracy": {
+        "meanDifference": 0.06378433333333333,
+        "medianDifference": 0.031474999999999975,
+        "confidenceInterval95": [
+          0.025425333333333338,
+          0.10214333333333332
+        ],
+        "improved": 197,
+        "tied": 2,
+        "worsened": 101,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "fragmentationRate": {
+        "meanDifference": 0.07629316666666666,
+        "medianDifference": 0.0625,
+        "confidenceInterval95": [
+          0.05428916666666666,
+          0.10244816666666665
+        ],
+        "improved": 77,
+        "tied": 45,
+        "worsened": 178,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "regionsPerMinute": {
+        "meanDifference": 3.7779657495508423,
+        "medianDifference": 2.179934592223491,
+        "confidenceInterval95": [
+          2.96114933869349,
+          4.5468035363715344
+        ],
+        "improved": 47,
+        "tied": 72,
+        "worsened": 181,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "meanDifference": -555.1558333333334,
+        "medianDifference": -138.125,
+        "confidenceInterval95": [
+          -749.4631666666667,
+          -364.8035
+        ],
+        "improved": 228,
+        "tied": 1,
+        "worsened": 71,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      }
+    },
+    "full-objective-unsmoothed": {
+      "rootAccuracy": {
+        "meanDifference": 0.05662216666666666,
+        "medianDifference": 0.01974999999999999,
+        "confidenceInterval95": [
+          0.043692166666666664,
+          0.06955216666666665
+        ],
+        "improved": 198,
+        "tied": 0,
+        "worsened": 102,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "detailedAccuracy": {
+        "meanDifference": 0.06890883333333332,
+        "medianDifference": 0.02595000000000003,
+        "confidenceInterval95": [
+          0.043042333333333335,
+          0.08961449999999999
+        ],
+        "improved": 199,
+        "tied": 1,
+        "worsened": 100,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "fragmentationRate": {
+        "meanDifference": 0.0677945,
+        "medianDifference": 0.035699999999999954,
+        "confidenceInterval95": [
+          0.05068133333333333,
+          0.08490766666666666
+        ],
+        "improved": 80,
+        "tied": 47,
+        "worsened": 173,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "regionsPerMinute": {
+        "meanDifference": 3.4962127495614848,
+        "medianDifference": 2.083333333333332,
+        "confidenceInterval95": [
+          2.8867375692854784,
+          3.8908105512530073
+        ],
+        "improved": 50,
+        "tied": 71,
+        "worsened": 179,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "meanDifference": -546.3601666666667,
+        "medianDifference": -112.90000000000002,
+        "confidenceInterval95": [
+          -710.6965,
+          -383.6188333333333
+        ],
+        "improved": 228,
+        "tied": 0,
+        "worsened": 72,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      }
+    },
+    "full-v2": {
+      "rootAccuracy": {
+        "meanDifference": 0.13746266666666665,
+        "medianDifference": 0.07249999999999995,
+        "confidenceInterval95": [
+          0.10991066666666666,
+          0.16174349999999998
+        ],
+        "improved": 226,
+        "tied": 1,
+        "worsened": 73,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "detailedAccuracy": {
+        "meanDifference": 0.16728716666666665,
+        "medianDifference": 0.10755000000000002,
+        "confidenceInterval95": [
+          0.13645716666666668,
+          0.1973415
+        ],
+        "improved": 240,
+        "tied": 1,
+        "worsened": 59,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "fragmentationRate": {
+        "meanDifference": 0.047614333333333335,
+        "medianDifference": 0.035699999999999954,
+        "confidenceInterval95": [
+          0.024236499999999994,
+          0.08397766666666666
+        ],
+        "improved": 101,
+        "tied": 36,
+        "worsened": 163,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "regionsPerMinute": {
+        "meanDifference": 2.4586754828265405,
+        "medianDifference": 0.0,
+        "confidenceInterval95": [
+          1.6545165747094377,
+          3.556305906845844
+        ],
+        "improved": 83,
+        "tied": 69,
+        "worsened": 148,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      },
+      "meanAbsoluteBoundaryErrorMs": {
+        "meanDifference": -661.415,
+        "medianDifference": -220.12499999999994,
+        "confidenceInterval95": [
+          -906.0173333333333,
+          -454.41350000000006
+        ],
+        "improved": 234,
+        "tied": 0,
+        "worsened": 66,
+        "performanceCount": 300,
+        "clusterCount": 5,
+        "seed": 20260726,
+        "iterations": 10000
+      }
+    }
+  },
+  "selectionGates": {
+    "longer-context": {
+      "developmentMetricGatesPassed": false,
+      "replacementGatePassed": false,
+      "passed": false,
+      "checks": [
+        {
+          "capture": "audio_mono-mic",
+          "gate": "rootAccuracy",
+          "value": 0.06959085886395788,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "detailedAccuracy",
+          "value": 0.07186206547247198,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.1261207970252319,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.19305785123966937,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.4749170732749032,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "rootAccuracy",
+          "value": 0.065509724539486,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "detailedAccuracy",
+          "value": 0.07544505978449345,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.1278650671376608,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.19617540389053725,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.5445616366047268,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        }
+      ],
+      "replacementChecks": [
+        {
+          "gate": "pythonTypeScriptParity",
+          "passed": true
+        },
+        {
+          "gate": "hybridImprovementWithFrozenSafeguards",
+          "passed": false
+        }
+      ],
+      "metricGatesPassed": false,
+      "hybridGateStatus": "not-evaluated-candidate-ineligible-on-metric-gates"
+    },
+    "duration-objective": {
+      "developmentMetricGatesPassed": false,
+      "replacementGatePassed": false,
+      "passed": false,
+      "checks": [
+        {
+          "capture": "audio_mono-mic",
+          "gate": "rootAccuracy",
+          "value": 0.06366936855671512,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "detailedAccuracy",
+          "value": 0.07412213729701222,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.11891594838750347,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.1884297520661157,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.48819225137069716,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "rootAccuracy",
+          "value": 0.06399196966630305,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "detailedAccuracy",
+          "value": 0.0799342153510868,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.12111406563104479,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.18727332673920202,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.560588976947154,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        }
+      ],
+      "replacementChecks": [
+        {
+          "gate": "pythonTypeScriptParity",
+          "passed": true
+        },
+        {
+          "gate": "hybridImprovementWithFrozenSafeguards",
+          "passed": false
+        }
+      ],
+      "metricGatesPassed": false,
+      "hybridGateStatus": "not-evaluated-candidate-ineligible-on-metric-gates"
+    },
+    "boundary-switch-objective": {
+      "developmentMetricGatesPassed": false,
+      "replacementGatePassed": false,
+      "passed": false,
+      "checks": [
+        {
+          "capture": "audio_mono-mic",
+          "gate": "rootAccuracy",
+          "value": 0.05962041363933246,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "detailedAccuracy",
+          "value": 0.06699727495615582,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.11621307159218092,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.18082644628099162,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.4771536127582535,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "rootAccuracy",
+          "value": 0.06336564582460369,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "detailedAccuracy",
+          "value": 0.07686119690426929,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.12471351917542861,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.1836465545664357,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.5270713536935537,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        }
+      ],
+      "replacementChecks": [
+        {
+          "gate": "pythonTypeScriptParity",
+          "passed": true
+        },
+        {
+          "gate": "hybridImprovementWithFrozenSafeguards",
+          "passed": false
+        }
+      ],
+      "metricGatesPassed": false,
+      "hybridGateStatus": "not-evaluated-candidate-ineligible-on-metric-gates"
+    },
+    "full-objective-unsmoothed": {
+      "developmentMetricGatesPassed": false,
+      "replacementGatePassed": false,
+      "passed": false,
+      "checks": [
+        {
+          "capture": "audio_mono-mic",
+          "gate": "rootAccuracy",
+          "value": 0.06479522939543758,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "detailedAccuracy",
+          "value": 0.07416226636237422,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.10404877466492188,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.16330578512396693,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.448545581249844,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "rootAccuracy",
+          "value": 0.0715958569001337,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "detailedAccuracy",
+          "value": 0.0848684756567869,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.12111109400173027,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.1790306627101878,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.5368981208151862,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        }
+      ],
+      "replacementChecks": [
+        {
+          "gate": "pythonTypeScriptParity",
+          "passed": true
+        },
+        {
+          "gate": "hybridImprovementWithFrozenSafeguards",
+          "passed": false
+        }
+      ],
+      "metricGatesPassed": false,
+      "hybridGateStatus": "not-evaluated-candidate-ineligible-on-metric-gates"
+    },
+    "full-v2": {
+      "developmentMetricGatesPassed": false,
+      "replacementGatePassed": false,
+      "passed": false,
+      "checks": [
+        {
+          "capture": "audio_mono-mic",
+          "gate": "rootAccuracy",
+          "value": 0.15394215778861375,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "detailedAccuracy",
+          "value": 0.17973684499356157,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.08963871702991652,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.1183471074380165,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-mic",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.5818816498520389,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "rootAccuracy",
+          "value": 0.1460930577780014,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "detailedAccuracy",
+          "value": 0.17396826591600079,
+          "threshold": 0.0,
+          "comparison": "minimum",
+          "passed": true
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "fragmentationRelativeReduction",
+          "value": -0.10040297994987671,
+          "threshold": 0.08,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "regionsPerMinuteRelativeReduction",
+          "value": -0.1259479063633365,
+          "threshold": 0.05,
+          "comparison": "minimum",
+          "passed": false
+        },
+        {
+          "capture": "audio_mono-pickup_mix",
+          "gate": "boundaryMeanAbsoluteErrorRelativeIncrease",
+          "value": -0.6408996429029479,
+          "threshold": 0.02,
+          "comparison": "maximum",
+          "passed": true
+        }
+      ],
+      "replacementChecks": [
+        {
+          "gate": "pythonTypeScriptParity",
+          "passed": true
+        },
+        {
+          "gate": "hybridImprovementWithFrozenSafeguards",
+          "passed": false
+        }
+      ],
+      "metricGatesPassed": false,
+      "hybridGateStatus": "not-evaluated-candidate-ineligible-on-metric-gates"
+    }
+  },
+  "eligibleCandidateCount": 0,
+  "paretoFrontier": [
+    "v1-objective",
+    "full-v2"
+  ],
+  "parity": {
+    "runCount": 30,
+    "allPythonOnnxPassed": true,
+    "allTypeScriptPassed": true,
+    "maximumPythonOnnxError": 1.0728836059570312e-05,
+    "maximumTypeScriptError": 3.823646775913403e-05,
+    "tolerance": 0.0001
+  },
+  "runtimeDiagnostics": [
+    {
+      "foldId": "lopo-p01",
+      "candidateId": "v1-objective",
+      "runtimeSeconds": 0.7646998000564054,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.012549324806485193,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8787885794263388,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8695916494425451,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p01",
+      "candidateId": "longer-context",
+      "runtimeSeconds": 1.0863532000221312,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.017827909933593174,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7943693722433853,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.797838417195264,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p01",
+      "candidateId": "duration-objective",
+      "runtimeSeconds": 2.0548448000336066,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.03372161836662801,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7845663466377043,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7834668972616999,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p01",
+      "candidateId": "boundary-switch-objective",
+      "runtimeSeconds": 1.963315699947998,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.03221955388833879,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8027118233060492,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8131288978215883,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p01",
+      "candidateId": "full-objective-unsmoothed",
+      "runtimeSeconds": 1.9041116000153124,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.031247968071425963,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.801691283584853,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8070607176922289,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p01",
+      "candidateId": "full-v2",
+      "runtimeSeconds": 2.2832007999531925,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.037469119823133175,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8765109711980142,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8761619891581227,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p02",
+      "candidateId": "v1-objective",
+      "runtimeSeconds": 1.3501293999142945,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.022156684713477977,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8660410740472441,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8613246008017258,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p02",
+      "candidateId": "longer-context",
+      "runtimeSeconds": 1.8125539999455214,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029745435885994074,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7724288568960972,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7694041173317457,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p02",
+      "candidateId": "duration-objective",
+      "runtimeSeconds": 1.8023270999547094,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029577604418353214,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7790237959321819,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.779936786033817,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p02",
+      "candidateId": "boundary-switch-objective",
+      "runtimeSeconds": 1.7762965000001714,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.02915042181190676,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7845021116634673,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7882870928039262,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p02",
+      "candidateId": "full-objective-unsmoothed",
+      "runtimeSeconds": 1.778074200032279,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029179595266783785,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7888768929691936,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7921653348886802,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p02",
+      "candidateId": "full-v2",
+      "runtimeSeconds": 2.2084107999689877,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.03624175713517435,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8833528128915572,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.880473372431407,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p03",
+      "candidateId": "v1-objective",
+      "runtimeSeconds": 1.3987647000467405,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.022954828218129004,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8536793023185861,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.843501851345,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p03",
+      "candidateId": "longer-context",
+      "runtimeSeconds": 1.766811899957247,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.02899477206989103,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7828402135977993,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7874222883500952,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p03",
+      "candidateId": "duration-objective",
+      "runtimeSeconds": 1.7892156000016257,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.02936243439790947,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7825271316264758,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7850175729024991,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p03",
+      "candidateId": "boundary-switch-objective",
+      "runtimeSeconds": 1.7721557999029756,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029082469668540015,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7877702086247079,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7939476318573532,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p03",
+      "candidateId": "full-objective-unsmoothed",
+      "runtimeSeconds": 1.7786204000003636,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029188558837597172,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7940823156379547,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7987436043213045,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p03",
+      "candidateId": "full-v2",
+      "runtimeSeconds": 2.135968799935654,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.03505292697204019,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8875658216062127,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8868177434296417,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p04",
+      "candidateId": "v1-objective",
+      "runtimeSeconds": 1.3043329999782145,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.021405129792549302,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8686331127864249,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8715718740429421,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p04",
+      "candidateId": "longer-context",
+      "runtimeSeconds": 1.7893538000062108,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.02936470236861597,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7792552811600297,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7781120423650343,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p04",
+      "candidateId": "duration-objective",
+      "runtimeSeconds": 1.7940452999901026,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029441693571076254,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7810338581918618,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7762594160910244,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p04",
+      "candidateId": "boundary-switch-objective",
+      "runtimeSeconds": 1.8269981000339612,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029982474922141126,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7879525683368521,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7830112087072565,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p04",
+      "candidateId": "full-objective-unsmoothed",
+      "runtimeSeconds": 1.8074720000149682,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029662036272459006,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7929613781894905,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7941407058109553,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p04",
+      "candidateId": "full-v2",
+      "runtimeSeconds": 2.2251239999895915,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.03651603388482021,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8777813739655508,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8769974462174644,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p05",
+      "candidateId": "v1-objective",
+      "runtimeSeconds": 1.4183036999311298,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.023275478564742134,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8506047691118087,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8481246177220374,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p05",
+      "candidateId": "longer-context",
+      "runtimeSeconds": 1.8439679999137297,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.03026096431825322,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.771189449591018,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7674044808118611,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p05",
+      "candidateId": "duration-objective",
+      "runtimeSeconds": 1.8743091999785975,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.030758887260830804,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7851477561549046,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.78200749845828,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p05",
+      "candidateId": "boundary-switch-objective",
+      "runtimeSeconds": 1.8252041999949142,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.029953035612416308,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7731662026240462,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.774617420109905,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p05",
+      "candidateId": "full-objective-unsmoothed",
+      "runtimeSeconds": 1.7524713999591768,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.028759433192661155,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.7894215066359263,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.7881557679552215,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    },
+    {
+      "foldId": "lopo-p05",
+      "candidateId": "full-v2",
+      "runtimeSeconds": 2.2668750999728218,
+      "evaluatedAudioMinutes": 60.93553333333333,
+      "runtimeSecondsPerAudioMinute": 0.03720120225373955,
+      "byCaptureSequenceDiagnostics": {
+        "audio_mono-mic": {
+          "boundaryStateSwitchAgreement": 0.8753317599235474,
+          "evaluatedDurationSeconds": 1828.0728
+        },
+        "audio_mono-pickup_mix": {
+          "boundaryStateSwitchAgreement": 0.8714741149112293,
+          "evaluatedDurationSeconds": 1828.0728
+        }
+      }
+    }
+  ],
+  "sequenceDiagnostics": {
+    "v1-objective": {
+      "audio_mono-mic": {
+        "boundaryStateSwitchAgreement": 0.8635493675380805
+      },
+      "audio_mono-pickup_mix": {
+        "boundaryStateSwitchAgreement": 0.85882291867085
+      }
+    },
+    "longer-context": {
+      "audio_mono-mic": {
+        "boundaryStateSwitchAgreement": 0.7800166346976659
+      },
+      "audio_mono-pickup_mix": {
+        "boundaryStateSwitchAgreement": 0.7800362692108002
+      }
+    },
+    "duration-objective": {
+      "audio_mono-mic": {
+        "boundaryStateSwitchAgreement": 0.7824597777086256
+      },
+      "audio_mono-pickup_mix": {
+        "boundaryStateSwitchAgreement": 0.7813376341494641
+      }
+    },
+    "boundary-switch-objective": {
+      "audio_mono-mic": {
+        "boundaryStateSwitchAgreement": 0.7872205829110246
+      },
+      "audio_mono-pickup_mix": {
+        "boundaryStateSwitchAgreement": 0.7905984502600057
+      }
+    },
+    "full-objective-unsmoothed": {
+      "audio_mono-mic": {
+        "boundaryStateSwitchAgreement": 0.7934066754034836
+      },
+      "audio_mono-pickup_mix": {
+        "boundaryStateSwitchAgreement": 0.796053226133678
+      }
+    },
+    "full-v2": {
+      "audio_mono-mic": {
+        "boundaryStateSwitchAgreement": 0.8801085479169765
+      },
+      "audio_mono-pickup_mix": {
+        "boundaryStateSwitchAgreement": 0.878384933229573
+      }
+    }
+  },
+  "methodologicalLimitations": [
+    "All p01-p05 performers overlap learned-model development; this is integration-domain development evidence.",
+    "GuitarSet contains solo guitar, not a legally licensed artist-disjoint full-band benchmark.",
+    "The p00 performer was not accessed because no v2 candidate passed the frozen replacement gates."
+  ]
+}

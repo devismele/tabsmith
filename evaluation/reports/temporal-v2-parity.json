@@ -1,0 +1,8 @@
+{
+  "runCount": 30,
+  "allPythonOnnxPassed": true,
+  "allTypeScriptPassed": true,
+  "maximumPythonOnnxError": 1.0728836059570312e-05,
+  "maximumTypeScriptError": 3.823646775913403e-05,
+  "tolerance": 0.0001
+}

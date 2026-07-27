@@ -133,6 +133,26 @@ Each trained candidate must pass PyTorch/ONNX parity and the actual TypeScript
 TCN forward path. Reports contain portable IDs and checksums, never local paths.
 No candidate is selected automatically.
 
+After a complete run, generate the portable ablation and frozen-decision reports:
+
+```powershell
+npm run report:temporal-v2
+```
+
+Checkpoint reproduction, runtime, and the fixed probability-smoothing diagnostics
+require the same local p01-p05 GuitarSet paths used by the ablation:
+
+```powershell
+.\.venv\Scripts\python.exe -m ml.evaluation.temporal_v2_report `
+  --run-checkpoint-diagnostics `
+  --annotations $env:TABSMITH_GUITARSET_ANNOTATIONS `
+  --mic-audio $env:TABSMITH_GUITARSET_MIC_AUDIO `
+  --pickup-audio $env:TABSMITH_GUITARSET_PICKUP_AUDIO
+```
+
+This reporter refuses incomplete matrices or p00-contaminated results. Its
+smoothing table is diagnostic only and cannot select a candidate.
+
 ## Replacement gates
 
 A v2 candidate may replace v1 only when both captures show:
