@@ -46,7 +46,68 @@ in `TABSMITH_GUITARSET_ANNOTATIONS`, `TABSMITH_GUITARSET_MIC_AUDIO` and
 `TABSMITH_GUITARSET_PICKUP_AUDIO`; without them that one check reports
 `skipped` rather than failing the reconciliation.
 
+## Headline finding so far
+
+**The boundary head is not the problem.** The Phase 5 diagnosis initially
+measured the boundary channel only *after* full-v2's EMA smoothing
+(`boundaryAlpha` 0.35). Measured on the raw head output:
+
+| capture | channel | best F1 | at threshold | F1 @ 0.50 | ECE |
+|---|---|---|---|---|---|
+| mic | smoothed | 0.7696 | 0.25 | 0.4361 | 0.0520 |
+| mic | **raw** | **0.8170** | **0.50** | **0.8170** | 0.0370 |
+| pickup | smoothed | 0.7689 | 0.25 | 0.4432 | 0.0503 |
+| pickup | **raw** | **0.8194** | **0.50** | **0.8194** | 0.0363 |
+
+On the raw channel the natural 0.50 threshold is already optimal and no
+diagnostic finding triggers at all. The apparent "recall starvation", "poor
+thresholding" and low head agreement (0.27) are artifacts of the smoothing
+stage flattening boundary peaks while peak-picking stayed at 0.50 — not of a
+weak or miscalibrated head. `segmental-full` already consumes the raw channel.
+
+Accordingly, post-hoc calibration is nearly inert on decoded output: isotonic
+cuts ECE tenfold (0.037 → 0.0035) but moves `segmental-full` fragmentation only
+0.6486 → 0.6461 (mic) and 0.6481 → 0.6481 (pickup). The binding constraint in
+every configuration measured so far is fragmentation against the 0.635 gate,
+which is a chord-posterior/decoder property rather than a boundary one.
+
 ## Status
 
-Phase 4 (reconciliation) and Phase 5 (diagnosis) complete — see
-`evaluation/reports/boundary-v3-diagnosis.md`.
+- Phase 4 reconciliation: **complete and passing** (`boundary-v3-diagnosis.md`).
+- Phase 5 diagnosis: **complete**, including the raw-vs-smoothed correction.
+- Phase 6/7 freeze: **committed before any candidate was trained** (`f9f6197`).
+- Phase 8 smoke: **passed** (finite losses, all four heads training, checkpoint
+  save/resume, ONNX export, TypeScript parity, resume-identity guard verified
+  in both directions).
+- Phase 9 evaluation: **implemented and validated** on the two candidates that
+  need no training. `full-v2-control` reproduces both frozen baselines exactly;
+  `calibrated-boundary` is ineligible (fragmentation 0.6461 > 0.635 on mic,
+  regions/minute 20.920 > 20.75 on pickup).
+- Retrained candidates (`precision-boundary-loss`, `agreement-coupled`):
+  **running**, 10 fold-runs at roughly 80 minutes each on 12 CPU cores.
+- Phase 10 freeze decision: **blocked** on those runs. p00 remains sealed.
+
+## Resuming an interrupted run
+
+Training is resumable at (fold, candidate) granularity. Re-running the same
+command skips completed runs; a changed candidate config changes the frozen
+run identity and the harness refuses to reuse the stale checkpoint rather than
+silently continuing onto it.
+
+```powershell
+# 1. finish/resume training (safe to re-run at any time)
+.\.venv\Scripts\python.exe -m ml.evaluation.boundary.train_candidates `
+  --run-dir ml\runs\boundary-calibration-v3
+
+# 2. build each retrained candidate's inference cache (resumable)
+.\.venv\Scripts\python.exe -m ml.evaluation.boundary.build_caches `
+  --run-dir ml\runs\boundary-calibration-v3
+
+# 3. evaluate all candidates and apply the frozen gates
+.\.venv\Scripts\python.exe -m ml.evaluation.boundary.run_study `
+  --run-dir ml\runs\boundary-calibration-v3
+```
+
+All three need `TABSMITH_GUITARSET_ANNOTATIONS`, `TABSMITH_GUITARSET_MIC_AUDIO`
+and `TABSMITH_GUITARSET_PICKUP_AUDIO` set. Step 3 reports a candidate whose
+cache is missing rather than silently omitting it.
