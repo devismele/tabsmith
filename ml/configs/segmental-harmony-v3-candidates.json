@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "candidateSetId": "segmental-harmony-v3-frozen-20260727",
+  "baseModel": "full-v2",
+  "objective": "Preserve full-v2 chord/boundary accuracy while removing false or unsupported chord changes, decoder-only (no retraining).",
+  "parameterPolicy": "Scalar switch/duration/boundary dials below are frozen a-priori and are NOT tuned on p01-p05 development metrics. Data-derived parameters (minimum dwell, segment minimum, confirmation frames, flicker thresholds) are computed at evaluation time from OTHER model-selection performers only (never the held-out fold, never p00) via ml.evaluation.segmental.priors.",
+  "candidates": [
+    {
+      "id": "full-v2-existing",
+      "kind": "existing",
+      "description": "Frozen full-v2 decoder: EMA probability smoothing (alpha 0.65, boundaryAlpha 0.35) then uniform-penalty Viterbi at the production-parity transition penalty 4.0. Reference point, not a replacement candidate; reproduces the frozen full-v2 aggregate.",
+      "smoothing": {"method": "ema", "alpha": 0.65, "boundaryAlpha": 0.35},
+      "knobs": {"transitionPenalty": 4.0}
+    },
+    {
+      "id": "duration-viterbi",
+      "kind": "duration-viterbi",
+      "description": "Duration-constrained Viterbi: stickier base cost plus a soft short-dwell penalty ramping to zero by the 25th-percentile reference chord duration.",
+      "knobs": {"transitionPenalty": 6.0, "useDuration": true, "durationPenalty": 4.0, "maxMinDwellSeconds": 1.0}
+    },
+    {
+      "id": "boundary-gated-viterbi",
+      "kind": "boundary-gated-viterbi",
+      "description": "Boundary-gated Viterbi: switch cost reduced by boundary evidence but never below a floor, so the boundary head cannot force a transition alone.",
+      "knobs": {"transitionPenalty": 6.0, "useBoundary": true, "boundaryGain": 3.0, "switchCostFloor": 2.0}
+    },
+    {
+      "id": "duration-boundary-viterbi",
+      "kind": "duration-boundary-viterbi",
+      "description": "Duration constraint plus boundary gating combined.",
+      "knobs": {"transitionPenalty": 6.0, "useDuration": true, "durationPenalty": 4.0, "maxMinDwellSeconds": 1.0, "useBoundary": true, "boundaryGain": 3.0, "switchCostFloor": 2.0}
+    },
+    {
+      "id": "semi-markov-chord",
+      "kind": "semi-markov-chord",
+      "description": "Semi-Markov segment decoder: one chord explains a whole bounded segment; short-segment duration prior from other-performer reference durations.",
+      "knobs": {"segmentSwitchPenalty": 8.0, "maxSegmentFrames": 40, "useSegmentDuration": true, "segmentDurationPenalty": 4.0, "maxSegmentMinSeconds": 0.75}
+    },
+    {
+      "id": "semi-markov-chord-boundary",
+      "kind": "semi-markov-chord-boundary",
+      "description": "Semi-Markov segment decoder with boundary-gated segment starts.",
+      "knobs": {"segmentSwitchPenalty": 8.0, "maxSegmentFrames": 40, "useSegmentDuration": true, "segmentDurationPenalty": 4.0, "maxSegmentMinSeconds": 0.75, "useBoundary": true, "boundaryGain": 3.0, "switchCostFloor": 2.0}
+    },
+    {
+      "id": "segmental-full",
+      "kind": "segmental-full",
+      "description": "Full segmental decoder: semi-Markov chord+boundary decode, chord-evidence confirmation, and flicker reconciliation (merge unsupported A->B->A only).",
+      "knobs": {"segmentSwitchPenalty": 8.0, "maxSegmentFrames": 40, "useSegmentDuration": true, "segmentDurationPenalty": 4.0, "maxSegmentMinSeconds": 0.75, "useBoundary": true, "boundaryGain": 3.0, "switchCostFloor": 2.0, "useConfirm": true, "confirmMass": 2.0, "useFlicker": true}
+    }
+  ]
+}
