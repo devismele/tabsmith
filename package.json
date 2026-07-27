@@ -37,6 +37,8 @@
     "ablate:temporal-v2": "python -m ml.evaluation.temporal_v2_ablation",
     "report:temporal-v2": "python -m ml.evaluation.temporal_v2_report",
     "verify:temporal-v2-parity": "vite-node evaluation/verify-temporal-v2-parity.ts --weights src/learnedHarmony/model/app-chord-model.weights.json",
+    "readiness:full-band": "python -m ml.full_band.readiness",
+    "split:full-band": "python -m ml.full_band.freeze_splits",
     "evaluate:chord-section": "vite-node scripts/chord-section-ablation.ts",
     "evaluate:chord-redecode": "vite-node scripts/chord-section-redecode.ts"
   },

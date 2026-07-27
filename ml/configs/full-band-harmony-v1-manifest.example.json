@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "full-band-dataset-not-configured",
+  "datasetVersion": "not-configured",
+  "license": {
+    "status": "unverified",
+    "licenseId": "not-configured",
+    "licenseUrl": "urn:tabsmith:license-not-configured",
+    "permittedUses": [],
+    "attribution": "Not configured.",
+    "verifiedBy": "",
+    "verifiedAt": "",
+    "audioRedistributionAllowed": false,
+    "modelArtifactDistributionAllowed": false
+  },
+  "provenance": {
+    "sourceUrl": "urn:tabsmith:dataset-not-configured",
+    "distributionId": "not-configured",
+    "acquisitionMethod": "user-supplied",
+    "archiveChecksums": {}
+  },
+  "tracks": [],
+  "splitPolicy": {
+    "strategy": "connected-composition-artist-group-duration-balance",
+    "seed": 20260727,
+    "ratios": {
+      "training": 0.7,
+      "development": 0.15,
+      "validation": 0.05,
+      "test": 0.1
+    }
+  },
+  "notes": [
+    "Template only. It authorizes no data use or training.",
+    "Copy this file outside Git, record a verified license and archive checksums, and use only portable relative audio paths.",
+    "Do not add commercial recordings, absolute local paths, credentials, or private data to the repository."
+  ]
+}

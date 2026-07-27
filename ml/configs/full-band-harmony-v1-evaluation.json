@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "full-band-harmony-v1-paired-view-baselines-20260727",
+  "status": "planned-data-gate-blocked",
+  "engines": [
+    "rule-v3",
+    "v1-ml-only",
+    "v1-hybrid"
+  ],
+  "inputViews": [
+    "full-mix",
+    "harmony-stem",
+    "guitar-stem",
+    "guitar-plus-bass"
+  ],
+  "pairingKeys": [
+    "trackId",
+    "recordingId",
+    "compositionId"
+  ],
+  "harmonyMetrics": [
+    "rootAccuracy",
+    "majorMinorAccuracy",
+    "detailedAccuracy",
+    "noChordPrecision",
+    "noChordRecall",
+    "noChordF1",
+    "fragmentationRate",
+    "regionsPerMinute",
+    "boundaryMeanAbsoluteErrorMs",
+    "boundaryMedianAbsoluteErrorMs"
+  ],
+  "downstreamMetrics": [
+    "noteAccuracy",
+    "tabAccuracy",
+    "tuningAccuracy",
+    "playableStringAssignmentAccuracy"
+  ],
+  "sourceSeparationComparisons": [
+    {
+      "comparisonId": "full-mix-vs-harmony-stem",
+      "referenceInputView": "full-mix",
+      "candidateInputView": "harmony-stem"
+    },
+    {
+      "comparisonId": "full-mix-vs-guitar-stem",
+      "referenceInputView": "full-mix",
+      "candidateInputView": "guitar-stem"
+    },
+    {
+      "comparisonId": "full-mix-vs-guitar-plus-bass",
+      "referenceInputView": "full-mix",
+      "candidateInputView": "guitar-plus-bass"
+    }
+  ],
+  "statistics": {
+    "unit": "composition-group",
+    "pairedCaptures": true,
+    "alternateViewsAreIndependentSongs": false,
+    "bootstrapSeed": 20260727,
+    "bootstrapIterations": 10000
+  },
+  "gates": {
+    "sameTracksAndDurationsAcrossViews": true,
+    "zeroUnexpectedFallback": true,
+    "untouchedArtistCompositionTestSet": true,
+    "fullBandRequiredForPromotion": true
+  },
+  "notes": [
+    "This protocol authorizes no data download, training, production mutation, or model promotion.",
+    "Oracle and separator-output stems must be labelled separately by manifest view origin.",
+    "A cleaner-sounding stem is not a win unless paired downstream metrics improve."
+  ]
+}

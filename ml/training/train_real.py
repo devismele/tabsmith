@@ -1,8 +1,10 @@
 """Real-data training: python -m ml.training.train_real --guitarset-dir <path>
 
 Trains the temporal baseline on **real** licensed data (GuitarSet audio and/or
-McGill Billboard features) instead of synthetic audio. Uses artist/player-level
-splits so no performer crosses train/dev, and holds out validation/test.
+McGill Billboard features) instead of synthetic audio. Strict, portable
+full-band manifests may also provide alternate raw-audio views. Uses
+artist/player-level splits so no performer crosses train/dev, and holds out
+validation/test.
 
 This is still an EXPERIMENTAL, non-shipping model: it must beat the production
 `harmonic-context-v3` baseline on held-out real data (via the offline three-way
@@ -19,6 +21,7 @@ from .dataset import make_samples_from_tracks
 from .train import fit_samples
 from ..preprocessing.import_billboard import scan_billboard_dir
 from ..preprocessing.import_guitarset import scan_guitarset_dir
+from ..full_band.loader import load_full_band_training_tracks
 from ..schema import Track
 from ..splits.make_splits import _artist_key, _hash_split, build_split_assignment
 
@@ -28,7 +31,10 @@ DEFAULT_CHECKPOINT = ML_ROOT / "checkpoints" / "temporal-baseline-real-v0.pt"
 
 
 def gather_tracks(guitarset_dir: str | None, billboard_dir: str | None,
-                  billboard_limit: int | None = None) -> list[Track]:
+                  billboard_limit: int | None = None,
+                  full_band_manifest: str | None = None,
+                  full_band_root: str | None = None,
+                  full_band_views: tuple[str, ...] = ("full-mix",)) -> list[Track]:
     tracks: list[Track] = []
     if guitarset_dir:
         tracks += [t for t in scan_guitarset_dir(guitarset_dir) if t.is_trainable()]
@@ -40,6 +46,17 @@ def gather_tracks(guitarset_dir: str | None, billboard_dir: str | None,
             stride = len(bb) / billboard_limit
             bb = [bb[int(i * stride)] for i in range(billboard_limit)]
         tracks += bb
+    if full_band_manifest or full_band_root:
+        if not full_band_manifest or not full_band_root:
+            raise ValueError(
+                "full-band training requires both manifest and local data root"
+            )
+        tracks += load_full_band_training_tracks(
+            full_band_manifest,
+            data_root=full_band_root,
+            views=full_band_views,
+            require_files=True,
+        )
     return tracks
 
 
@@ -49,7 +66,11 @@ def partition(tracks: list[Track], seed: int, cap: int | None) -> tuple[list[Tra
     # Pre-assign each artist/player a deterministic hash split so it is honored
     # consistently (build_split_assignment then still runs leakage detection).
     for t in tracks:
-        t.split = _hash_split(_artist_key(t.artist), seed)
+        # Approved full-band manifests carry a frozen composition/artist-aware
+        # assignment. Preserve it; GuitarSet/Billboard keep their existing
+        # deterministic artist-hash behavior.
+        if not t.source.startswith("full-band:"):
+            t.split = _hash_split(_artist_key(t.artist), seed)
     assignment = build_split_assignment(tracks, seed)
     track_split = assignment["trackSplit"]
     train = [t for t in tracks if track_split.get(t.track_id) == "training"]
@@ -63,6 +84,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Train the temporal baseline on real licensed data.")
     parser.add_argument("--guitarset-dir", default=None)
     parser.add_argument("--billboard-dir", default=None)
+    parser.add_argument("--full-band-manifest", default=None)
+    parser.add_argument("--full-band-root", default=None)
+    parser.add_argument(
+        "--full-band-views",
+        default="full-mix",
+        help=(
+            "Comma-separated approved views (full-mix,harmony-stem,"
+            "guitar-stem,guitar-plus-bass). Alternate views remain paired by "
+            "the manifest split."
+        ),
+    )
     parser.add_argument("--config", default=str(DEFAULT_CONFIG))
     parser.add_argument("--checkpoint", default=str(DEFAULT_CHECKPOINT))
     parser.add_argument("--epochs", type=int, default=None)
@@ -80,8 +112,12 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
 
-    if not args.guitarset_dir and not args.billboard_dir:
-        parser.error("provide at least one of --guitarset-dir / --billboard-dir")
+    if not args.guitarset_dir and not args.billboard_dir and not args.full_band_manifest:
+        parser.error(
+            "provide GuitarSet, Billboard, or a verified full-band manifest"
+        )
+    if bool(args.full_band_manifest) != bool(args.full_band_root):
+        parser.error("--full-band-manifest and --full-band-root must be supplied together")
 
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
     if args.epochs is not None:
@@ -91,7 +127,17 @@ def main() -> None:
     seed = int(config.get("seed", 20260723))
     tolerance = float(config["labels"]["boundaryToleranceSeconds"])
 
-    tracks = gather_tracks(args.guitarset_dir, args.billboard_dir, args.billboard_limit)
+    full_band_views = tuple(
+        view.strip() for view in args.full_band_views.split(",") if view.strip()
+    )
+    tracks = gather_tracks(
+        args.guitarset_dir,
+        args.billboard_dir,
+        args.billboard_limit,
+        args.full_band_manifest,
+        args.full_band_root,
+        full_band_views,
+    )
     if not tracks:
         parser.error("no trainable tracks found — check the acquired data paths")
     train_tracks, dev_tracks, assignment = partition(tracks, seed, args.max_tracks_per_split)
