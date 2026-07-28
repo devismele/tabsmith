@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "full-band-pilot-v1-20260728",
+  "frozenBefore": "any pilot training run was started",
+  "gateSet": "full-band-pilot-gates-20260727",
+  "baselineBasis": "evaluation/reports/full-band-source-view-baselines.md",
+  "strategy": {
+    "id": "mixed-domain-finetune-from-v1-with-guitarset-rehearsal",
+    "description": "Fine-tune the v1 checkpoint on a mixture of GuitarSet solo-guitar batches (rehearsal) and Slakh full-band batches (new domain), keeping the v1 objective and the four exported heads unchanged.",
+    "rationale": [
+      "Measured: the rule engine reaches 0.519 detailed accuracy on full-band audio while v1 reaches 0.255 and full-v2 0.278. The learned models do not transfer from solo guitar to dense mixtures, and that transfer gap - not decoding - is the bottleneck worth attacking.",
+      "Measured: perfect harmonic separation buys only +0.007 to +0.043 detailed accuracy, and isolating the guitar stem COSTS every engine (-0.03 to -0.17). Effort therefore belongs in the chord model, not in separation or in a guitar-isolating front end.",
+      "Measured: full-v2's no-chord head is inert on full-band audio (P/R/F1 all near 0.01 on every view) while v1 retains 0.34-0.42 F1. Starting from v1 rather than full-v2 keeps a working no-chord head, which the full-band gates require.",
+      "Rehearsal is required because GuitarSet preservation is a hard gate: a full-band model that forgets solo guitar is not an improvement to the actual product use case."
+    ],
+    "rejectedAlternatives": [
+      {
+        "id": "separation-front-end",
+        "reason": "Oracle separation gains are within +0.04 detailed accuracy; the oracle-guitar view is actively worse than the full mix. Improving separation cannot close a 0.26 gap."
+      },
+      {
+        "id": "finetune-from-full-v2",
+        "reason": "full-v2's no-chord head does not survive the domain shift (F1 ~0.01). Starting there would inherit a broken head that the full-band no-chord gate depends on."
+      },
+      {
+        "id": "curriculum-clean-to-mixture",
+        "reason": "Defensible, but it adds a schedule hyperparameter that CPU-only budget cannot afford to validate, and the oracle-vs-mix gap it exploits is measured to be small."
+      },
+      {
+        "id": "train-from-scratch-on-slakh",
+        "reason": "Guarantees GuitarSet regression beyond the frozen preservation gates and cannot be recovered within one CPU pilot."
+      }
+    ]
+  },
+  "domainSampling": {
+    "guitarSetFraction": 0.5,
+    "slakhFraction": 0.5,
+    "note": "Frozen before any pilot result. An even split is the least-assumption choice that keeps the preservation gate reachable while giving the new domain equal weight.",
+    "slakhViews": ["full-mix", "oracle-harmonic"],
+    "slakhViewNote": "Guitar-only views are excluded deliberately: they measured WORSE than the full mix for every engine, so training on them would optimise for a view that carries less harmonic context.",
+    "guitarSetPerformers": ["guitarset-p01", "guitarset-p02", "guitarset-p03", "guitarset-p04", "guitarset-p05"],
+    "guitarSetCaptures": ["audio_mono-mic", "audio_mono-pickup_mix"]
+  },
+  "candidates": [
+    {
+      "id": "mixed-domain-finetune",
+      "role": "primary",
+      "initFrom": "v1",
+      "trainingOverrides": {
+        "epochs": 12,
+        "learningRate": 0.0005,
+        "earlyStoppingPatience": 4
+      },
+      "note": "Reduced learning rate because this is a fine-tune from a converged checkpoint, not a fresh run."
+    },
+    {
+      "id": "guitarset-only-control",
+      "role": "control",
+      "initFrom": "v1",
+      "trainingOverrides": {
+        "epochs": 12,
+        "learningRate": 0.0005,
+        "earlyStoppingPatience": 4
+      },
+      "note": "Same schedule, GuitarSet batches only. Separates the effect of continued training from the effect of adding the full-band domain."
+    }
+  ],
+  "cpuBudget": {
+    "primaryCandidates": 1,
+    "controls": 1,
+    "pilotCompositions": 120,
+    "pilotDurationHours": 7.97,
+    "resumable": true,
+    "checkpointEveryEpoch": true,
+    "singleHeavyJobAtATime": true,
+    "note": "Must not start while the boundary-calibration study is still training."
+  },
+  "evaluation": {
+    "fullBandDevelopment": "Slakh validation split only; the untouched test split is never used for selection.",
+    "guitarSetPreservation": "p01-p05 leave-one-performer-out development metrics, both captures; p00 stays sealed.",
+    "reportBy": ["source view", "guitar presence", "instrument family"]
+  },
+  "knownLimitations": [
+    "Reference labels are note-level (~0.6 s mean region, ~100 regions/minute vs ~20 for GuitarSet human annotations). Accuracy and no-chord metrics are meaningful; the frozen full-band fragmentation gate cannot honestly be applied to them and will be reported as not-evaluable rather than passed.",
+    "The percussion-only control is scored against harmonic labels rather than an all-no-chord reference, so the frozen noChordRecallMinimum gate cannot be evaluated as written.",
+    "Slakh renders a guitar in 1707 of 1709 usable tracks, so guitar-absent behaviour can only be read from the guitar-absent-harmonic view, not from a natural subset.",
+    "Slakh2100 is rendered from MIDI. Even a fully passing pilot is synthetic-domain evidence and does not establish production readiness."
+  ]
+}
