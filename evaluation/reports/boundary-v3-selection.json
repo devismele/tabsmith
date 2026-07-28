@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "decision": "retain-v1",
+  "selectedCandidate": null,
+  "eligibleCandidates": [],
+  "eligibleCandidateCount": 0,
+  "candidateSetId": "boundary-calibration-v3-frozen-20260727",
+  "candidateManifestChecksum": "ea196afd25fa9875b310cc6c2f8b1c7582335023c2ad2474ae198b579185901c",
+  "gateSetId": "boundary-calibration-v3-gates-20260727",
+  "gateSetChecksum": "b91b2d88dbd0a07c26f51d26cabb16e025dd2b0538a9f23825d651b2dfc6212e",
+  "resultsChecksum": "44dbf696457736adee5e5995943279062571f377eaff641b5d9fb9f61c0c7017",
+  "p00Accessed": false,
+  "p00Sealed": true,
+  "productionWeightsReplaced": false,
+  "applicationDefaultsChanged": false,
+  "releaseGatingChanged": false,
+  "gateOutcomes": {
+    "calibrated-boundary": {
+      "eligible": false,
+      "failedGates": [
+        "fragmentationRateMaximum@audio_mono-mic",
+        "falseLongMateriallyLower@audio_mono-mic",
+        "boundaryPrecisionMateriallyImproves@audio_mono-mic",
+        "stateChangeBoundaryAgreementImproves@audio_mono-mic",
+        "fragmentationRateMaximum@audio_mono-pickup_mix",
+        "regionsPerMinuteMaximum@audio_mono-pickup_mix",
+        "falseLongMateriallyLower@audio_mono-pickup_mix",
+        "boundaryPrecisionMateriallyImproves@audio_mono-pickup_mix",
+        "stateChangeBoundaryAgreementImproves@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "fragmentationRateMaximum on audio_mono-mic: measured 0.6461 vs required 0.635"
+    },
+    "precision-boundary-loss": {
+      "eligible": false,
+      "failedGates": [
+        "fragmentationRateMaximum@audio_mono-mic",
+        "flickerBelowFullV2@audio_mono-mic",
+        "falseLongMateriallyLower@audio_mono-mic",
+        "boundaryPrecisionMateriallyImproves@audio_mono-mic",
+        "boundaryRecallDoesNotCollapse@audio_mono-mic",
+        "stateChangeBoundaryAgreementImproves@audio_mono-mic",
+        "falseLongMateriallyLower@audio_mono-pickup_mix",
+        "boundaryPrecisionMateriallyImproves@audio_mono-pickup_mix",
+        "boundaryRecallDoesNotCollapse@audio_mono-pickup_mix",
+        "stateChangeBoundaryAgreementImproves@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "fragmentationRateMaximum on audio_mono-mic: measured 0.6358 vs required 0.635"
+    },
+    "agreement-coupled": {
+      "eligible": false,
+      "failedGates": [
+        "fragmentationRateMaximum@audio_mono-mic",
+        "regionsPerMinuteMaximum@audio_mono-mic",
+        "stateChangeBoundaryAgreementImproves@audio_mono-mic",
+        "fragmentationRateMaximum@audio_mono-pickup_mix",
+        "regionsPerMinuteMaximum@audio_mono-pickup_mix",
+        "flickerBelowFullV2@audio_mono-pickup_mix",
+        "stateChangeBoundaryAgreementImproves@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "fragmentationRateMaximum on audio_mono-mic: measured 0.6628 vs required 0.635"
+    }
+  },
+  "retained": "v1",
+  "nextStep": "p00 remains sealed. No replacement model is exported and no production weight, application default or release gate changes."
+}
