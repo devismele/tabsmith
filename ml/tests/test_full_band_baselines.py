@@ -58,10 +58,18 @@ class EngineConstructionTests(unittest.TestCase):
     def test_rule_engine_is_always_available(self):
         engines = build_engines({})
         self.assertIn("rule-v3", engines)
+        _predict, pipeline = engines["rule-v3"]
+        self.assertEqual(pipeline, "harmony-features-v1")
 
     def test_missing_checkpoints_are_skipped_not_fatal(self):
         engines = build_engines({"v1-ml": Path("does/not/exist.pt")})
         self.assertEqual(list(engines), ["rule-v3"])
+
+    def test_engines_carry_a_feature_pipeline(self):
+        """Regression: a model fed the wrong pipeline is silently understated."""
+        for entry in build_engines({}).values():
+            self.assertEqual(len(entry), 2)
+            self.assertIsInstance(entry[1], str)
 
 
 class TrackViewEvaluationTests(unittest.TestCase):
@@ -102,7 +110,7 @@ class TrackViewEvaluationTests(unittest.TestCase):
 
             results = evaluate_track_views(
                 root, _metadata(classes), [ChordRegion(0.0, 2.0, "C:maj")],
-                {"broken": broken}, track_id="T", has_guitar=True)
+                {"broken": (broken, "harmony-features-v1")}, track_id="T", has_guitar=True)
             self.assertTrue(results)
             self.assertTrue(all(r.fell_back for r in results))
 

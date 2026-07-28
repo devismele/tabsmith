@@ -57,31 +57,43 @@ def _features(audio: np.ndarray, sample_rate: int, pipeline: str):
     return extract_features(audio, sample_rate)
 
 
-def build_engines(checkpoints: dict[str, Path], *,
-                  transition_penalty: float = 4.0) -> dict[str, Callable]:
-    """Engine id -> ``predict(features) -> [ChordRegion]``.
+DEFAULT_PIPELINE = "numpy-chroma-v1"
 
-    A checkpoint that is absent is simply not offered as an engine, so a
-    partial local checkout still produces a usable rule-vs-learned comparison
-    instead of failing outright.
+
+def build_engines(checkpoints: dict[str, Path], *,
+                  transition_penalty: float = 4.0,
+                  rule_pipeline: str = "harmony-features-v1") -> dict[str, tuple[Callable, str]]:
+    """Engine id -> ``(predict(features) -> [ChordRegion], feature pipeline)``.
+
+    Each learned engine carries **its own checkpoint's** feature pipeline. v1 was
+    trained on ``numpy-chroma-v1`` while temporal-v2 models use
+    ``harmony-features-v1``; feeding a model the other pipeline silently changes
+    its input distribution and understates it, so the pipeline is read from the
+    checkpoint metadata rather than assumed globally.
+
+    A checkpoint that is absent is simply not offered as an engine, so a partial
+    local checkout still produces a usable rule-vs-learned comparison.
     """
     from ..evaluation.adapters import predict_hybrid, predict_ml, predict_rule
     from ..training.checkpoint import load_checkpoint
 
-    engines: dict[str, Callable] = {"rule-v3": predict_rule}
+    engines: dict[str, tuple[Callable, str]] = {"rule-v3": (predict_rule, rule_pipeline)}
     for engine_id, path in checkpoints.items():
         path = Path(path)
         if not path.exists():
             continue
-        model, _metadata = load_checkpoint(path)
+        model, metadata = load_checkpoint(path)
+        pipeline = (metadata.get("featureVersion")
+                    or metadata.get("trainingConfig", {}).get("features", {}).get(
+                        "pipelineVersion")
+                    or DEFAULT_PIPELINE)
         if engine_id.endswith("-hybrid"):
-            engines[engine_id] = (
-                lambda features, m=model: predict_hybrid(
-                    m, features, transition_penalty=transition_penalty))
+            predict = (lambda features, m=model: predict_hybrid(
+                m, features, transition_penalty=transition_penalty))
         else:
-            engines[engine_id] = (
-                lambda features, m=model: predict_ml(
-                    m, features, transition_penalty=transition_penalty))
+            predict = (lambda features, m=model: predict_ml(
+                m, features, transition_penalty=transition_penalty))
+        engines[engine_id] = (predict, pipeline)
     return engines
 
 
@@ -89,23 +101,30 @@ def evaluate_track_views(
     track_dir: Path,
     metadata: dict[str, Any],
     reference_regions: list[Any],
-    engines: dict[str, Callable],
+    engines: dict[str, tuple[Callable, str]],
     *,
     track_id: str,
     has_guitar: bool,
     views: tuple[str, ...] = DEFAULT_VIEWS,
-    pipeline: str = "harmony-features-v1",
     sample_rate: int | None = 22050,
 ) -> list[EngineResult]:
-    """Score every engine on every available view of one track."""
+    """Score every engine on every available view of one track.
+
+    Features are extracted once per (view, pipeline) and shared by every engine
+    that uses that pipeline, so honouring per-engine pipelines does not multiply
+    the extraction cost by the engine count.
+    """
     results: list[EngineResult] = []
     for view in views:
         built = build_view(track_dir, metadata, view, sample_rate=sample_rate)
         if built is None:
             continue  # view genuinely absent for this track
         audio, rate = built
-        features = _features(audio, rate, pipeline)
-        for engine_id, predict in engines.items():
+        feature_cache: dict[str, Any] = {}
+        for engine_id, (predict, pipeline) in engines.items():
+            if pipeline not in feature_cache:
+                feature_cache[pipeline] = _features(audio, rate, pipeline)
+            features = feature_cache[pipeline]
             started = time.perf_counter()
             fell_back = False
             try:

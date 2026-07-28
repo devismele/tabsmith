@@ -49,7 +49,10 @@ def main() -> None:
     parser.add_argument("--views", nargs="*", default=list(DEFAULT_VIEWS))
     parser.add_argument("--v1-checkpoint", default=None)
     parser.add_argument("--full-v2-checkpoint", default=None)
-    parser.add_argument("--pipeline", default="harmony-features-v1")
+    parser.add_argument(
+        "--rule-pipeline", default="harmony-features-v1",
+        help="Feature pipeline for the rule engine. Learned engines always use "
+             "their own checkpoint's recorded pipeline and cannot be overridden.")
     args = parser.parse_args()
 
     root = Path(args.root)
@@ -64,8 +67,9 @@ def main() -> None:
         checkpoints["v1-hybrid"] = Path(args.v1_checkpoint)
     if args.full_v2_checkpoint:
         checkpoints["full-v2-ml"] = Path(args.full_v2_checkpoint)
-    engines = build_engines(checkpoints)
-    print(f"engines: {sorted(engines)}", flush=True)
+    engines = build_engines(checkpoints, rule_pipeline=args.rule_pipeline)
+    for engine_id, (_predict, pipeline) in sorted(engines.items()):
+        print(f"engine {engine_id:<14} pipeline {pipeline}", flush=True)
     print(f"pilot tracks: {len(track_ids)} (subset {pilot['checksum'][:16]}...)", flush=True)
 
     results = []
@@ -87,7 +91,7 @@ def main() -> None:
         results.extend(evaluate_track_views(
             track_dir, metadata, reference, engines,
             track_id=track_id, has_guitar="Guitar" in classes,
-            views=tuple(args.views), pipeline=args.pipeline))
+            views=tuple(args.views)))
         if index % 10 == 0:
             print(f"  {index}/{len(track_ids)} tracks at {time.time() - started:.0f}s", flush=True)
 
@@ -111,7 +115,7 @@ def main() -> None:
         "pilotChecksum": pilot["checksum"],
         "pilotTracks": len(track_ids),
         "skippedTracks": skipped,
-        "featurePipeline": args.pipeline,
+        "featurePipelines": {eid: pipe for eid, (_p, pipe) in engines.items()},
         "elapsedSeconds": round(time.time() - started, 1),
         "labelGranularityCaveat": (
             "Reference labels are note-level (mean region ~0.6 s, ~100 regions/min) "

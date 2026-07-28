@@ -36,6 +36,28 @@ DEFAULT_BASE_CONFIG = ML_ROOT / "configs" / "temporal-harmony-v2.json"
 DEFAULT_RUN_DIR = ML_ROOT / "runs" / "full-band-pilot-v1"
 
 
+def _base_config_from_checkpoint(checkpoint: Path) -> dict:
+    """Reconstruct the initialising model's own training configuration.
+
+    The frozen strategy says to fine-tune the v1 checkpoint *keeping the v1
+    objective*. v1 records its own feature pipeline (``numpy-chroma-v1``),
+    boundary tolerance (0.12 s) and loss weights, all of which differ from
+    temporal-v2's. Taking them from the checkpoint rather than from a v2 config
+    file is what makes "keep the v1 objective" true rather than merely stated:
+    feeding v1 a different feature pipeline silently changes its input
+    distribution, and adding v2's duration/switch/agreement terms changes the
+    objective it was trained under.
+    """
+    import torch
+
+    payload = torch.load(checkpoint, map_location="cpu", weights_only=False)
+    config = payload.get("metadata", {}).get("trainingConfig")
+    if not config or "training" not in config or "features" not in config:
+        raise SystemExit(
+            f"{checkpoint.name} has no usable trainingConfig; refusing to guess the objective")
+    return json.loads(json.dumps(config))
+
+
 def _dev_track_ids(root: Path) -> list[str]:
     manifest = root / "manifests" / "dev-extraction.json"
     if not manifest.exists():
@@ -64,6 +86,9 @@ def main() -> None:
     parser.add_argument("--root", required=True)
     parser.add_argument("--pilot-config", default=str(DEFAULT_PILOT))
     parser.add_argument("--base-config", default=str(DEFAULT_BASE_CONFIG))
+    parser.add_argument("--base-config-override", action="store_true",
+                        help="Use --base-config instead of the init checkpoint's own "
+                             "recorded objective. Deviates from the frozen strategy.")
     parser.add_argument("--prep-report", default=str(
         REPO_ROOT / "evaluation" / "reports" / "full-band-slakh-preparation.json"))
     parser.add_argument("--run-dir", default=str(DEFAULT_RUN_DIR))
@@ -75,7 +100,12 @@ def main() -> None:
     args = parser.parse_args()
 
     pilot_config = load_pilot_config(Path(args.pilot_config))
-    base_config = _read_json(args.base_config)
+    base_config = _base_config_from_checkpoint(Path(args.v1_checkpoint)) \
+        if not args.base_config_override else _read_json(args.base_config)
+    print(f"objective: {json.dumps(base_config['training'], sort_keys=True)}", flush=True)
+    print(f"features : {base_config['features']['pipelineVersion']}", flush=True)
+    print(f"labels   : boundaryTolerance={base_config['labels']['boundaryToleranceSeconds']}s",
+          flush=True)
     root = Path(args.root)
     run_dir = Path(args.run_dir).resolve()
     run_dir.mkdir(parents=True, exist_ok=True)

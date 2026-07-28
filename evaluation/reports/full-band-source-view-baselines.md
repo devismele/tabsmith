@@ -31,18 +31,18 @@ Both are reported rather than reinterpreted to become passable.
 | rule-v3 | guitar-plus-bass | 0.549 | 0.490 | 0.446 | 0.53 | 0.39 | 0.45 | 28.4 |
 | rule-v3 | guitar-absent-harmonic | 0.594 | 0.565 | 0.522 | 0.78 | 0.30 | 0.43 | 29.3 |
 | rule-v3 | percussion-only | 0.132 | 0.077 | 0.077 | 0.30 | 0.50 | 0.38 | 12.7 |
-| v1-ml | full-mix | 0.419 | 0.281 | 0.255 | 0.69 | 0.23 | 0.34 | 5.5 |
-| v1-ml | oracle-harmonic | 0.451 | 0.327 | 0.297 | 0.74 | 0.25 | 0.38 | 6.3 |
-| v1-ml | oracle-guitar | 0.370 | 0.248 | 0.223 | 0.43 | 0.41 | 0.42 | 5.8 |
-| v1-ml | guitar-plus-bass | 0.430 | 0.303 | 0.272 | 0.57 | 0.31 | 0.40 | 6.8 |
-| v1-ml | guitar-absent-harmonic | 0.457 | 0.343 | 0.310 | 0.73 | 0.27 | 0.40 | 6.8 |
-| v1-ml | percussion-only | 0.130 | 0.079 | 0.069 | 0.40 | 0.37 | 0.39 | 1.5 |
-| v1-hybrid | full-mix | 0.421 | 0.282 | 0.256 | 0.67 | 0.23 | 0.34 | 5.4 |
-| v1-hybrid | oracle-harmonic | 0.452 | 0.329 | 0.299 | 0.72 | 0.25 | 0.38 | 6.3 |
-| v1-hybrid | oracle-guitar | 0.370 | 0.248 | 0.223 | 0.42 | 0.42 | 0.42 | 5.7 |
-| v1-hybrid | guitar-plus-bass | 0.438 | 0.309 | 0.277 | 0.56 | 0.31 | 0.40 | 7.0 |
-| v1-hybrid | guitar-absent-harmonic | 0.460 | 0.347 | 0.313 | 0.72 | 0.27 | 0.40 | 6.7 |
-| v1-hybrid | percussion-only | 0.140 | 0.080 | 0.070 | 0.39 | 0.37 | 0.38 | 1.4 |
+| v1-ml | full-mix | 0.638 | 0.542 | 0.488 | 0.91 | 0.22 | 0.35 | 20.1 |
+| v1-ml | oracle-harmonic | 0.649 | 0.567 | 0.516 | 0.89 | 0.25 | 0.39 | 20.6 |
+| v1-ml | oracle-guitar | 0.499 | 0.403 | 0.358 | 0.49 | 0.41 | 0.45 | 17.9 |
+| v1-ml | guitar-plus-bass | 0.608 | 0.493 | 0.439 | 0.66 | 0.31 | 0.42 | 20.4 |
+| v1-ml | guitar-absent-harmonic | 0.640 | 0.560 | 0.508 | 0.83 | 0.27 | 0.41 | 20.8 |
+| v1-ml | percussion-only | 0.131 | 0.103 | 0.080 | 0.52 | 0.35 | 0.42 | 3.8 |
+| v1-hybrid | full-mix | 0.641 | 0.544 | 0.490 | 0.91 | 0.22 | 0.35 | 20.2 |
+| v1-hybrid | oracle-harmonic | 0.653 | 0.571 | 0.519 | 0.88 | 0.25 | 0.39 | 20.7 |
+| v1-hybrid | oracle-guitar | 0.499 | 0.403 | 0.357 | 0.49 | 0.41 | 0.44 | 18.0 |
+| v1-hybrid | guitar-plus-bass | 0.615 | 0.498 | 0.443 | 0.66 | 0.31 | 0.42 | 20.9 |
+| v1-hybrid | guitar-absent-harmonic | 0.645 | 0.566 | 0.512 | 0.83 | 0.27 | 0.41 | 20.9 |
+| v1-hybrid | percussion-only | 0.130 | 0.102 | 0.079 | 0.52 | 0.36 | 0.42 | 3.7 |
 | full-v2-ml | full-mix | 0.434 | 0.316 | 0.278 | 0.01 | 0.01 | 0.01 | 17.5 |
 | full-v2-ml | oracle-harmonic | 0.453 | 0.326 | 0.285 | 0.02 | 0.01 | 0.01 | 18.4 |
 | full-v2-ml | oracle-guitar | 0.353 | 0.258 | 0.226 | 0.02 | 0.00 | 0.00 | 16.8 |
@@ -55,8 +55,8 @@ Both are reported rather than reinterpreted to become passable.
 | engine | full mix | oracle harmonic | gain | oracle guitar | gain |
 |---|---|---|---|---|---|
 | rule-v3 | 0.519 | 0.532 | +0.013 | 0.352 | -0.167 |
-| v1-ml | 0.255 | 0.297 | +0.042 | 0.223 | -0.032 |
-| v1-hybrid | 0.256 | 0.299 | +0.043 | 0.223 | -0.033 |
+| v1-ml | 0.488 | 0.516 | +0.028 | 0.358 | -0.130 |
+| v1-hybrid | 0.490 | 0.519 | +0.029 | 0.357 | -0.133 |
 | full-v2-ml | 0.278 | 0.285 | +0.007 | 0.226 | -0.052 |
 
 Perfect harmonic separation buys between +0.007 and +0.043 detailed accuracy, and
@@ -76,12 +76,31 @@ of guitar dependence.
 
 ## Interpretation
 
-- The rule engine is roughly twice as accurate as every learned engine on
-  full-band audio (0.519 detailed vs 0.255-0.278).
-- v1 and full-v2 were trained exclusively on GuitarSet solo guitar and do not
-  transfer to dense mixtures. That is the gap a full-band pilot would target.
-- full-v2's no-chord head is effectively inert in this domain (P/R/F1 all around
-  0.01 on every view) while v1 retains 0.34-0.42 F1. Whatever full-v2 gained on
-  GuitarSet, its no-chord behaviour does not survive the domain shift.
+- **v1 transfers to full-band audio better than expected.** On the full mix it
+  reaches 0.488 detailed accuracy against the rule engine's 0.519, and it is
+  *ahead* on root accuracy (0.638 vs 0.590). The learned model is competitive,
+  not outclassed.
+- **full-v2 does not transfer.** At 0.278 detailed it is far behind both v1 and
+  the rule engine, on its own correct feature pipeline. Whatever it gained on
+  GuitarSet does not survive the domain shift.
+- **full-v2's no-chord head is effectively inert here** (P/R/F1 all around 0.01
+  on every view) while v1 retains ~0.35 F1.
+- **Separation is not the bottleneck.** Perfect harmonic separation is worth only
+  +0.007 to +0.029 detailed accuracy, and isolating the guitar stem costs every
+  engine (-0.05 to -0.17).
+
+### Correction notice
+
+An earlier version of this report scored every engine through one global feature
+pipeline. v1 was trained on `numpy-chroma-v1` but was being fed
+`harmony-features-v1`, which understated it badly: full-mix detailed accuracy was
+reported as 0.255 when it is actually 0.488, and root as 0.419 when it is 0.638.
+Each engine now uses the pipeline recorded in its own checkpoint.
+
+The earlier conclusion that 'the rule engine is roughly twice as accurate as every
+learned engine' was an artifact of that bug and is withdrawn. The corrected gap
+between the rule engine and v1 on the full mix is 0.031 detailed accuracy, not
+0.264 - which materially weakens the motivation for a full-band fine-tune, since
+there is far less headroom than the original numbers implied.
 
 Slakh2100 is rendered from MIDI. All of the above is synthetic-domain evidence.
