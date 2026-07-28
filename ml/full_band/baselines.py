@@ -125,11 +125,21 @@ def evaluate_track_views(
 
 
 def _weighted(rows: list[EngineResult], name: str) -> float:
-    total = sum(r.metrics.get("evaluatedDurationSeconds", 0.0) for r in rows)
+    """Duration-weighted mean, skipping rows where the metric is undefined.
+
+    Boundary metrics are ``None`` when a track produced no matched boundary, so
+    those rows carry no information for this metric and must be excluded from
+    both the numerator and the weight -- treating them as zero would silently
+    drag the average toward zero.
+    """
+    usable = [(r.metrics.get(name), r.metrics.get("evaluatedDurationSeconds", 0.0))
+              for r in rows]
+    usable = [(value, weight) for value, weight in usable
+              if value is not None and weight]
+    total = sum(weight for _value, weight in usable)
     if not total:
         return 0.0
-    return sum(r.metrics.get(name, 0.0) * r.metrics.get("evaluatedDurationSeconds", 0.0)
-               for r in rows) / total
+    return sum(value * weight for value, weight in usable) / total
 
 
 def aggregate(results: list[EngineResult]) -> dict[str, Any]:

@@ -1,0 +1,809 @@
+{
+  "schemaVersion": 1,
+  "views": [
+    "full-mix",
+    "oracle-harmonic",
+    "oracle-guitar",
+    "guitar-plus-bass",
+    "guitar-absent-harmonic",
+    "percussion-only"
+  ],
+  "aggregate": {
+    "byEngineView": {
+      "full-v2-ml": {
+        "full-mix": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4344,
+          "majorMinorAccuracy": 0.3162,
+          "detailedAccuracy": 0.278,
+          "noChordPrecision": 0.0142,
+          "noChordRecall": 0.0083,
+          "noChordF1": 0.0105,
+          "fragmentationRate": 0.2137,
+          "regionsPerMinute": 17.528,
+          "meanAbsoluteBoundaryErrorMs": 2329.2,
+          "runtimeSecondsPerAudioMinute": 0.0077,
+          "fallbackCount": 0
+        },
+        "guitar-absent-harmonic": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.447,
+          "majorMinorAccuracy": 0.3187,
+          "detailedAccuracy": 0.2776,
+          "noChordPrecision": 0.0199,
+          "noChordRecall": 0.0066,
+          "noChordF1": 0.0099,
+          "fragmentationRate": 0.2256,
+          "regionsPerMinute": 18.678,
+          "meanAbsoluteBoundaryErrorMs": 1589.3,
+          "runtimeSecondsPerAudioMinute": 0.0064,
+          "fallbackCount": 0
+        },
+        "guitar-plus-bass": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4296,
+          "majorMinorAccuracy": 0.3033,
+          "detailedAccuracy": 0.2628,
+          "noChordPrecision": 0.0182,
+          "noChordRecall": 0.0007,
+          "noChordF1": 0.0013,
+          "fragmentationRate": 0.227,
+          "regionsPerMinute": 18.944,
+          "meanAbsoluteBoundaryErrorMs": 1752.7,
+          "runtimeSecondsPerAudioMinute": 0.0071,
+          "fallbackCount": 0
+        },
+        "oracle-guitar": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.3527,
+          "majorMinorAccuracy": 0.2581,
+          "detailedAccuracy": 0.2259,
+          "noChordPrecision": 0.0175,
+          "noChordRecall": 0.0019,
+          "noChordF1": 0.0034,
+          "fragmentationRate": 0.1997,
+          "regionsPerMinute": 16.76,
+          "meanAbsoluteBoundaryErrorMs": 2695.5,
+          "runtimeSecondsPerAudioMinute": 0.006,
+          "fallbackCount": 0
+        },
+        "oracle-harmonic": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4526,
+          "majorMinorAccuracy": 0.3258,
+          "detailedAccuracy": 0.2854,
+          "noChordPrecision": 0.0166,
+          "noChordRecall": 0.0083,
+          "noChordF1": 0.0111,
+          "fragmentationRate": 0.2228,
+          "regionsPerMinute": 18.446,
+          "meanAbsoluteBoundaryErrorMs": 2166.3,
+          "runtimeSecondsPerAudioMinute": 0.0064,
+          "fallbackCount": 0
+        },
+        "percussion-only": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.0862,
+          "majorMinorAccuracy": 0.0609,
+          "detailedAccuracy": 0.0479,
+          "noChordPrecision": 0.0481,
+          "noChordRecall": 0.0073,
+          "noChordF1": 0.0127,
+          "fragmentationRate": 0.046,
+          "regionsPerMinute": 4.104,
+          "meanAbsoluteBoundaryErrorMs": 26590.9,
+          "runtimeSecondsPerAudioMinute": 0.0063,
+          "fallbackCount": 0
+        }
+      },
+      "rule-v3": {
+        "full-mix": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.5899,
+          "majorMinorAccuracy": 0.5618,
+          "detailedAccuracy": 0.5189,
+          "noChordPrecision": 0.862,
+          "noChordRecall": 0.2416,
+          "noChordF1": 0.3775,
+          "fragmentationRate": 0.3114,
+          "regionsPerMinute": 28.137,
+          "meanAbsoluteBoundaryErrorMs": 800.1,
+          "runtimeSecondsPerAudioMinute": 0.0183,
+          "fallbackCount": 0
+        },
+        "guitar-absent-harmonic": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.5942,
+          "majorMinorAccuracy": 0.5651,
+          "detailedAccuracy": 0.5224,
+          "noChordPrecision": 0.782,
+          "noChordRecall": 0.3011,
+          "noChordF1": 0.4348,
+          "fragmentationRate": 0.3214,
+          "regionsPerMinute": 29.332,
+          "meanAbsoluteBoundaryErrorMs": 740.7,
+          "runtimeSecondsPerAudioMinute": 0.018,
+          "fallbackCount": 0
+        },
+        "guitar-plus-bass": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.549,
+          "majorMinorAccuracy": 0.4905,
+          "detailedAccuracy": 0.4461,
+          "noChordPrecision": 0.5299,
+          "noChordRecall": 0.3855,
+          "noChordF1": 0.4463,
+          "fragmentationRate": 0.3107,
+          "regionsPerMinute": 28.418,
+          "meanAbsoluteBoundaryErrorMs": 1612.3,
+          "runtimeSecondsPerAudioMinute": 0.017,
+          "fallbackCount": 0
+        },
+        "oracle-guitar": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4189,
+          "majorMinorAccuracy": 0.3805,
+          "detailedAccuracy": 0.3519,
+          "noChordPrecision": 0.3429,
+          "noChordRecall": 0.5029,
+          "noChordF1": 0.4078,
+          "fragmentationRate": 0.2656,
+          "regionsPerMinute": 24.703,
+          "meanAbsoluteBoundaryErrorMs": 3662.6,
+          "runtimeSecondsPerAudioMinute": 0.0143,
+          "fallbackCount": 0
+        },
+        "oracle-harmonic": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.6026,
+          "majorMinorAccuracy": 0.5771,
+          "detailedAccuracy": 0.5317,
+          "noChordPrecision": 0.8573,
+          "noChordRecall": 0.2647,
+          "noChordF1": 0.4045,
+          "fragmentationRate": 0.3182,
+          "regionsPerMinute": 28.786,
+          "meanAbsoluteBoundaryErrorMs": 764.7,
+          "runtimeSecondsPerAudioMinute": 0.0181,
+          "fallbackCount": 0
+        },
+        "percussion-only": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.1324,
+          "majorMinorAccuracy": 0.0775,
+          "detailedAccuracy": 0.0767,
+          "noChordPrecision": 0.299,
+          "noChordRecall": 0.5034,
+          "noChordF1": 0.3752,
+          "fragmentationRate": 0.1359,
+          "regionsPerMinute": 12.733,
+          "meanAbsoluteBoundaryErrorMs": 11669.9,
+          "runtimeSecondsPerAudioMinute": 0.0143,
+          "fallbackCount": 0
+        }
+      },
+      "v1-hybrid": {
+        "full-mix": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4208,
+          "majorMinorAccuracy": 0.282,
+          "detailedAccuracy": 0.2561,
+          "noChordPrecision": 0.6714,
+          "noChordRecall": 0.2305,
+          "noChordF1": 0.3432,
+          "fragmentationRate": 0.0771,
+          "regionsPerMinute": 5.447,
+          "meanAbsoluteBoundaryErrorMs": 12181.4,
+          "runtimeSecondsPerAudioMinute": 0.0087,
+          "fallbackCount": 0
+        },
+        "guitar-absent-harmonic": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4601,
+          "majorMinorAccuracy": 0.3466,
+          "detailedAccuracy": 0.313,
+          "noChordPrecision": 0.7167,
+          "noChordRecall": 0.2747,
+          "noChordF1": 0.3972,
+          "fragmentationRate": 0.0965,
+          "regionsPerMinute": 6.748,
+          "meanAbsoluteBoundaryErrorMs": 9181.8,
+          "runtimeSecondsPerAudioMinute": 0.006,
+          "fallbackCount": 0
+        },
+        "guitar-plus-bass": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4383,
+          "majorMinorAccuracy": 0.3088,
+          "detailedAccuracy": 0.277,
+          "noChordPrecision": 0.5593,
+          "noChordRecall": 0.3116,
+          "noChordF1": 0.4002,
+          "fragmentationRate": 0.1011,
+          "regionsPerMinute": 7.006,
+          "meanAbsoluteBoundaryErrorMs": 8208.7,
+          "runtimeSecondsPerAudioMinute": 0.0058,
+          "fallbackCount": 0
+        },
+        "oracle-guitar": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.3696,
+          "majorMinorAccuracy": 0.2479,
+          "detailedAccuracy": 0.2234,
+          "noChordPrecision": 0.4242,
+          "noChordRecall": 0.4156,
+          "noChordF1": 0.4199,
+          "fragmentationRate": 0.0799,
+          "regionsPerMinute": 5.709,
+          "meanAbsoluteBoundaryErrorMs": 10642.5,
+          "runtimeSecondsPerAudioMinute": 0.0056,
+          "fallbackCount": 0
+        },
+        "oracle-harmonic": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4522,
+          "majorMinorAccuracy": 0.3289,
+          "detailedAccuracy": 0.299,
+          "noChordPrecision": 0.7197,
+          "noChordRecall": 0.254,
+          "noChordF1": 0.3755,
+          "fragmentationRate": 0.0906,
+          "regionsPerMinute": 6.311,
+          "meanAbsoluteBoundaryErrorMs": 10170.8,
+          "runtimeSecondsPerAudioMinute": 0.0061,
+          "fallbackCount": 0
+        },
+        "percussion-only": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.14,
+          "majorMinorAccuracy": 0.0799,
+          "detailedAccuracy": 0.0698,
+          "noChordPrecision": 0.3925,
+          "noChordRecall": 0.3742,
+          "noChordF1": 0.3831,
+          "fragmentationRate": 0.0155,
+          "regionsPerMinute": 1.387,
+          "meanAbsoluteBoundaryErrorMs": 46027.6,
+          "runtimeSecondsPerAudioMinute": 0.0058,
+          "fallbackCount": 0
+        }
+      },
+      "v1-ml": {
+        "full-mix": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4195,
+          "majorMinorAccuracy": 0.2812,
+          "detailedAccuracy": 0.2551,
+          "noChordPrecision": 0.6877,
+          "noChordRecall": 0.2278,
+          "noChordF1": 0.3422,
+          "fragmentationRate": 0.0785,
+          "regionsPerMinute": 5.52,
+          "meanAbsoluteBoundaryErrorMs": 12131.8,
+          "runtimeSecondsPerAudioMinute": 0.0176,
+          "fallbackCount": 0
+        },
+        "guitar-absent-harmonic": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4567,
+          "majorMinorAccuracy": 0.3434,
+          "detailedAccuracy": 0.3103,
+          "noChordPrecision": 0.7316,
+          "noChordRecall": 0.2737,
+          "noChordF1": 0.3983,
+          "fragmentationRate": 0.0964,
+          "regionsPerMinute": 6.775,
+          "meanAbsoluteBoundaryErrorMs": 8759.6,
+          "runtimeSecondsPerAudioMinute": 0.0077,
+          "fallbackCount": 0
+        },
+        "guitar-plus-bass": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4296,
+          "majorMinorAccuracy": 0.3034,
+          "detailedAccuracy": 0.2724,
+          "noChordPrecision": 0.5698,
+          "noChordRecall": 0.3104,
+          "noChordF1": 0.4018,
+          "fragmentationRate": 0.097,
+          "regionsPerMinute": 6.782,
+          "meanAbsoluteBoundaryErrorMs": 8388.2,
+          "runtimeSecondsPerAudioMinute": 0.0074,
+          "fallbackCount": 0
+        },
+        "oracle-guitar": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.3702,
+          "majorMinorAccuracy": 0.2478,
+          "detailedAccuracy": 0.2231,
+          "noChordPrecision": 0.432,
+          "noChordRecall": 0.4131,
+          "noChordF1": 0.4224,
+          "fragmentationRate": 0.0815,
+          "regionsPerMinute": 5.847,
+          "meanAbsoluteBoundaryErrorMs": 10862.8,
+          "runtimeSecondsPerAudioMinute": 0.0075,
+          "fallbackCount": 0
+        },
+        "oracle-harmonic": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.4505,
+          "majorMinorAccuracy": 0.3274,
+          "detailedAccuracy": 0.2975,
+          "noChordPrecision": 0.7395,
+          "noChordRecall": 0.252,
+          "noChordF1": 0.376,
+          "fragmentationRate": 0.0912,
+          "regionsPerMinute": 6.349,
+          "meanAbsoluteBoundaryErrorMs": 9918.6,
+          "runtimeSecondsPerAudioMinute": 0.0073,
+          "fallbackCount": 0
+        },
+        "percussion-only": {
+          "tracks": 120,
+          "evaluatedDurationSeconds": 28682.9,
+          "rootAccuracy": 0.1295,
+          "majorMinorAccuracy": 0.0786,
+          "detailedAccuracy": 0.0692,
+          "noChordPrecision": 0.4043,
+          "noChordRecall": 0.3727,
+          "noChordF1": 0.3878,
+          "fragmentationRate": 0.0162,
+          "regionsPerMinute": 1.452,
+          "meanAbsoluteBoundaryErrorMs": 44658.8,
+          "runtimeSecondsPerAudioMinute": 0.0071,
+          "fallbackCount": 0
+        }
+      }
+    },
+    "byGuitarPresence": {
+      "full-v2-ml": {
+        "full-mix": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4344,
+            "majorMinorAccuracy": 0.3162,
+            "detailedAccuracy": 0.278,
+            "noChordPrecision": 0.0142,
+            "noChordRecall": 0.0083,
+            "noChordF1": 0.0105,
+            "fragmentationRate": 0.2137,
+            "regionsPerMinute": 17.528,
+            "meanAbsoluteBoundaryErrorMs": 2329.2,
+            "runtimeSecondsPerAudioMinute": 0.0077,
+            "fallbackCount": 0
+          }
+        },
+        "guitar-absent-harmonic": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.447,
+            "majorMinorAccuracy": 0.3187,
+            "detailedAccuracy": 0.2776,
+            "noChordPrecision": 0.0199,
+            "noChordRecall": 0.0066,
+            "noChordF1": 0.0099,
+            "fragmentationRate": 0.2256,
+            "regionsPerMinute": 18.678,
+            "meanAbsoluteBoundaryErrorMs": 1589.3,
+            "runtimeSecondsPerAudioMinute": 0.0064,
+            "fallbackCount": 0
+          }
+        },
+        "guitar-plus-bass": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4296,
+            "majorMinorAccuracy": 0.3033,
+            "detailedAccuracy": 0.2628,
+            "noChordPrecision": 0.0182,
+            "noChordRecall": 0.0007,
+            "noChordF1": 0.0013,
+            "fragmentationRate": 0.227,
+            "regionsPerMinute": 18.944,
+            "meanAbsoluteBoundaryErrorMs": 1752.7,
+            "runtimeSecondsPerAudioMinute": 0.0071,
+            "fallbackCount": 0
+          }
+        },
+        "oracle-guitar": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.3527,
+            "majorMinorAccuracy": 0.2581,
+            "detailedAccuracy": 0.2259,
+            "noChordPrecision": 0.0175,
+            "noChordRecall": 0.0019,
+            "noChordF1": 0.0034,
+            "fragmentationRate": 0.1997,
+            "regionsPerMinute": 16.76,
+            "meanAbsoluteBoundaryErrorMs": 2695.5,
+            "runtimeSecondsPerAudioMinute": 0.006,
+            "fallbackCount": 0
+          }
+        },
+        "oracle-harmonic": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4526,
+            "majorMinorAccuracy": 0.3258,
+            "detailedAccuracy": 0.2854,
+            "noChordPrecision": 0.0166,
+            "noChordRecall": 0.0083,
+            "noChordF1": 0.0111,
+            "fragmentationRate": 0.2228,
+            "regionsPerMinute": 18.446,
+            "meanAbsoluteBoundaryErrorMs": 2166.3,
+            "runtimeSecondsPerAudioMinute": 0.0064,
+            "fallbackCount": 0
+          }
+        }
+      },
+      "rule-v3": {
+        "full-mix": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.5899,
+            "majorMinorAccuracy": 0.5618,
+            "detailedAccuracy": 0.5189,
+            "noChordPrecision": 0.862,
+            "noChordRecall": 0.2416,
+            "noChordF1": 0.3775,
+            "fragmentationRate": 0.3114,
+            "regionsPerMinute": 28.137,
+            "meanAbsoluteBoundaryErrorMs": 800.1,
+            "runtimeSecondsPerAudioMinute": 0.0183,
+            "fallbackCount": 0
+          }
+        },
+        "guitar-absent-harmonic": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.5942,
+            "majorMinorAccuracy": 0.5651,
+            "detailedAccuracy": 0.5224,
+            "noChordPrecision": 0.782,
+            "noChordRecall": 0.3011,
+            "noChordF1": 0.4348,
+            "fragmentationRate": 0.3214,
+            "regionsPerMinute": 29.332,
+            "meanAbsoluteBoundaryErrorMs": 740.7,
+            "runtimeSecondsPerAudioMinute": 0.018,
+            "fallbackCount": 0
+          }
+        },
+        "guitar-plus-bass": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.549,
+            "majorMinorAccuracy": 0.4905,
+            "detailedAccuracy": 0.4461,
+            "noChordPrecision": 0.5299,
+            "noChordRecall": 0.3855,
+            "noChordF1": 0.4463,
+            "fragmentationRate": 0.3107,
+            "regionsPerMinute": 28.418,
+            "meanAbsoluteBoundaryErrorMs": 1612.3,
+            "runtimeSecondsPerAudioMinute": 0.017,
+            "fallbackCount": 0
+          }
+        },
+        "oracle-guitar": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4189,
+            "majorMinorAccuracy": 0.3805,
+            "detailedAccuracy": 0.3519,
+            "noChordPrecision": 0.3429,
+            "noChordRecall": 0.5029,
+            "noChordF1": 0.4078,
+            "fragmentationRate": 0.2656,
+            "regionsPerMinute": 24.703,
+            "meanAbsoluteBoundaryErrorMs": 3662.6,
+            "runtimeSecondsPerAudioMinute": 0.0143,
+            "fallbackCount": 0
+          }
+        },
+        "oracle-harmonic": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.6026,
+            "majorMinorAccuracy": 0.5771,
+            "detailedAccuracy": 0.5317,
+            "noChordPrecision": 0.8573,
+            "noChordRecall": 0.2647,
+            "noChordF1": 0.4045,
+            "fragmentationRate": 0.3182,
+            "regionsPerMinute": 28.786,
+            "meanAbsoluteBoundaryErrorMs": 764.7,
+            "runtimeSecondsPerAudioMinute": 0.0181,
+            "fallbackCount": 0
+          }
+        }
+      },
+      "v1-hybrid": {
+        "full-mix": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4208,
+            "majorMinorAccuracy": 0.282,
+            "detailedAccuracy": 0.2561,
+            "noChordPrecision": 0.6714,
+            "noChordRecall": 0.2305,
+            "noChordF1": 0.3432,
+            "fragmentationRate": 0.0771,
+            "regionsPerMinute": 5.447,
+            "meanAbsoluteBoundaryErrorMs": 12181.4,
+            "runtimeSecondsPerAudioMinute": 0.0087,
+            "fallbackCount": 0
+          }
+        },
+        "guitar-absent-harmonic": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4601,
+            "majorMinorAccuracy": 0.3466,
+            "detailedAccuracy": 0.313,
+            "noChordPrecision": 0.7167,
+            "noChordRecall": 0.2747,
+            "noChordF1": 0.3972,
+            "fragmentationRate": 0.0965,
+            "regionsPerMinute": 6.748,
+            "meanAbsoluteBoundaryErrorMs": 9181.8,
+            "runtimeSecondsPerAudioMinute": 0.006,
+            "fallbackCount": 0
+          }
+        },
+        "guitar-plus-bass": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4383,
+            "majorMinorAccuracy": 0.3088,
+            "detailedAccuracy": 0.277,
+            "noChordPrecision": 0.5593,
+            "noChordRecall": 0.3116,
+            "noChordF1": 0.4002,
+            "fragmentationRate": 0.1011,
+            "regionsPerMinute": 7.006,
+            "meanAbsoluteBoundaryErrorMs": 8208.7,
+            "runtimeSecondsPerAudioMinute": 0.0058,
+            "fallbackCount": 0
+          }
+        },
+        "oracle-guitar": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.3696,
+            "majorMinorAccuracy": 0.2479,
+            "detailedAccuracy": 0.2234,
+            "noChordPrecision": 0.4242,
+            "noChordRecall": 0.4156,
+            "noChordF1": 0.4199,
+            "fragmentationRate": 0.0799,
+            "regionsPerMinute": 5.709,
+            "meanAbsoluteBoundaryErrorMs": 10642.5,
+            "runtimeSecondsPerAudioMinute": 0.0056,
+            "fallbackCount": 0
+          }
+        },
+        "oracle-harmonic": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4522,
+            "majorMinorAccuracy": 0.3289,
+            "detailedAccuracy": 0.299,
+            "noChordPrecision": 0.7197,
+            "noChordRecall": 0.254,
+            "noChordF1": 0.3755,
+            "fragmentationRate": 0.0906,
+            "regionsPerMinute": 6.311,
+            "meanAbsoluteBoundaryErrorMs": 10170.8,
+            "runtimeSecondsPerAudioMinute": 0.0061,
+            "fallbackCount": 0
+          }
+        }
+      },
+      "v1-ml": {
+        "full-mix": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4195,
+            "majorMinorAccuracy": 0.2812,
+            "detailedAccuracy": 0.2551,
+            "noChordPrecision": 0.6877,
+            "noChordRecall": 0.2278,
+            "noChordF1": 0.3422,
+            "fragmentationRate": 0.0785,
+            "regionsPerMinute": 5.52,
+            "meanAbsoluteBoundaryErrorMs": 12131.8,
+            "runtimeSecondsPerAudioMinute": 0.0176,
+            "fallbackCount": 0
+          }
+        },
+        "guitar-absent-harmonic": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4567,
+            "majorMinorAccuracy": 0.3434,
+            "detailedAccuracy": 0.3103,
+            "noChordPrecision": 0.7316,
+            "noChordRecall": 0.2737,
+            "noChordF1": 0.3983,
+            "fragmentationRate": 0.0964,
+            "regionsPerMinute": 6.775,
+            "meanAbsoluteBoundaryErrorMs": 8759.6,
+            "runtimeSecondsPerAudioMinute": 0.0077,
+            "fallbackCount": 0
+          }
+        },
+        "guitar-plus-bass": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4296,
+            "majorMinorAccuracy": 0.3034,
+            "detailedAccuracy": 0.2724,
+            "noChordPrecision": 0.5698,
+            "noChordRecall": 0.3104,
+            "noChordF1": 0.4018,
+            "fragmentationRate": 0.097,
+            "regionsPerMinute": 6.782,
+            "meanAbsoluteBoundaryErrorMs": 8388.2,
+            "runtimeSecondsPerAudioMinute": 0.0074,
+            "fallbackCount": 0
+          }
+        },
+        "oracle-guitar": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.3702,
+            "majorMinorAccuracy": 0.2478,
+            "detailedAccuracy": 0.2231,
+            "noChordPrecision": 0.432,
+            "noChordRecall": 0.4131,
+            "noChordF1": 0.4224,
+            "fragmentationRate": 0.0815,
+            "regionsPerMinute": 5.847,
+            "meanAbsoluteBoundaryErrorMs": 10862.8,
+            "runtimeSecondsPerAudioMinute": 0.0075,
+            "fallbackCount": 0
+          }
+        },
+        "oracle-harmonic": {
+          "guitarPresent": {
+            "tracks": 120,
+            "evaluatedDurationSeconds": 28682.9,
+            "rootAccuracy": 0.4505,
+            "majorMinorAccuracy": 0.3274,
+            "detailedAccuracy": 0.2975,
+            "noChordPrecision": 0.7395,
+            "noChordRecall": 0.252,
+            "noChordF1": 0.376,
+            "fragmentationRate": 0.0912,
+            "regionsPerMinute": 6.349,
+            "meanAbsoluteBoundaryErrorMs": 9918.6,
+            "runtimeSecondsPerAudioMinute": 0.0073,
+            "fallbackCount": 0
+          }
+        }
+      }
+    },
+    "noHarmonyControl": {
+      "full-v2-ml": {
+        "percussion-only": {
+          "tracks": 120,
+          "noChordPrecision": 0.0481,
+          "noChordRecall": 0.0073,
+          "noChordF1": 0.0127,
+          "regionsPerMinute": 4.104
+        }
+      },
+      "rule-v3": {
+        "percussion-only": {
+          "tracks": 120,
+          "noChordPrecision": 0.299,
+          "noChordRecall": 0.5034,
+          "noChordF1": 0.3752,
+          "regionsPerMinute": 12.733
+        }
+      },
+      "v1-hybrid": {
+        "percussion-only": {
+          "tracks": 120,
+          "noChordPrecision": 0.3925,
+          "noChordRecall": 0.3742,
+          "noChordF1": 0.3831,
+          "regionsPerMinute": 1.387
+        }
+      },
+      "v1-ml": {
+        "percussion-only": {
+          "tracks": 120,
+          "noChordPrecision": 0.4043,
+          "noChordRecall": 0.3727,
+          "noChordF1": 0.3878,
+          "regionsPerMinute": 1.452
+        }
+      }
+    },
+    "totalFallbacks": 0,
+    "scoredRows": 2880
+  },
+  "separationGap": {
+    "full-v2-ml": {
+      "fullMixDetailed": 0.278,
+      "oracleHarmonicDetailed": 0.2854,
+      "harmonicOracleGain": 0.0074,
+      "oracleGuitarDetailed": 0.2259,
+      "guitarOracleGain": -0.0521
+    },
+    "rule-v3": {
+      "fullMixDetailed": 0.5189,
+      "oracleHarmonicDetailed": 0.5317,
+      "harmonicOracleGain": 0.0128,
+      "oracleGuitarDetailed": 0.3519,
+      "guitarOracleGain": -0.167
+    },
+    "v1-hybrid": {
+      "fullMixDetailed": 0.2561,
+      "oracleHarmonicDetailed": 0.299,
+      "harmonicOracleGain": 0.0429,
+      "oracleGuitarDetailed": 0.2234,
+      "guitarOracleGain": -0.0327
+    },
+    "v1-ml": {
+      "fullMixDetailed": 0.2551,
+      "oracleHarmonicDetailed": 0.2975,
+      "harmonicOracleGain": 0.0424,
+      "oracleGuitarDetailed": 0.2231,
+      "guitarOracleGain": -0.032
+    }
+  },
+  "pilotChecksum": "f600afba8c9bd1e683e364125cb2cf5d4a56ddd9bc55182f50ae3e9b44f6ee51",
+  "pilotTracks": 120,
+  "skippedTracks": [],
+  "featurePipeline": "harmony-features-v1",
+  "elapsedSeconds": 2746.4,
+  "labelGranularityCaveat": "Reference labels are note-level (mean region ~0.6 s, ~100 regions/min) versus ~20 regions/min for GuitarSet human annotations. Accuracy and no-chord metrics are meaningful; fragmentation and regions/minute are NOT comparable to GuitarSet."
+}

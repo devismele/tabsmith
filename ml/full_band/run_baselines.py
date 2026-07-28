@@ -91,8 +91,22 @@ def main() -> None:
         if index % 10 == 0:
             print(f"  {index}/{len(track_ids)} tracks at {time.time() - started:.0f}s", flush=True)
 
-    aggregated = aggregate(results)
+    # Persist the raw rows BEFORE aggregating. The sweep costs ~45 minutes and a
+    # failure in summarisation must not throw that away: rows can be re-aggregated
+    # offline without touching audio again.
     report_dir = Path(args.report_dir)
+    report_dir.mkdir(parents=True, exist_ok=True)
+    rows_path = Path(args.root) / "manifests" / "baseline-rows.json"
+    rows_path.parent.mkdir(parents=True, exist_ok=True)
+    rows_path.write_text(json.dumps([
+        {"engineId": r.engine_id, "view": r.view, "trackId": r.track_id,
+         "hasGuitar": r.has_guitar, "runtimeSeconds": r.runtime_seconds,
+         "fellBack": r.fell_back, "metrics": r.metrics}
+        for r in results
+    ], indent=2, default=float), encoding="utf-8")
+    print(f"persisted {len(results)} rows to {rows_path.name}", flush=True)
+
+    aggregated = aggregate(results)
     write_report(aggregated, report_dir / "full-band-source-view-baselines.json", extra={
         "pilotChecksum": pilot["checksum"],
         "pilotTracks": len(track_ids),

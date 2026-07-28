@@ -150,6 +150,29 @@ class AggregationTests(unittest.TestCase):
         self.assertEqual(out["scoredRows"], 0)
         self.assertEqual(out["byEngineView"], {})
 
+    def test_undefined_boundary_metric_does_not_crash(self):
+        """meanBoundaryErrorMs is None when a track matched no boundary."""
+        rows = [_result("rule-v3", "full-mix", "T1", True),
+                _result("rule-v3", "full-mix", "T2", True)]
+        rows[1].metrics["meanBoundaryErrorMs"] = None
+        out = aggregate(rows)                       # must not raise
+        self.assertEqual(out["byEngineView"]["rule-v3"]["full-mix"]["tracks"], 2)
+
+    def test_undefined_metric_is_excluded_not_counted_as_zero(self):
+        """A None row must not drag the average toward zero."""
+        rows = [_result("rule-v3", "full-mix", "T1", True),
+                _result("rule-v3", "full-mix", "T2", True)]
+        rows[0].metrics["meanBoundaryErrorMs"] = 400.0
+        rows[1].metrics["meanBoundaryErrorMs"] = None
+        out = aggregate(rows)["byEngineView"]["rule-v3"]["full-mix"]
+        self.assertAlmostEqual(out["meanAbsoluteBoundaryErrorMs"], 400.0, places=3)
+
+    def test_all_undefined_reports_zero_rather_than_raising(self):
+        rows = [_result("rule-v3", "full-mix", "T1", True)]
+        rows[0].metrics["meanBoundaryErrorMs"] = None
+        out = aggregate(rows)["byEngineView"]["rule-v3"]["full-mix"]
+        self.assertEqual(out["meanAbsoluteBoundaryErrorMs"], 0.0)
+
 
 class SeparationGapTests(unittest.TestCase):
     def test_gap_quantifies_what_better_separation_could_buy(self):
