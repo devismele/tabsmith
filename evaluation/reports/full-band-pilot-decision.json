@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "decision": "retain-v1",
+  "selectedCandidate": null,
+  "eligibleCandidates": [],
+  "pilotId": "full-band-pilot-v1-20260728",
+  "gateSetId": "full-band-pilot-gates-20260727",
+  "resultsChecksum": "33e000982ece7b081149cb7f193a45439424544a124832963189b5d0f265f13e",
+  "pilotConfigChecksum": "1eace871b49eb7b1fa68b38ec364179f4ecc9ca50529d012d98760a4ba09d461",
+  "p00Accessed": false,
+  "slakhTestSplitUsed": false,
+  "productionWeightsReplaced": false,
+  "applicationDefaultsChanged": false,
+  "releaseGatingChanged": false,
+  "gateOutcomes": {
+    "mixed-domain-finetune": {
+      "passed": false,
+      "failedGates": [
+        "guitarSetRootRegression@audio_mono-mic",
+        "guitarSetRootRegression@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "guitarSetRootRegression on audio_mono-mic: measured 4.8 vs required <= 2.0 pp"
+    },
+    "guitarset-only-control": {
+      "passed": false,
+      "failedGates": [
+        "fullBandDetailedImprovement@full-mix",
+        "mustImproveOnImperfectSeparatedViews@guitar-absent-harmonic"
+      ],
+      "firstFailure": "fullBandDetailedImprovement on full-mix: measured 1.69 vs required >= 2.0 pp"
+    }
+  },
+  "notEvaluableGates": [
+    "fullBandFragmentation",
+    "percussionOnlyNoChordRecall"
+  ]
+}

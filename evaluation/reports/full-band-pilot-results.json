@@ -1,0 +1,408 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "full-band-pilot-v1-20260728",
+  "gateSetId": "full-band-pilot-gates-20260727",
+  "developmentTracks": 40,
+  "guitarSetTracks": 600,
+  "featurePipeline": "numpy-chroma-v1",
+  "p00Accessed": false,
+  "slakhTestSplitUsed": false,
+  "results": {
+    "v1": {
+      "fullBand": {
+        "full-mix": {
+          "tracks": 40,
+          "rootAccuracy": 0.6649,
+          "majorMinorAccuracy": 0.5589,
+          "detailedAccuracy": 0.4961,
+          "noChordPrecision": 0.9077,
+          "noChordRecall": 0.2384,
+          "noChordF1": 0.3776,
+          "fragmentationRate": 0.2638,
+          "regionsPerMinute": 20.85
+        },
+        "oracle-harmonic": {
+          "tracks": 40,
+          "rootAccuracy": 0.6861,
+          "majorMinorAccuracy": 0.5971,
+          "detailedAccuracy": 0.5314,
+          "noChordPrecision": 0.8882,
+          "noChordRecall": 0.2912,
+          "noChordF1": 0.4386,
+          "fragmentationRate": 0.2712,
+          "regionsPerMinute": 21.457
+        },
+        "guitar-absent-harmonic": {
+          "tracks": 40,
+          "rootAccuracy": 0.6725,
+          "majorMinorAccuracy": 0.5878,
+          "detailedAccuracy": 0.5223,
+          "noChordPrecision": 0.8305,
+          "noChordRecall": 0.3109,
+          "noChordF1": 0.4524,
+          "fragmentationRate": 0.27,
+          "regionsPerMinute": 21.681
+        }
+      },
+      "guitarset": {
+        "audio_mono-mic": {
+          "tracks": 300,
+          "rootAccuracy": 0.5198,
+          "majorMinorAccuracy": 0.4136,
+          "detailedAccuracy": 0.3258,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "noChordF1": 0.0,
+          "fragmentationRate": 0.6871,
+          "regionsPerMinute": 22.719
+        },
+        "audio_mono-pickup_mix": {
+          "tracks": 300,
+          "rootAccuracy": 0.5334,
+          "majorMinorAccuracy": 0.4299,
+          "detailedAccuracy": 0.3363,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "noChordF1": 0.0,
+          "fragmentationRate": 0.7021,
+          "regionsPerMinute": 23.185
+        }
+      }
+    },
+    "mixed-domain-finetune": {
+      "fullBand": {
+        "full-mix": {
+          "tracks": 40,
+          "rootAccuracy": 0.7296,
+          "majorMinorAccuracy": 0.6995,
+          "detailedAccuracy": 0.6444,
+          "noChordPrecision": 0.523,
+          "noChordRecall": 0.5019,
+          "noChordF1": 0.5122,
+          "fragmentationRate": 0.2942,
+          "regionsPerMinute": 24.076
+        },
+        "oracle-harmonic": {
+          "tracks": 40,
+          "rootAccuracy": 0.7314,
+          "majorMinorAccuracy": 0.7016,
+          "detailedAccuracy": 0.6424,
+          "noChordPrecision": 0.5445,
+          "noChordRecall": 0.4576,
+          "noChordF1": 0.4973,
+          "fragmentationRate": 0.3025,
+          "regionsPerMinute": 25.354
+        },
+        "guitar-absent-harmonic": {
+          "tracks": 40,
+          "rootAccuracy": 0.7016,
+          "majorMinorAccuracy": 0.6705,
+          "detailedAccuracy": 0.6154,
+          "noChordPrecision": 0.45,
+          "noChordRecall": 0.4831,
+          "noChordF1": 0.4659,
+          "fragmentationRate": 0.3078,
+          "regionsPerMinute": 26.191
+        }
+      },
+      "guitarset": {
+        "audio_mono-mic": {
+          "tracks": 300,
+          "rootAccuracy": 0.4718,
+          "majorMinorAccuracy": 0.4097,
+          "detailedAccuracy": 0.3412,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "noChordF1": 0.0,
+          "fragmentationRate": 0.6634,
+          "regionsPerMinute": 22.89
+        },
+        "audio_mono-pickup_mix": {
+          "tracks": 300,
+          "rootAccuracy": 0.4516,
+          "majorMinorAccuracy": 0.3918,
+          "detailedAccuracy": 0.3306,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "noChordF1": 0.0,
+          "fragmentationRate": 0.6004,
+          "regionsPerMinute": 20.953
+        }
+      }
+    },
+    "guitarset-only-control": {
+      "fullBand": {
+        "full-mix": {
+          "tracks": 40,
+          "rootAccuracy": 0.6523,
+          "majorMinorAccuracy": 0.5861,
+          "detailedAccuracy": 0.513,
+          "noChordPrecision": 0.7968,
+          "noChordRecall": 0.2918,
+          "noChordF1": 0.4272,
+          "fragmentationRate": 0.2595,
+          "regionsPerMinute": 19.975
+        },
+        "oracle-harmonic": {
+          "tracks": 40,
+          "rootAccuracy": 0.6639,
+          "majorMinorAccuracy": 0.595,
+          "detailedAccuracy": 0.5194,
+          "noChordPrecision": 0.8435,
+          "noChordRecall": 0.2418,
+          "noChordF1": 0.3758,
+          "fragmentationRate": 0.2711,
+          "regionsPerMinute": 21.24
+        },
+        "guitar-absent-harmonic": {
+          "tracks": 40,
+          "rootAccuracy": 0.657,
+          "majorMinorAccuracy": 0.5786,
+          "detailedAccuracy": 0.5091,
+          "noChordPrecision": 0.7924,
+          "noChordRecall": 0.2711,
+          "noChordF1": 0.404,
+          "fragmentationRate": 0.2699,
+          "regionsPerMinute": 21.374
+        }
+      },
+      "guitarset": {
+        "audio_mono-mic": {
+          "tracks": 300,
+          "rootAccuracy": 0.5591,
+          "majorMinorAccuracy": 0.4693,
+          "detailedAccuracy": 0.4198,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "noChordF1": 0.0,
+          "fragmentationRate": 0.6873,
+          "regionsPerMinute": 21.997
+        },
+        "audio_mono-pickup_mix": {
+          "tracks": 300,
+          "rootAccuracy": 0.5494,
+          "majorMinorAccuracy": 0.4617,
+          "detailedAccuracy": 0.4125,
+          "noChordPrecision": 0.0,
+          "noChordRecall": 0.0,
+          "noChordF1": 0.0,
+          "fragmentationRate": 0.6763,
+          "regionsPerMinute": 21.984
+        }
+      }
+    }
+  },
+  "gateOutcomes": {
+    "mixed-domain-finetune": {
+      "checks": [
+        {
+          "gate": "guitarSetRootRegression",
+          "scope": "audio_mono-mic",
+          "measured": 4.8,
+          "required": "<= 2.0 pp",
+          "passed": false
+        },
+        {
+          "gate": "guitarSetDetailedRegression",
+          "scope": "audio_mono-mic",
+          "measured": -1.54,
+          "required": "<= 2.0 pp",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetFragmentationIncrease",
+          "scope": "audio_mono-mic",
+          "measured": -0.0237,
+          "required": "<= 0.015",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetRegionsPerMinuteIncrease",
+          "scope": "audio_mono-mic",
+          "measured": 0.171,
+          "required": "<= 0.75",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetRootRegression",
+          "scope": "audio_mono-pickup_mix",
+          "measured": 8.18,
+          "required": "<= 2.0 pp",
+          "passed": false
+        },
+        {
+          "gate": "guitarSetDetailedRegression",
+          "scope": "audio_mono-pickup_mix",
+          "measured": 0.57,
+          "required": "<= 2.0 pp",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetFragmentationIncrease",
+          "scope": "audio_mono-pickup_mix",
+          "measured": -0.1017,
+          "required": "<= 0.015",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetRegionsPerMinuteIncrease",
+          "scope": "audio_mono-pickup_mix",
+          "measured": -2.232,
+          "required": "<= 0.75",
+          "passed": true
+        },
+        {
+          "gate": "fullBandDetailedImprovement",
+          "scope": "full-mix",
+          "measured": 14.83,
+          "required": ">= 2.0 pp",
+          "passed": true
+        },
+        {
+          "gate": "fullBandNoChordF1Improvement",
+          "scope": "full-mix",
+          "measured": 0.1346,
+          "required": ">= 0.02",
+          "passed": true
+        },
+        {
+          "gate": "mustImproveOnFullMix",
+          "scope": "full-mix",
+          "measured": 14.83,
+          "required": "> 0 pp",
+          "passed": true
+        },
+        {
+          "gate": "guitarAbsentNoCollapse",
+          "scope": "guitar-absent-harmonic",
+          "measured": 0.955,
+          "required": ">= 0.75 of full-mix",
+          "passed": true
+        },
+        {
+          "gate": "mustImproveOnImperfectSeparatedViews",
+          "scope": "guitar-absent-harmonic",
+          "measured": 9.31,
+          "required": "> 0 pp",
+          "passed": true
+        }
+      ],
+      "notEvaluable": {
+        "fullBandFragmentation": "Reference labels are note-level (~0.6 s mean region, ~100 regions/min) versus ~20 for GuitarSet human annotations, so a fragmentation bound calibrated on GuitarSet does not transfer to them.",
+        "percussionOnlyNoChordRecall": "The percussion-only view is scored against each track's harmonic labels rather than an all-no-chord reference, so this gate does not measure what it was written to measure."
+      },
+      "passed": false,
+      "failedGates": [
+        "guitarSetRootRegression@audio_mono-mic",
+        "guitarSetRootRegression@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "guitarSetRootRegression on audio_mono-mic: measured 4.8 vs required <= 2.0 pp"
+    },
+    "guitarset-only-control": {
+      "checks": [
+        {
+          "gate": "guitarSetRootRegression",
+          "scope": "audio_mono-mic",
+          "measured": -3.93,
+          "required": "<= 2.0 pp",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetDetailedRegression",
+          "scope": "audio_mono-mic",
+          "measured": -9.4,
+          "required": "<= 2.0 pp",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetFragmentationIncrease",
+          "scope": "audio_mono-mic",
+          "measured": 0.0002,
+          "required": "<= 0.015",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetRegionsPerMinuteIncrease",
+          "scope": "audio_mono-mic",
+          "measured": -0.722,
+          "required": "<= 0.75",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetRootRegression",
+          "scope": "audio_mono-pickup_mix",
+          "measured": -1.6,
+          "required": "<= 2.0 pp",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetDetailedRegression",
+          "scope": "audio_mono-pickup_mix",
+          "measured": -7.62,
+          "required": "<= 2.0 pp",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetFragmentationIncrease",
+          "scope": "audio_mono-pickup_mix",
+          "measured": -0.0258,
+          "required": "<= 0.015",
+          "passed": true
+        },
+        {
+          "gate": "guitarSetRegionsPerMinuteIncrease",
+          "scope": "audio_mono-pickup_mix",
+          "measured": -1.201,
+          "required": "<= 0.75",
+          "passed": true
+        },
+        {
+          "gate": "fullBandDetailedImprovement",
+          "scope": "full-mix",
+          "measured": 1.69,
+          "required": ">= 2.0 pp",
+          "passed": false
+        },
+        {
+          "gate": "fullBandNoChordF1Improvement",
+          "scope": "full-mix",
+          "measured": 0.0496,
+          "required": ">= 0.02",
+          "passed": true
+        },
+        {
+          "gate": "mustImproveOnFullMix",
+          "scope": "full-mix",
+          "measured": 1.69,
+          "required": "> 0 pp",
+          "passed": true
+        },
+        {
+          "gate": "guitarAbsentNoCollapse",
+          "scope": "guitar-absent-harmonic",
+          "measured": 0.9924,
+          "required": ">= 0.75 of full-mix",
+          "passed": true
+        },
+        {
+          "gate": "mustImproveOnImperfectSeparatedViews",
+          "scope": "guitar-absent-harmonic",
+          "measured": -1.32,
+          "required": "> 0 pp",
+          "passed": false
+        }
+      ],
+      "notEvaluable": {
+        "fullBandFragmentation": "Reference labels are note-level (~0.6 s mean region, ~100 regions/min) versus ~20 for GuitarSet human annotations, so a fragmentation bound calibrated on GuitarSet does not transfer to them.",
+        "percussionOnlyNoChordRecall": "The percussion-only view is scored against each track's harmonic labels rather than an all-no-chord reference, so this gate does not measure what it was written to measure."
+      },
+      "passed": false,
+      "failedGates": [
+        "fullBandDetailedImprovement@full-mix",
+        "mustImproveOnImperfectSeparatedViews@guitar-absent-harmonic"
+      ],
+      "firstFailure": "fullBandDetailedImprovement on full-mix: measured 1.69 vs required >= 2.0 pp"
+    }
+  },
+  "eligibleCandidates": []
+}
