@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 from pathlib import Path
 
@@ -89,6 +90,59 @@ def _base_config_from_checkpoint(checkpoint: Path) -> dict:
     return json.loads(json.dumps(config))
 
 
+def process_is_alive(pid: int) -> bool:
+    """Best-effort liveness check, without requiring psutil."""
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        import ctypes
+
+        handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+        if handle:
+            ctypes.windll.kernel32.CloseHandle(handle)
+            return True
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def acquire_run_lock(run_dir: Path, force: bool = False) -> Path:
+    """Refuse to start a second run against the same run directory.
+
+    Two runs sharing a run directory write the same checkpoints and the same
+    pilot-state.json, so one silently corrupts the other's training. This is not
+    hypothetical: it happened during the v3 study when a monitoring check
+    misread a live process as dead and a duplicate was launched.
+
+    A lock whose process is gone is stale and is taken over, so a crashed run
+    does not require manual cleanup.
+    """
+    lock = Path(run_dir) / "run.lock"
+    if lock.exists() and not force:
+        try:
+            holder = json.loads(lock.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            holder = {}
+        pid = int(holder.get("pid", 0) or 0)
+        if pid and pid != os.getpid() and process_is_alive(pid):
+            raise SystemExit(
+                f"{run_dir} is already being used by pid {pid} (started "
+                f"{holder.get('started', 'unknown')}). Wait for it, or pass "
+                "--force-unlock if you are certain it is gone.")
+        if pid:
+            print(f"taking over stale lock from pid {pid}", flush=True)
+    lock.write_text(json.dumps({
+        "pid": os.getpid(),
+        "started": time.strftime("%Y-%m-%dT%H:%M:%S"),
+    }, indent=2), encoding="utf-8")
+    return lock
+
+
 def _ordered_split_ids(root: Path, split: str, size: int) -> list[str]:
     """First `size` compositions of a split, ordered by aligned-MIDI SHA-256.
 
@@ -151,6 +205,8 @@ def main() -> None:
     parser.add_argument("--mic-audio", default=None)
     parser.add_argument("--pickup-audio", default=None)
     parser.add_argument("--candidate", action="append", default=None)
+    parser.add_argument("--force-unlock", action="store_true",
+                        help="Take over the run directory even if another process holds it.")
     parser.add_argument("--no-feature-cache", action="store_true",
                         help="Always re-extract features instead of reusing the run's cache.")
     args = parser.parse_args()
@@ -169,6 +225,8 @@ def main() -> None:
     # A run directory belongs to exactly one pilot. Resuming into another
     # pilot's directory would silently continue from its checkpoints and report
     # the result under this pilot's id.
+    acquire_run_lock(run_dir, force=args.force_unlock)
+
     existing = run_dir / "pilot-report.json"
     if existing.exists():
         previous = json.loads(existing.read_text(encoding="utf-8")).get("pilotId")
