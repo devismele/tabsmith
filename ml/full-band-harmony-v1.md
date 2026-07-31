@@ -85,3 +85,74 @@ run that command.
 
 The current tracked report must remain blocked until a suitable licensed
 full-band dataset exists. No large training run should begin from this branch.
+
+## Pilot v2: preserving root identification
+
+Pilot v1 concluded *retain v1*. Its primary passed every full-band gate
+(+14.83 pp full-mix detailed accuracy, +0.135 no-chord F1) and failed only
+GuitarSet root preservation, by 4.8 pp on microphone and 8.18 pp on pickup
+against a 2.0 pp tolerance. The regression was specific to root identification:
+detailed accuracy did not regress and fragmentation improved on both captures.
+
+Pilot v2 attacks that failure and **reuses the eligibility gates unchanged**
+(`full-band-pilot-gates-20260727`). The gate v1 failed on is not allowed to move
+for v2. Three candidates, each moving exactly one lever, all initialised from v1
+on the shared 12-epoch schedule and the same seed v1 used:
+
+| candidate | lever | role |
+|---|---|---|
+| `rehearsal-heavy` | 0.7/0.3 domain sampling | primary |
+| `root-anchored-distillation` | KL to the frozen v1 root head, rehearsal frames only | primary |
+| `low-learning-rate` | 5e-4 → 2e-4 | ablation |
+
+`rehearsal-heavy` is an isolated change rather than a dilution. The epoch mixer
+sizes an epoch by the domain that can supply its share without repetition, so
+with 600 GuitarSet and 240 Slakh samples a 0.7/0.3 split still draws all 240
+Slakh samples — exactly as many as the 50/50 v1 primary saw — while GuitarSet
+rises from 240 to 560 per epoch. Full-band exposure per epoch is identical and
+only rehearsal moves.
+
+`low-learning-rate` exists so a win cannot be misread: without it, preserved
+root accuracy under either primary is indistinguishable from simply drifting
+less.
+
+The distillation weight is frozen at 1.0 and **not tuned** — there is no
+held-out budget for it, and tuning against the Slakh development set would leak
+selection into the dev metric. A null result bounds that mechanism at weight
+1.0 rather than refuting it.
+
+### Running and resuming
+
+Training is resumable per candidate at epoch granularity, and both the extracted
+features and the per-model evaluation metrics are cached under the run
+directory, so an interrupted run resumes in seconds rather than re-paying ~13
+minutes of feature extraction. Caches record the identity of what they hold
+(feature pipeline, boundary tolerance, track set and order; for evaluation, the
+checkpoint digest) and recompute rather than serve a stale entry.
+
+```powershell
+# 1. train (safe to re-run; add --candidate to run one at a time)
+.\.venv\Scripts\python.exe -m ml.full_band.run_pilot `
+  --root <slakh-root> `
+  --pilot-config ml\configs\full-band-pilot-v2.json `
+  --run-dir ml\runs\full-band-pilot-v2 `
+  --v1-checkpoint <path-to-temporal-baseline-real-v1.pt> `
+  --annotations <guitarset-annotation> `
+  --mic-audio <guitarset-mic> --pickup-audio <guitarset-pickup>
+
+# 2. apply the frozen gates (--output keeps v1's frozen results intact)
+.\.venv\Scripts\python.exe -m ml.full_band.evaluate_pilot `
+  --root <slakh-root> --run-dir ml\runs\full-band-pilot-v2 `
+  --v1-checkpoint <path-to-temporal-baseline-real-v1.pt> `
+  --output evaluation\reports\full-band-pilot-v2-results.json
+
+# 3. render the report and freeze the decision
+.\.venv\Scripts\python.exe -m ml.full_band.pilot_v2_report `
+  --input evaluation\reports\full-band-pilot-v2-results.json
+```
+
+`v1` throughout this workstream is `temporal-baseline-real-v1`
+(`numpy-chroma-v1`, 283,505 parameters). Its metadata does not distinguish it
+from `temporal-baseline-app-v0`, which records the same feature version and
+parameter count; the pilot-v1 checkpoints sit roughly 15x closer to it in mean
+absolute weight distance, which is what identifies it as the parent.

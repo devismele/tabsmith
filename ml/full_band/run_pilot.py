@@ -78,6 +78,34 @@ def cached_samples(cache_dir: Path | None, name: str, key: str, build):
     return samples
 
 
+def merge_results(report_path: Path, fresh: list[dict], run_dir: Path) -> list[dict]:
+    """Keep results for candidates this invocation did not run.
+
+    A long CPU pilot is naturally run one candidate at a time, and the report is
+    what the evaluator reads to discover candidates. Overwriting it with only
+    the candidate just trained would silently drop the others from evaluation -
+    the gates would be applied to a subset and the report would look complete.
+
+    A retained entry must still have its checkpoint on disk, so a deleted or
+    renamed run cannot linger in the report as a result that no longer exists.
+    """
+    trained = {entry["candidateId"] for entry in fresh}
+    merged = list(fresh)
+    if not Path(report_path).exists():
+        return merged
+    previous = json.loads(Path(report_path).read_text(encoding="utf-8")).get("results", [])
+    for entry in previous:
+        cid = entry.get("candidateId")
+        if cid in trained or not cid:
+            continue
+        if (Path(run_dir) / cid / "model.pt").exists():
+            merged.append(entry)
+        else:
+            print(f"  dropping {cid} from the report: no checkpoint on disk", flush=True)
+    merged.sort(key=lambda e: e["candidateId"])
+    return merged
+
+
 def _base_config_from_checkpoint(checkpoint: Path) -> dict:
     """Reconstruct the initialising model's own training configuration.
 
@@ -252,7 +280,7 @@ def main() -> None:
         "seed": seed,
         "p00UsedForSelection": False,
         "slakhTestSplitUsed": False,
-        "results": results,
+        "results": merge_results(run_dir / "pilot-report.json", results, run_dir),
         "elapsedSeconds": round(time.time() - started, 1),
     }
     (run_dir / "pilot-report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
