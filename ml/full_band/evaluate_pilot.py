@@ -125,6 +125,27 @@ def evaluate_guitarset(model, tracks, feature_map, capture_of) -> dict[str, Any]
     return {c: _summarise(rows) for c, rows in by_capture.items() if rows}
 
 
+def resolve_results_path(report_dir: Path, output: str | None, pilot_id: str) -> Path:
+    """Where this pilot's results go, without clobbering another pilot's.
+
+    The default filename predates pilot v2. A later pilot writing to it would
+    overwrite the frozen results of an earlier one - the record that pilot's
+    decision was read from - so a results file belonging to a different pilot is
+    refused rather than replaced.
+    """
+    path = Path(output) if output else Path(report_dir) / "full-band-pilot-results.json"
+    if path.exists():
+        try:
+            existing = json.loads(path.read_text(encoding="utf-8")).get("pilotId")
+        except json.JSONDecodeError:
+            existing = None
+        if existing and existing != pilot_id:
+            raise SystemExit(
+                f"{path.name} holds results for {existing}, not {pilot_id}; "
+                "pass --output to keep each pilot's frozen results intact")
+    return path
+
+
 def apply_gates(gates: dict[str, Any], baseline: dict[str, Any],
                 candidate: dict[str, Any]) -> dict[str, Any]:
     """Apply both halves of the frozen gate set."""
@@ -214,6 +235,10 @@ def main() -> None:
     parser.add_argument("--v1-checkpoint", required=True)
     parser.add_argument("--gates", default=str(GATES))
     parser.add_argument("--report-dir", default=str(REPORT_DIR))
+    parser.add_argument("--output", default=None,
+                        help="Results file to write. Defaults to the v1 name; pass an "
+                             "explicit path for a later pilot so earlier frozen results "
+                             "are not overwritten.")
     parser.add_argument("--annotations", default=None)
     parser.add_argument("--mic-audio", default=None)
     parser.add_argument("--pickup-audio", default=None)
@@ -293,8 +318,10 @@ def main() -> None:
     }
     report_dir = Path(args.report_dir)
     report_dir.mkdir(parents=True, exist_ok=True)
-    (report_dir / "full-band-pilot-results.json").write_text(
-        json.dumps(payload, indent=2), encoding="utf-8")
+    output = resolve_results_path(report_dir, args.output, payload["pilotId"])
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    print(f"wrote {output.name}")
     print(json.dumps({"eligible": payload["eligibleCandidates"],
                       **{c: o["firstFailure"] for c, o in outcomes.items()}}, indent=2))
 
