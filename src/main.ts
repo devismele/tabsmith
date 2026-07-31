@@ -14,6 +14,7 @@ import {
   selectNoteEditorRows,
   type NoteEditorView,
 } from "./noteEditor";
+import { buildMidiFile } from "./midiExport";
 import { buildTablature, tablatureToText, type TabMeasure } from "./tablature";
 import { TabRenderer } from "./tabRenderer";
 import {
@@ -271,6 +272,7 @@ app.innerHTML = `
             <div class="zoom-group"><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="zoom-in" type="button" aria-label="Zoom in">+</button></div>
             <label class="count-toggle"><input id="count-overlay" type="checkbox" /> Count</label>
             <button id="export-tab">Export .txt</button>
+            <button id="export-midi">Export .mid</button>
           </div>
         </div>
         <div class="tab-score" id="tab-score"></div>
@@ -1660,6 +1662,19 @@ byId("export-tab").addEventListener("click", () => {
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = `${title}.txt`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+});
+byId("export-midi").addEventListener("click", () => {
+  if (!result) return;
+  const title = currentFile?.name.replace(/\.[^.]+$/, "") ?? "tab";
+  // Built from the canonical timed notes, not the rendered tab, so the export
+  // carries the transcription's own timing rather than the display grid.
+  const bytes = buildMidiFile(result.notes, { bpm: result.bpm, trackName: title });
+  const blob = new Blob([bytes], { type: "audio/midi" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${title}.mid`;
   link.click();
   URL.revokeObjectURL(link.href);
 });
