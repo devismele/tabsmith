@@ -15,6 +15,15 @@ CPU-only realities are handled rather than ignored:
   rather than restarting
 * the frozen sampling ratio is applied per epoch with a seeded RNG, so a resumed
   run sees the same stream it would have seen uninterrupted
+
+Pilot v2 adds two bounded extensions, both inert unless a candidate asks for
+them, so the v1 code path behaves exactly as it did:
+
+* per-candidate domain fractions, because v2 varies the rehearsal ratio between
+  candidates rather than across the whole pilot
+* an optional preservation regulariser that anchors the root posterior to the
+  frozen v1 teacher on rehearsal frames only, which is the quantity pilot v1
+  measured as regressing
 """
 from __future__ import annotations
 
@@ -141,6 +150,62 @@ def mix_epoch(domains: list[DomainSamples], fractions: dict[str, float],
     return stream
 
 
+LEGACY_GUITARSET_ONLY_CONTROL = "guitarset-only-control"
+
+
+def resolve_fractions(config: dict[str, Any], candidate: dict[str, Any]) -> dict[str, float]:
+    """Domain fractions for one candidate.
+
+    Pilot v1 held a single pilot-wide ratio and expressed its control as
+    "GuitarSet batches only" in prose, with the ratio hardcoded by the runner.
+    Pilot v2 varies the ratio *between* candidates, so the ratio moves into the
+    candidate. Resolution order keeps v1 producing exactly the numbers it did:
+
+    1. the candidate's own ``domainSampling`` override, if present
+    2. the v1 control, whose GuitarSet-only ratio is named rather than inferred
+    3. the pilot-wide default
+    """
+    override = candidate.get("domainSampling")
+    if override:
+        fractions = {"guitarset": float(override["guitarSetFraction"]),
+                     "slakh": float(override["slakhFraction"])}
+    elif candidate.get("id") == LEGACY_GUITARSET_ONLY_CONTROL:
+        fractions = {"guitarset": 1.0, "slakh": 0.0}
+    else:
+        sampling = config["domainSampling"]
+        fractions = {"guitarset": float(sampling["guitarSetFraction"]),
+                     "slakh": float(sampling["slakhFraction"])}
+    total = sum(fractions.values())
+    if abs(total - 1.0) > 1e-6:
+        raise ValueError(
+            f"{candidate.get('id')} domain fractions sum to {total}, not 1.0")
+    return fractions
+
+
+def root_distillation(student_logits, teacher_logits, mask, temperature: float = 1.0):
+    """KL(teacher || student) over the root posterior, averaged on ``mask``.
+
+    The anchor is deliberately *not* a cross-entropy against the reference root:
+    that term already exists in the v1 objective and is what full-band training
+    is allowed to move. This constrains the student toward the frozen teacher's
+    full distribution on rehearsal frames, which is the quantity the preservation
+    gate measures.
+
+    ``mask`` is padding AND domain, so frames from the new domain contribute
+    nothing and the anchor cannot suppress full-band learning directly.
+    """
+    import torch.nn.functional as F
+
+    t = float(temperature)
+    if t <= 0:
+        raise ValueError("distillation temperature must be positive")
+    teacher_log_p = F.log_softmax(teacher_logits / t, dim=-1)
+    student_log_p = F.log_softmax(student_logits / t, dim=-1)
+    per_frame = (teacher_log_p.exp() * (teacher_log_p - student_log_p)).sum(dim=-1)
+    # T^2 keeps the gradient scale comparable across temperatures (Hinton et al.).
+    return (per_frame * mask).sum() / mask.sum().clamp(min=1.0) * (t * t)
+
+
 def resume_state(checkpoint_dir: Path) -> dict[str, Any]:
     """Last completed epoch and history, or an empty state."""
     path = Path(checkpoint_dir) / "pilot-state.json"
@@ -166,8 +231,13 @@ def train_pilot(
     checkpoint_dir: Path,
     init_checkpoint: Path | None,
     seed: int = 20260728,
+    preservation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Fine-tune one candidate, checkpointing every epoch and resuming safely."""
+    """Fine-tune one candidate, checkpointing every epoch and resuming safely.
+
+    ``preservation`` is the optional pilot-v2 anchor. When absent this is the
+    pilot-v1 procedure unchanged.
+    """
     import torch
 
     from ..models.temporal_baseline import ModelConfig, TemporalBaseline
@@ -194,6 +264,30 @@ def train_pilot(
         model = TemporalBaseline(ModelConfig.from_dict(config))
         print(f"init: {candidate['id']} from scratch", flush=True)
 
+    teacher = None
+    anchor_weight = 0.0
+    anchor_temperature = 1.0
+    rehearsal_ids: set[str] = set()
+    if preservation:
+        if preservation.get("type") != "root-head-distillation":
+            raise ValueError(f"unsupported preservation type {preservation.get('type')!r}")
+        if not init_checkpoint or not Path(init_checkpoint).exists():
+            raise ValueError("root-head distillation needs the teacher checkpoint")
+        # The teacher is the *initialising* checkpoint, loaded separately and
+        # frozen. Resuming must not re-anchor to a partially trained student.
+        teacher, _ = load_checkpoint(Path(init_checkpoint))
+        teacher.eval()
+        for parameter in teacher.parameters():
+            parameter.requires_grad_(False)
+        anchor_weight = float(preservation.get("weight", 1.0))
+        anchor_temperature = float(preservation.get("temperature", 1.0))
+        applies_to = set(preservation.get("appliesToDomains", ["guitarset"]))
+        rehearsal_ids = {s.track_id for d in domains if d.name in applies_to for s in d.samples}
+        if not rehearsal_ids:
+            raise ValueError(f"no samples in preservation domains {sorted(applies_to)}")
+        print(f"  anchor: root distillation to {Path(init_checkpoint).name} "
+              f"(weight {anchor_weight}, {len(rehearsal_ids)} rehearsal samples)", flush=True)
+
     training = config["training"]
     optimizer = torch.optim.Adam(model.parameters(), lr=float(training["learningRate"]),
                                  weight_decay=float(training.get("weightDecay", 0.0)))
@@ -209,12 +303,26 @@ def train_pilot(
         stream = mix_epoch(domains, fractions, rng)
         model.train()
         train_total = 0.0
+        anchor_total = 0.0
         batches = 0
         for start in range(0, len(stream), batch_size):
-            batch = collate(stream[start:start + batch_size])
+            chunk = stream[start:start + batch_size]
+            batch = collate(chunk)
             optimizer.zero_grad()
             outputs = model(batch["features"])
             loss, _parts = combined_loss(outputs, batch, weights, config)
+            if teacher is not None:
+                rows = torch.tensor(
+                    [1.0 if s.track_id in rehearsal_ids else 0.0 for s in chunk],
+                    dtype=torch.float32)
+                mask = batch["pad_mask"] * rows.unsqueeze(1)
+                if float(mask.sum()) > 0:
+                    with torch.no_grad():
+                        teacher_root = teacher(batch["features"])["root"]
+                    anchor = root_distillation(outputs["root"], teacher_root, mask,
+                                               anchor_temperature)
+                    loss = loss + anchor_weight * anchor
+                    anchor_total += float(anchor.detach())
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(),
                                            float(training.get("gradClip", 5.0)))
@@ -235,8 +343,14 @@ def train_pilot(
 
         train_loss = train_total / max(batches, 1)
         dev_loss = dev_total / max(dev_batches, 1)
-        state["history"].append({"epoch": epoch, "train": train_loss, "dev": dev_loss,
-                                 "streamSize": len(stream)})
+        entry = {"epoch": epoch, "train": train_loss, "dev": dev_loss,
+                 "streamSize": len(stream)}
+        if teacher is not None:
+            # Reported separately because the development set is Slakh-only: the
+            # anchor never applies there, so dev loss stays the same quantity for
+            # every candidate and early stopping remains comparable.
+            entry["anchor"] = anchor_total / max(batches, 1)
+        state["history"].append(entry)
         improved = state["bestDevLoss"] is None or dev_loss < state["bestDevLoss"]
         if improved:
             state["bestDevLoss"] = dev_loss
@@ -246,8 +360,9 @@ def train_pilot(
             save_checkpoint(checkpoint_path, model, config, metadata)
         state["completedEpochs"] = epoch + 1
         write_state(checkpoint_dir, state)
+        anchor_note = f" | anchor {entry['anchor']:.4f}" if "anchor" in entry else ""
         print(f"  epoch {epoch:02d} | train {train_loss:.4f} | dev {dev_loss:.4f}"
-              f"{' *' if improved else ''} | stream {len(stream)}", flush=True)
+              f"{' *' if improved else ''}{anchor_note} | stream {len(stream)}", flush=True)
 
         if epoch - state["bestEpoch"] >= patience:
             print(f"  early stop at epoch {epoch} (best {state['bestEpoch']})", flush=True)
@@ -262,4 +377,5 @@ def train_pilot(
         "trainSeconds": round(time.time() - started, 1),
         "domainSizes": {d.name: len(d) for d in domains},
         "developmentSamples": len(dev_samples),
+        "preservation": preservation,
     }

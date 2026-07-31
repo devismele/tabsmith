@@ -26,6 +26,7 @@ from .pilot import (
     DEFAULT_PILOT,
     guitarset_samples,
     load_pilot_config,
+    resolve_fractions,
     slakh_samples,
     train_pilot,
 )
@@ -110,6 +111,17 @@ def main() -> None:
     run_dir = Path(args.run_dir).resolve()
     run_dir.mkdir(parents=True, exist_ok=True)
 
+    # A run directory belongs to exactly one pilot. Resuming into another
+    # pilot's directory would silently continue from its checkpoints and report
+    # the result under this pilot's id.
+    existing = run_dir / "pilot-report.json"
+    if existing.exists():
+        previous = json.loads(existing.read_text(encoding="utf-8")).get("pilotId")
+        if previous and previous != pilot_config["pilotId"]:
+            raise SystemExit(
+                f"{run_dir} holds pilot {previous}, not {pilot_config['pilotId']}; "
+                "use a separate --run-dir rather than resuming across pilots")
+
     sampling = pilot_config["domainSampling"]
     performers = set(sampling["guitarSetPerformers"])
     if "guitarset-p00" in performers:
@@ -144,28 +156,29 @@ def main() -> None:
     if not dev.samples:
         raise SystemExit("no development samples; cannot early-stop honestly")
 
-    fractions = {
-        "mixed-domain-finetune": {"guitarset": sampling["guitarSetFraction"],
-                                  "slakh": sampling["slakhFraction"]},
-        "guitarset-only-control": {"guitarset": 1.0, "slakh": 0.0},
-    }
+    schedule = pilot_config.get("sharedSchedule", {})
+    seed = int(schedule.get("seed", 20260728))
 
     results = []
     for candidate in pilot_config["candidates"]:
         if args.candidate and candidate["id"] not in set(args.candidate):
             continue
+        fractions = resolve_fractions(pilot_config, candidate)
         print(f"\n=== {candidate['id']} ({candidate['role']}) ===", flush=True)
+        print(f"  sampling: {json.dumps(fractions, sort_keys=True)}", flush=True)
         result = train_pilot(
             candidate=candidate,
             base_config=base_config,
             domains=[guitarset, slakh],
             dev_samples=dev.samples,
-            fractions=fractions[candidate["id"]],
+            fractions=fractions,
             checkpoint_dir=run_dir / candidate["id"],
             init_checkpoint=Path(args.v1_checkpoint),
+            seed=seed,
+            preservation=candidate.get("preservation"),
         )
         result["role"] = candidate["role"]
-        result["domainFractions"] = fractions[candidate["id"]]
+        result["domainFractions"] = fractions
         results.append(result)
         print(f"  done: best epoch {result['bestEpoch']} dev {result['bestDevLoss']:.4f} "
               f"in {result['trainSeconds'] / 60:.1f} min", flush=True)
@@ -177,6 +190,7 @@ def main() -> None:
         "strategy": pilot_config["strategy"]["id"],
         "developmentSet": "slakh-validation-subset",
         "developmentTracks": len(dev_ids),
+        "seed": seed,
         "p00UsedForSelection": False,
         "slakhTestSplitUsed": False,
         "results": results,

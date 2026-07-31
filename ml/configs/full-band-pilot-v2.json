@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "full-band-pilot-v2-20260731",
+  "frozenBefore": "any pilot-v2 training run was started",
+  "gateSet": "full-band-pilot-gates-20260727",
+  "gateSetPolicy": "The eligibility gates are reused UNCHANGED from pilot v1. Pilot v1 failed on guitarSetRootRegression; a v2 that moved that gate would be answering its own question. The gate file is not edited by this pilot.",
+  "baselineBasis": "evaluation/reports/full-band-pilot-report.md",
+  "predecessor": {
+    "pilotId": "full-band-pilot-v1-20260728",
+    "outcome": "retain v1; 0 of 2 candidates eligible",
+    "measuredFailure": "mixed-domain-finetune passed every full-band gate (+14.83 pp full-mix detailed, +0.135 no-chord F1) and failed only GuitarSet root preservation: 4.8 pp on audio_mono-mic and 8.18 pp on audio_mono-pickup_mix against a 2.0 pp tolerance."
+  },
+  "strategy": {
+    "id": "preserve-root-identification-under-mixed-domain-finetune",
+    "description": "Keep the pilot-v1 strategy (fine-tune v1 on GuitarSet rehearsal batches mixed with Slakh full-band batches, four exported heads unchanged) and add exactly one preservation mechanism per candidate, so the mechanism that recovers GuitarSet root accuracy is identifiable rather than inferred.",
+    "rationale": [
+      "Measured in pilot v1: the failure is specific to root identification. GuitarSet detailed accuracy did NOT regress (-1.54 pp microphone, +0.57 pp pickup, both inside tolerance) and fragmentation improved on both captures (-0.0237, -0.1017). Only root accuracy fell. A general-purpose stability intervention would therefore be aimed at the wrong quantity.",
+      "Measured in pilot v1: the guitarset-only control gained just +1.69 pp on the full mix against the primary's +14.83 pp, so the full-band capability comes from full-band exposure. Any v2 candidate must keep that exposure rather than trade it away for preservation.",
+      "Measured in pilot v1: the primary's best epoch was 11 of a frozen 12-epoch budget, so its full-band figures are a lower bound and the schedule is kept identical rather than extended - extending it would confound preservation with convergence.",
+      "Capability and preservation are both required by the frozen gate set, so the question is not whether full-band training helps (it does, measurably) but whether the resulting root forgetting can be prevented at acceptable full-band cost."
+    ],
+    "rejectedAlternatives": [
+      {
+        "id": "widen-the-root-regression-gate",
+        "reason": "The gate was frozen before any full-band result existed, precisely so that a model which forgets solo guitar could not be argued into eligibility afterwards. Pilot v1 missed it by 4.8 and 8.18 pp, which is not a boundary case."
+      },
+      {
+        "id": "freeze-the-shared-trunk-and-train-heads-only",
+        "reason": "The full-band gain is a representation-level change (the control, which optimised the same heads without full-band audio, gained almost nothing). Freezing the trunk would remove the mechanism that produced the +14.83 pp."
+      },
+      {
+        "id": "elastic-weight-consolidation",
+        "reason": "Requires a Fisher estimate over the v1 training distribution and adds a second untuned hyperparameter. Root-head distillation anchors the same quantity the gate measures, directly and with one weight."
+      },
+      {
+        "id": "extend-the-epoch-budget",
+        "reason": "The v1 primary was still improving at the budget end. Training longer would change capability and preservation simultaneously and make the v2 comparison unreadable."
+      }
+    ]
+  },
+  "domainSampling": {
+    "guitarSetFraction": 0.5,
+    "slakhFraction": 0.5,
+    "note": "Default inherited from pilot v1. Candidates may override it; each override is recorded on the candidate and reported.",
+    "slakhViews": ["full-mix", "oracle-harmonic"],
+    "slakhViewNote": "Unchanged from pilot v1. Guitar-only views measured worse than the full mix for every engine.",
+    "guitarSetPerformers": ["guitarset-p01", "guitarset-p02", "guitarset-p03", "guitarset-p04", "guitarset-p05"],
+    "guitarSetCaptures": ["audio_mono-mic", "audio_mono-pickup_mix"]
+  },
+  "sharedSchedule": {
+    "epochs": 12,
+    "earlyStoppingPatience": 4,
+    "seed": 20260728,
+    "seedNote": "Deliberately the same seed as pilot v1. The two candidates that keep the 50/50 ratio then see the exact same epoch stream v1's primary saw, so their difference against it is the intervention alone and not a different draw."
+  },
+  "candidates": [
+    {
+      "id": "rehearsal-heavy",
+      "role": "primary",
+      "initFrom": "v1",
+      "domainSampling": {"guitarSetFraction": 0.7, "slakhFraction": 0.3},
+      "trainingOverrides": {
+        "epochs": 12,
+        "learningRate": 0.0005,
+        "earlyStoppingPatience": 4
+      },
+      "note": "The direct dial on the failing gate. The epoch mixer sizes an epoch by the domain that can supply its share without repetition, so at 0.7/0.3 it still draws all 240 Slakh samples - exactly as many as the 50/50 v1 primary did - while GuitarSet rises from 240 to 560 samples per epoch. Full-band exposure per epoch is therefore identical to v1's and only rehearsal changes.",
+      "predictedFailureMode": "If root accuracy is recovered only by diluting the full-band signal, the full-band detailed improvement will fall below the 2.0 pp gate and this candidate fails the other half."
+    },
+    {
+      "id": "root-anchored-distillation",
+      "role": "primary",
+      "initFrom": "v1",
+      "trainingOverrides": {
+        "epochs": 12,
+        "learningRate": 0.0005,
+        "earlyStoppingPatience": 4
+      },
+      "preservation": {
+        "type": "root-head-distillation",
+        "teacher": "v1",
+        "weight": 1.0,
+        "temperature": 1.0,
+        "appliesToDomains": ["guitarset"],
+        "heads": ["root"],
+        "note": "KL(teacher || student) over the root posterior, averaged over unpadded rehearsal-domain frames only, added to the frozen v1 objective. Slakh frames are unconstrained, so the anchor cannot suppress full-band learning directly.",
+        "headsNote": "Root only. Pilot v1 measured the regression as specific to root: detailed accuracy and fragmentation both stayed inside tolerance, so anchoring the other heads would constrain quantities that are not failing.",
+        "weightNote": "Frozen at 1.0 and NOT tuned. There is no held-out budget to tune it on and tuning it against the Slakh development set would leak selection into the dev metric. 1.0 is the least-assumption choice against a root cross-entropy of comparable scale."
+      },
+      "note": "Same 50/50 stream and schedule as the v1 primary, plus an explicit anchor on the quantity the gate measures. Isolates 'anchor the root posterior' from 'see less full-band audio'."
+    },
+    {
+      "id": "low-learning-rate",
+      "role": "ablation",
+      "initFrom": "v1",
+      "trainingOverrides": {
+        "epochs": 12,
+        "learningRate": 0.0002,
+        "earlyStoppingPatience": 4
+      },
+      "note": "Same 50/50 stream as the v1 primary at 0.4x the step size. Separates 'this intervention preserved root accuracy' from 'any smaller step would have'. Without it, a rehearsal-heavy or distilled win could not be distinguished from simply drifting less.",
+      "predictedFailureMode": "Likely trades capability for preservation symmetrically - less drift in both directions - and misses the 2.0 pp full-band improvement gate. That outcome is informative and is why it is an ablation rather than a candidate for promotion."
+    }
+  ],
+  "referenceResults": {
+    "note": "Pilot v1 numbers are NOT recomputed. They were produced by this same evaluator against this same gate set and are cited directly for comparison.",
+    "v1PrimaryPilotResult": "evaluation/reports/full-band-pilot-results.json"
+  },
+  "cpuBudget": {
+    "primaryCandidates": 2,
+    "controls": 0,
+    "ablations": 1,
+    "deviationFromGateSetCpuPolicy": {
+      "gateSetSays": "primaryCandidates 1, controls 1",
+      "v2Runs": "primaryCandidates 2, ablations 1",
+      "justification": "The gate-set CPU policy was written from an ESTIMATED cost of 7.97 hours for the pilot. The measured cost of pilot v1 was 35.7 minutes for both candidates combined (1162.8 s primary, 91.0 s control). The stated rationale for the one-candidate bound - that a broader search is not affordable - is measurably false at this scale, so the bound is widened deliberately and recorded here rather than exceeded silently.",
+      "unchanged": "This deviation touches the CPU budget only. No eligibility gate, threshold, split, sealed performer or reporting requirement is altered."
+    },
+    "pilotCompositions": 120,
+    "resumable": true,
+    "checkpointEveryEpoch": true,
+    "singleHeavyJobAtATime": true
+  },
+  "evaluation": {
+    "fullBandDevelopment": "Slakh validation split only; the untouched test split is never used for selection.",
+    "guitarSetPreservation": "p01-p05 development metrics, both captures; p00 stays sealed.",
+    "reportBy": ["source view", "guitar presence", "instrument family"]
+  },
+  "knownLimitations": [
+    "Reference labels are note-level (~0.6 s mean region, ~100 regions/minute vs ~20 for GuitarSet human annotations), so the frozen full-band fragmentation gate cannot honestly be applied to them and is reported as not-evaluable rather than passed.",
+    "The percussion-only control is scored against harmonic labels rather than an all-no-chord reference, so the frozen noChordRecallMinimum gate cannot be evaluated as written.",
+    "GuitarSet preservation is measured on p01-p05, which v1 was already trained on and which every candidate rehearses. It is a catastrophic-forgetting check on data v1 already knew, not a held-out generalisation claim.",
+    "Slakh2100 is rendered from MIDI. Even a fully passing pilot is synthetic-domain evidence and does not establish production readiness.",
+    "The distillation weight is frozen untuned, so a null result for root-anchored-distillation bounds that mechanism at weight 1.0 rather than refuting the mechanism itself."
+  ]
+}
