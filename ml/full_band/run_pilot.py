@@ -17,7 +17,9 @@ than left for the reader to infer.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import pickle
 import time
 from pathlib import Path
 
@@ -35,6 +37,45 @@ ML_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = ML_ROOT.parent
 DEFAULT_BASE_CONFIG = ML_ROOT / "configs" / "temporal-harmony-v2.json"
 DEFAULT_RUN_DIR = ML_ROOT / "runs" / "full-band-pilot-v1"
+
+
+def cache_key(**fields) -> str:
+    """Identity of a feature set: everything that would change its contents."""
+    return hashlib.sha256(
+        json.dumps(fields, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def cached_samples(cache_dir: Path | None, name: str, key: str, build):
+    """Extract once, reuse across restarts, and never reuse a stale cache.
+
+    Feature extraction costs about 13 minutes per run and is pure: the same
+    inputs give the same samples. An interrupted long CPU run should not have to
+    pay it again. The recorded key covers the feature pipeline, the boundary
+    tolerance and the exact track set, so a cache built for different inputs is
+    recomputed rather than silently reused - the same rule the training
+    checkpoints already follow.
+    """
+    if cache_dir is None:
+        return build()
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    blob = cache_dir / f"{name}.pkl"
+    sidecar = cache_dir / f"{name}.json"
+    if blob.exists() and sidecar.exists():
+        recorded = json.loads(sidecar.read_text(encoding="utf-8"))
+        if recorded.get("key") == key:
+            with blob.open("rb") as handle:
+                samples = pickle.load(handle)
+            print(f"  cache hit: {name} ({len(samples)} samples)", flush=True)
+            return samples
+        print(f"  cache stale: {name} (key changed); recomputing", flush=True)
+    samples = build()
+    tmp = blob.with_suffix(".pkl.tmp")
+    with tmp.open("wb") as handle:
+        pickle.dump(samples, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    tmp.replace(blob)
+    sidecar.write_text(json.dumps({"key": key, "count": len(samples)}, indent=2),
+                       encoding="utf-8")
+    return samples
 
 
 def _base_config_from_checkpoint(checkpoint: Path) -> dict:
@@ -98,6 +139,8 @@ def main() -> None:
     parser.add_argument("--mic-audio", default=None)
     parser.add_argument("--pickup-audio", default=None)
     parser.add_argument("--candidate", action="append", default=None)
+    parser.add_argument("--no-feature-cache", action="store_true",
+                        help="Always re-extract features instead of reusing the run's cache.")
     args = parser.parse_args()
 
     pilot_config = load_pilot_config(Path(args.pilot_config))
@@ -134,10 +177,18 @@ def main() -> None:
         parser.error("requires GuitarSet paths via args or TABSMITH_GUITARSET_* env vars")
 
     started = time.time()
+    cache_dir = None if args.no_feature_cache else run_dir / "feature-cache"
+    pipeline = base_config["features"]["pipelineVersion"]
+    tolerance = base_config["labels"]["boundaryToleranceSeconds"]
+
     print("extracting GuitarSet rehearsal features...", flush=True)
-    guitarset = guitarset_samples(
-        annotations, {"audio_mono-mic": mic, "audio_mono-pickup_mix": pickup},
-        base_config, performers)
+    guitarset = cached_samples(
+        cache_dir, "guitarset",
+        cache_key(pipeline=pipeline, tolerance=tolerance, performers=sorted(performers),
+                  annotations=str(annotations), mic=str(mic), pickup=str(pickup)),
+        lambda: guitarset_samples(
+            annotations, {"audio_mono-mic": mic, "audio_mono-pickup_mix": pickup},
+            base_config, performers))
     print(f"  guitarset samples: {len(guitarset)}", flush=True)
 
     prep = json.loads(Path(args.prep_report).read_text(encoding="utf-8"))
@@ -145,13 +196,21 @@ def main() -> None:
     views = tuple(sampling["slakhViews"])
     print(f"extracting Slakh training features ({len(train_ids)} tracks x {len(views)} views)...",
           flush=True)
-    slakh = slakh_samples(root / "extracted", train_ids, base_config, views)
+    slakh = cached_samples(
+        cache_dir, "slakh-train",
+        cache_key(pipeline=pipeline, tolerance=tolerance, views=list(views),
+                  trackIds=train_ids, root=str(root)),
+        lambda: slakh_samples(root / "extracted", train_ids, base_config, views))
     print(f"  slakh samples: {len(slakh)}", flush=True)
 
     dev_ids = _dev_track_ids(root)
     print(f"extracting Slakh development features ({len(dev_ids)} validation tracks)...",
           flush=True)
-    dev = slakh_samples(root / "extracted", dev_ids, base_config, ("full-mix",))
+    dev = cached_samples(
+        cache_dir, "slakh-dev",
+        cache_key(pipeline=pipeline, tolerance=tolerance, views=["full-mix"],
+                  trackIds=dev_ids, root=str(root)),
+        lambda: slakh_samples(root / "extracted", dev_ids, base_config, ("full-mix",)))
     print(f"  development samples: {len(dev)}", flush=True)
     if not dev.samples:
         raise SystemExit("no development samples; cannot early-stop honestly")
