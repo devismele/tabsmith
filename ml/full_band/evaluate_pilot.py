@@ -16,6 +16,7 @@ against harmonic labels rather than an all-no-chord reference).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -123,6 +124,41 @@ def evaluate_guitarset(model, tracks, feature_map, capture_of) -> dict[str, Any]
         by_capture[capture_of(track)].append(
             evaluate_regions(track.chords, predicted, tolerances=(0.1, 0.25, 0.5, 1.0)))
     return {c: _summarise(rows) for c, rows in by_capture.items() if rows}
+
+
+def file_digest(path: Path) -> str:
+    """SHA-256 of a checkpoint, so cached metrics belong to specific weights."""
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def cached_evaluation(cache_dir: Path | None, name: str, key: str, build):
+    """Evaluate one model once, and keep it across an interrupted evaluation.
+
+    Scoring every model takes far longer than one uninterrupted window, and the
+    results were previously written only at the very end, so a stop discarded
+    all of it. Metrics are cached per model under a key that includes the
+    checkpoint digest: different weights are re-evaluated rather than read from
+    a stale entry.
+    """
+    if cache_dir is None:
+        return build()
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    path = cache_dir / f"{name}.json"
+    if path.exists():
+        recorded = json.loads(path.read_text(encoding="utf-8"))
+        if recorded.get("key") == key:
+            print(f"  cache hit: {name}", flush=True)
+            return recorded["value"]
+        print(f"  cache stale: {name} (weights or inputs changed); re-evaluating", flush=True)
+    value = build()
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps({"key": key, "value": value}, indent=2), encoding="utf-8")
+    tmp.replace(path)
+    return value
 
 
 def resolve_results_path(report_dir: Path, output: str | None, pilot_id: str) -> Path:
@@ -235,6 +271,8 @@ def main() -> None:
     parser.add_argument("--v1-checkpoint", required=True)
     parser.add_argument("--gates", default=str(GATES))
     parser.add_argument("--report-dir", default=str(REPORT_DIR))
+    parser.add_argument("--no-eval-cache", action="store_true",
+                        help="Re-evaluate every model instead of reusing cached metrics.")
     parser.add_argument("--output", default=None,
                         help="Results file to write. Defaults to the v1 name; pass an "
                              "explicit path for a later pilot so earlier frozen results "
@@ -283,11 +321,22 @@ def main() -> None:
     feature_map = _extract_feature_map(tracks, pipeline)
 
     views = ("full-mix", "oracle-harmonic", "guitar-absent-harmonic")
+    cache_dir = None if args.no_eval_cache else run_dir / "eval-cache"
+    shared = {"views": list(views), "pipeline": pipeline, "devTracks": chosen,
+              "guitarSetTracks": sorted(t.track_id for t in tracks)}
+
+    def _evaluate(model, digest: str) -> dict[str, Any]:
+        return {
+            "fullBand": evaluate_full_band(model, root / "extracted", chosen, views, pipeline),
+            "guitarset": evaluate_guitarset(model, tracks, feature_map, _capture),
+        }
+
     print("evaluating v1 baseline...", flush=True)
-    results = {"v1": {
-        "fullBand": evaluate_full_band(v1_model, root / "extracted", chosen, views, pipeline),
-        "guitarset": evaluate_guitarset(v1_model, tracks, feature_map, _capture),
-    }}
+    v1_digest = file_digest(Path(args.v1_checkpoint))
+    results = {"v1": cached_evaluation(
+        cache_dir, "v1",
+        json.dumps({"digest": v1_digest, **shared}, sort_keys=True),
+        lambda: _evaluate(v1_model, v1_digest))}
 
     outcomes = {}
     for entry in pilot_report["results"]:
@@ -296,11 +345,11 @@ def main() -> None:
         if not checkpoint.exists():
             continue
         print(f"evaluating {cid}...", flush=True)
-        model, _meta = load_checkpoint(checkpoint)
-        results[cid] = {
-            "fullBand": evaluate_full_band(model, root / "extracted", chosen, views, pipeline),
-            "guitarset": evaluate_guitarset(model, tracks, feature_map, _capture),
-        }
+        digest = file_digest(checkpoint)
+        results[cid] = cached_evaluation(
+            cache_dir, cid,
+            json.dumps({"digest": digest, **shared}, sort_keys=True),
+            lambda c=checkpoint, d=digest: _evaluate(load_checkpoint(c)[0], d))
         outcomes[cid] = apply_gates(gates, results["v1"], results[cid])
 
     payload = {
