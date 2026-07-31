@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "confirmationId": "p00-confirmation-v1-20260731",
+  "frozenBefore": "p00 was read for the first time",
+  "gateSet": "full-band-pilot-gates-20260727",
+  "purpose": "Confirmatory only. p00 is a performer no model in this workstream has ever trained on, evaluated on, or selected against. This measures whether the preservation result established on rehearsed performers p01-p05 also holds on an unseen player.",
+  "trigger": {
+    "condition": "a frozen study produced an eligible candidate",
+    "satisfiedBy": "full-band-decoder-v1-20260731",
+    "eligibleCandidate": "duration-viterbi on rehearsal-heavy",
+    "note": "Every prior study concluded retain-v1 with zero eligible candidates, so this condition has never been met before."
+  },
+  "whatIsMeasured": {
+    "subject": "rehearsal-heavy weights decoded with duration-viterbi",
+    "baseline": "v1 decoded with its production-parity decoder (uniform-penalty Viterbi, penalty 4.0)",
+    "data": "GuitarSet performer p00 only, both captures (audio_mono-mic, audio_mono-pickup_mix)",
+    "priorsPolicy": "Decoder priors for p00 are derived from p01-p05 ONLY. Nothing p00's own references imply may shape the decoder that scores it.",
+    "decoderScalars": "Unchanged from the frozen decoder study. Nothing is re-tuned for p00."
+  },
+  "singleMeasurementPolicy": {
+    "rule": "This is measured ONCE and reported whatever it shows.",
+    "noSelection": "The result may NOT be used to choose between candidates, decoders, checkpoints or parameters. There is exactly one subject and one baseline, fixed above, and no alternatives are scored.",
+    "noRetry": "If the outcome is unfavourable it stands. Re-running with a different candidate after seeing p00 would convert the held-out performer into a selection set and destroy the only unbiased measurement this workstream has.",
+    "afterThis": "p00 is spent. It can no longer serve as a virgin holdout for any later study, and later studies must say so rather than quietly reusing it."
+  },
+  "confirmationCriteria": {
+    "rationale": "The same preservation tolerances the gates apply on p01-p05, applied unchanged to p00. Declared before the measurement so the outcome cannot be reinterpreted after the fact.",
+    "confirmed": "No regression against v1 beyond the frozen preservation tolerances on either capture: root <= 2.0 pp, detailed <= 2.0 pp, fragmentation increase <= 0.015, regions-per-minute increase <= 0.75.",
+    "stronglyConfirmed": "Additionally improves root AND detailed accuracy on both captures, as it did on p01-p05.",
+    "refuted": "Any regression beyond those tolerances on either capture. This would mean the p01-p05 gains were substantially a rehearsal effect that does not generalise to an unseen player, and it would be recorded as the headline finding.",
+    "interpretationLimit": "p00 is a single performer, solo acoustic guitar. Confirmation here bounds performer-level generalisation within GuitarSet; it says nothing about full-band production audio, which remains untested against a real-recorded benchmark."
+  },
+  "doesNotChange": [
+    "No production weights are replaced.",
+    "No application default or release gating changes.",
+    "No model is exported or shipped by this measurement.",
+    "The Slakh test split remains untouched."
+  ]
+}
