@@ -121,6 +121,51 @@ held-out budget for it, and tuning against the Slakh development set would leak
 selection into the dev metric. A null result bounds that mechanism at weight
 1.0 rather than refuting it.
 
+### Outcome: retain v1 (0 of 3 eligible) — but the failure moved
+
+| candidate | GuitarSet root (mic / pickup) | GuitarSet detailed | full-mix detailed | first failure |
+|---|---|---|---|---|
+| v1 | 0.5198 / 0.5334 | 0.3258 / 0.3363 | 0.4961 | — |
+| `rehearsal-heavy` | **0.5802 / 0.5653** | **0.4417 / 0.4182** | **0.6178** | fragmentation +0.0568 |
+| `root-anchored-distillation` | 0.4522 / 0.4304 | 0.3293 / 0.3217 | 0.6367 | root −6.76 pp |
+| `low-learning-rate` | 0.4388 / 0.4259 | 0.2914 / 0.2996 | 0.6062 | root −8.1 pp |
+
+**The preservation failure is solved, and rehearsal composition solved it.**
+`rehearsal-heavy` does not merely stay inside the 2.0 pp root tolerance, it
+*improves* GuitarSet root accuracy by +6.04 pp (mic) and +3.19 pp (pickup) and
+detailed accuracy by +11.59 and +8.19 pp, while gaining +12.17 pp on full-mix
+detailed accuracy. It passed **every accuracy gate on both domains**.
+
+**It is now rejected on over-segmentation instead**: fragmentation +0.0568 /
++0.0209 against a 0.015 allowance and regions per minute +2.92 / +1.46 against
+0.75. Every gate it failed is a segmentation gate.
+
+**The ablation earns its cost.** `low-learning-rate` ran the same stream at 0.4x
+the step size and preserved nothing (root −8.1 / −10.75 pp), so "any gentler
+fine-tune would have done it" is ruled out: training on more solo guitar is what
+preserves solo guitar.
+
+**The anchor did not bind.** `root-anchored-distillation` used the identical
+stream, schedule and seed as the pilot-v1 primary and finished *worse* on the
+gate it targeted (−6.76 / −10.3 pp against v1's −4.8 / −8.18). The anchor term
+ran at 0.14–0.27 against a total loss of 4–6, so at the frozen weight of 1.0 it
+was about two percent of the objective. This bounds root distillation at weight
+1.0 — the limitation the frozen config predicted — rather than refuting the
+mechanism.
+
+**Caveat that grew with the result:** p01–p05 are the performers v1 trained on
+and that these candidates rehearse on, so `rehearsal-heavy`'s +6.04 pp is a
+forgetting check that came out positive, **not** evidence of generalisation to
+unseen players. p00 stays sealed because no candidate is eligible.
+
+Recommended next branch: **over-segmentation control on a rehearsal-heavy
+mixed-domain model** — not another preservation mechanism and not another
+boundary-head intervention. A model now exists that beats v1 on full-band audio
+*and* on solo guitar in both accuracy metrics, whose only remaining defect is
+changing chord too often. `segmental-full` decoding cut fragmentation
+0.672 → 0.649 on full-v2 without costing accuracy and has never been applied to
+a model in this family that already clears the accuracy gates.
+
 ### Running and resuming
 
 Training is resumable per candidate at epoch granularity, and both the extracted

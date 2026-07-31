@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "decision": "retain-v1",
+  "selectedCandidate": null,
+  "eligibleCandidates": [],
+  "pilotId": "full-band-pilot-v2-20260731",
+  "gateSetId": "full-band-pilot-gates-20260727",
+  "gateSetReusedFromPilotV1": true,
+  "resultsChecksum": "f24d6fc68a7cd41b49966cc021402c53d545408b343af6fe9102c58caa1edbba",
+  "pilotConfigChecksum": "c3101bd2b249569495c0e9b69d0d1965518932de7989306e9bebd1fdca1c7086",
+  "p00Accessed": false,
+  "slakhTestSplitUsed": false,
+  "productionWeightsReplaced": false,
+  "applicationDefaultsChanged": false,
+  "releaseGatingChanged": false,
+  "gateOutcomes": {
+    "low-learning-rate": {
+      "passed": false,
+      "failedGates": [
+        "guitarSetRootRegression@audio_mono-mic",
+        "guitarSetDetailedRegression@audio_mono-mic",
+        "guitarSetRootRegression@audio_mono-pickup_mix",
+        "guitarSetDetailedRegression@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "guitarSetRootRegression on audio_mono-mic: measured 8.1 vs required <= 2.0 pp"
+    },
+    "rehearsal-heavy": {
+      "passed": false,
+      "failedGates": [
+        "guitarSetFragmentationIncrease@audio_mono-mic",
+        "guitarSetRegionsPerMinuteIncrease@audio_mono-mic",
+        "guitarSetFragmentationIncrease@audio_mono-pickup_mix",
+        "guitarSetRegionsPerMinuteIncrease@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "guitarSetFragmentationIncrease on audio_mono-mic: measured 0.0568 vs required <= 0.015"
+    },
+    "root-anchored-distillation": {
+      "passed": false,
+      "failedGates": [
+        "guitarSetRootRegression@audio_mono-mic",
+        "guitarSetRootRegression@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "guitarSetRootRegression on audio_mono-mic: measured 6.76 vs required <= 2.0 pp"
+    }
+  },
+  "notEvaluableGates": [
+    "fullBandFragmentation",
+    "percussionOnlyNoChordRecall"
+  ]
+}
