@@ -8,6 +8,12 @@
 > and stays entirely rule-based. The smoke model is labeled
 > `temporal-baseline-v0-synthetic-only` and must never be released.
 
+> **Branch topology (2026-07-31).** Six study branches accumulated, each forked
+> from an earlier one and none merged, so shared infrastructure was partly
+> rebuilt more than once. They are now consolidated: **`ml/trunk` contains every
+> ML study branch and master**, and is the base future studies fork from. See
+> "Branch topology" at the end of this file.
+
 Dev-only research workspace for a supervised temporal chord-recognition model
 that learns **chord identity** and **chord-change boundaries** jointly from
 licensed timed annotations, bass, melody, beats, bar position, key, and chord
@@ -122,3 +128,32 @@ holds across genres and with/without isolated stems; passes existing Tabsmith
 tests; runs fast enough on supported Windows hardware; and has a documented model
 + dataset license inventory. The `test` split stays untouched until the model and
 thresholds are frozen.
+
+## Branch topology
+
+Six study branches accumulated between 2026-07-25 and 2026-07-31, each forked
+from an earlier one and none merged. That was workable while the studies were
+sequential, but it meant shared infrastructure (feature caching, decoders,
+evaluation harnesses) was partly rebuilt on more than one branch, and it left
+the decoder study unable to see the segmental code until the two lines were
+merged explicitly.
+
+**`ml/trunk` is the consolidation point.** It contains master and every study
+branch below, verified by ancestry rather than by inspection:
+
+| branch | study | outcome |
+|---|---|---|
+| `ml/multi-genre-real-training` | first real-data training, GuitarSet + Billboard | infrastructure |
+| `ml/temporal-harmony-v2` | 6-candidate × 5-fold LOPO objective study | retain v1 (over-segmentation) |
+| `ml/segmental-harmony-v3` | decoder-only study on full-v2 | retain v1 (missed gates narrowly) |
+| `ml/boundary-calibration-v3` | boundary-head calibration and attribution | retain v1 (boundary work exhausted) |
+| `ml/full-band-harmony-v1` | Slakh full-band pilots v1 and v2 | retain v1 (v2 failure moved to segmentation) |
+| `ml/full-band-segmental-v1` | decoder study on rehearsal-heavy + p00 confirmation | **first eligible candidate** |
+
+**Fork the next study from `ml/trunk`**, not from a leaf study branch. The older
+branches are kept as the immutable record of what each study saw; nothing should
+be committed to them again.
+
+Production is untouched by all of this: the shipped detector is still
+`2026-07-harmonic-context-v3-reduced-latency`, and every study to date concluded
+retain-v1 for the shipped engine.
