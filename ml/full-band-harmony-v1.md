@@ -209,6 +209,37 @@ preservation number remains measured on rehearsed performers p01–p05.
   --mic-audio <guitarset-mic> --pickup-audio <guitarset-pickup>
 ```
 
+## p00 confirmation: the seal is spent, and it changed the reading
+
+Eligibility met the trigger condition the seal was written for, so p00 was
+unsealed once under a protocol frozen and committed beforehand
+(`ml/configs/p00-confirmation-v1.json`). **Outcome: confirmed, not strongly
+confirmed** — all eight pre-declared checks pass.
+
+| metric | p01–p05 (rehearsed) | p00 (unseen) |
+|---|---|---|
+| root, microphone | +6.04 pp | **+0.55 pp** |
+| root, pickup | +3.19 pp | **−0.62 pp** |
+| detailed, microphone | +11.79 pp | **+4.02 pp** |
+| detailed, pickup | +8.19 pp | **+1.55 pp** |
+
+**Most of the headline GuitarSet gain was a rehearsal effect.** On an unseen
+player the root improvement essentially vanishes and the detailed improvement
+falls to about a third. The caveat carried through pilot v2 and the decoder
+study was correct and was larger than a footnote.
+
+What genuinely survives on unseen data: preservation (8/8 checks pass, worst
+movement −0.62 pp inside a 2.0 pp tolerance), a real segmentation improvement
+(fragmentation −0.0037 and −0.0245), a modest detailed-accuracy gain, and the
+full-band improvement, which never depended on GuitarSet rehearsal at all.
+
+Honest summary: the configuration buys a large full-band gain at genuinely no
+cost on unseen solo guitar — not the +6 pp guitar improvement p01–p05 implied.
+
+**p00 is now spent.** No later study may present it as a virgin holdout, and
+performer-level generalisation claims in GuitarSet no longer have an untouched
+set to appeal to.
+
 ### Running and resuming
 
 Training is resumable per candidate at epoch granularity, and both the extracted

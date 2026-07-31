@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "confirmationId": "p00-confirmation-v1-20260731",
+  "gateSetId": "full-band-pilot-gates-20260727",
+  "subject": "rehearsal-heavy weights decoded with duration-viterbi",
+  "baseline": "v1 decoded with its production-parity decoder (uniform-penalty Viterbi, penalty 4.0)",
+  "decoder": {
+    "id": "duration-viterbi",
+    "kind": "duration-viterbi",
+    "knobs": {
+      "transitionPenalty": 6.0,
+      "useDuration": true,
+      "durationPenalty": 4.0,
+      "maxMinDwellSeconds": 1.0
+    }
+  },
+  "candidateChecksum": "4bf2fb2b7b361181922da58a8d8aac5718c05dd2207ff721840a98e2f9038355",
+  "v1Checksum": "91b2d99d3efcb11f110859d1096de6886a61925e8ab6d62febcce5332fdb1982",
+  "sealedTracks": 120,
+  "priorsFrom": [
+    "guitarset-p01",
+    "guitarset-p02",
+    "guitarset-p03",
+    "guitarset-p04",
+    "guitarset-p05"
+  ],
+  "results": {
+    "v1": {
+      "audio_mono-mic": {
+        "tracks": 60,
+        "rootAccuracy": 0.4947,
+        "majorMinorAccuracy": 0.4223,
+        "detailedAccuracy": 0.3486,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "noChordF1": 0.0,
+        "fragmentationRate": 0.6931,
+        "regionsPerMinute": 22.68
+      },
+      "audio_mono-pickup_mix": {
+        "tracks": 60,
+        "rootAccuracy": 0.4954,
+        "majorMinorAccuracy": 0.4323,
+        "detailedAccuracy": 0.3555,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "noChordF1": 0.0,
+        "fragmentationRate": 0.6895,
+        "regionsPerMinute": 23.074
+      }
+    },
+    "candidate": {
+      "audio_mono-mic": {
+        "tracks": 60,
+        "rootAccuracy": 0.5002,
+        "majorMinorAccuracy": 0.4442,
+        "detailedAccuracy": 0.3888,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "noChordF1": 0.0,
+        "fragmentationRate": 0.6894,
+        "regionsPerMinute": 23.074
+      },
+      "audio_mono-pickup_mix": {
+        "tracks": 60,
+        "rootAccuracy": 0.4892,
+        "majorMinorAccuracy": 0.4353,
+        "detailedAccuracy": 0.371,
+        "noChordPrecision": 0.0,
+        "noChordRecall": 0.0,
+        "noChordF1": 0.0,
+        "fragmentationRate": 0.665,
+        "regionsPerMinute": 21.597
+      }
+    }
+  },
+  "verdict": {
+    "checks": [
+      {
+        "check": "rootRegression",
+        "capture": "audio_mono-mic",
+        "measured": -0.55,
+        "required": "<= 2.0 pp",
+        "passed": true
+      },
+      {
+        "check": "detailedRegression",
+        "capture": "audio_mono-mic",
+        "measured": -4.02,
+        "required": "<= 2.0 pp",
+        "passed": true
+      },
+      {
+        "check": "fragmentationIncrease",
+        "capture": "audio_mono-mic",
+        "measured": -0.0037,
+        "required": "<= 0.015",
+        "passed": true
+      },
+      {
+        "check": "regionsPerMinuteIncrease",
+        "capture": "audio_mono-mic",
+        "measured": 0.394,
+        "required": "<= 0.75",
+        "passed": true
+      },
+      {
+        "check": "rootRegression",
+        "capture": "audio_mono-pickup_mix",
+        "measured": 0.62,
+        "required": "<= 2.0 pp",
+        "passed": true
+      },
+      {
+        "check": "detailedRegression",
+        "capture": "audio_mono-pickup_mix",
+        "measured": -1.55,
+        "required": "<= 2.0 pp",
+        "passed": true
+      },
+      {
+        "check": "fragmentationIncrease",
+        "capture": "audio_mono-pickup_mix",
+        "measured": -0.0245,
+        "required": "<= 0.015",
+        "passed": true
+      },
+      {
+        "check": "regionsPerMinuteIncrease",
+        "capture": "audio_mono-pickup_mix",
+        "measured": -1.477,
+        "required": "<= 0.75",
+        "passed": true
+      }
+    ],
+    "confirmed": true,
+    "stronglyConfirmed": false,
+    "failedChecks": [],
+    "outcome": "confirmed"
+  },
+  "p00NowSpent": true,
+  "productionWeightsReplaced": false,
+  "slakhTestSplitUsed": false
+}

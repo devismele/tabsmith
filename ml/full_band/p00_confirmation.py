@@ -39,6 +39,37 @@ STUDY = ML_ROOT / "configs" / "full-band-decoder-v1.json"
 SEALED = "guitarset-p00"
 
 
+def load_sealed_tracks(annotation_dir: Path, audio_dirs: dict[str, Path]) -> list[Any]:
+    """Load p00, which the shared loader deliberately refuses to return.
+
+    ``_load_tracks`` strips p00 before feature extraction so no study can reach
+    it by accident - that seal protects every other pipeline and is left intact.
+    Unsealing is therefore explicit and lives here, in the one script whose
+    protocol was frozen and committed before p00 was read.
+    """
+    from ..preprocessing.import_guitarset import import_guitarset_track
+
+    suffixes = {"audio_mono-mic": "_mic.wav", "audio_mono-pickup_mix": "_mix.wav"}
+    tracks = []
+    for jams_path in sorted(Path(annotation_dir).rglob("*.jams")):
+        for capture, suffix in suffixes.items():
+            audio_path = Path(audio_dirs[capture]) / f"{jams_path.stem}{suffix}"
+            if not audio_path.exists():
+                continue
+            track = import_guitarset_track(jams_path, audio_dir=None)
+            if track.artist != SEALED:
+                continue
+            track.audio_availability = "audio"
+            track.audio_path = str(audio_path)
+            track.track_id = f"{track.track_id}@{capture}"
+            track.notes = f"{track.notes} capture={capture}"
+            track.validate()
+            tracks.append(track)
+    if any(t.artist != SEALED for t in tracks):
+        raise AssertionError("only p00 may be loaded here")
+    return tracks
+
+
 def compare(baseline: dict[str, Any], subject: dict[str, Any],
             tolerances: dict[str, Any]) -> dict[str, Any]:
     """Apply the frozen preservation tolerances, unchanged, on p00."""
@@ -123,10 +154,9 @@ def main() -> None:
     pickup = _resolve_data_path(args.pickup_audio, "TABSMITH_GUITARSET_PICKUP_AUDIO")
     audio_dirs = {"audio_mono-mic": mic, "audio_mono-pickup_mix": pickup}
 
-    all_tracks = _load_tracks(annotations, audio_dirs)
-    sealed = [t for t in all_tracks if t.artist == SEALED]
-    development = [t for t in all_tracks
+    development = [t for t in _load_tracks(annotations, audio_dirs)
                    if t.artist in set(gates["domain"]["guitarSetDevelopmentPerformers"])]
+    sealed = load_sealed_tracks(annotations, audio_dirs)
     if not sealed:
         raise SystemExit("no p00 tracks found; nothing to confirm")
     print(f"unsealing p00: {len(sealed)} tracks (development set {len(development)})", flush=True)
