@@ -32,6 +32,11 @@ def main() -> None:
                         help="Subset size when --split is used.")
     parser.add_argument("--tracks-manifest", default=None,
                         help="slakh-tracks.json; required with --split.")
+    parser.add_argument("--manifest-name", default=None,
+                        help="Manifest filename to write. Defaults to pilot-extraction.json, or "
+                             "dev-extraction.json with --split. Pass an explicit name when "
+                             "extracting a subset that is neither, so the manifests defining the "
+                             "existing pilot and development sets are not overwritten.")
     parser.add_argument("--stems", action="store_true", default=True,
                         help="Also extract per-instrument stems (needed for oracle views).")
     parser.add_argument("--no-stems", dest="stems", action="store_false")
@@ -85,8 +90,18 @@ def main() -> None:
     )
     summary["pilotChecksum"] = pilot["checksum"]
     summary["requestedTrackIds"] = len(track_ids)
-    (root / "manifests" / (("dev-" if args.split else "pilot-") + "extraction.json")).write_text(
-        json.dumps(summary, indent=2), encoding="utf-8")
+    name = args.manifest_name or (("dev-" if args.split else "pilot-") + "extraction.json")
+    manifest_path = root / "manifests" / name
+    # dev-extraction.json defines the 40-track development set that every pilot
+    # reconstructs from `requestedTrackIds`. Silently rewriting it with a
+    # different subset would redefine the development set after the fact.
+    if manifest_path.exists() and not args.manifest_name:
+        existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if existing.get("requestedTrackIds") != len(track_ids):
+            raise SystemExit(
+                f"{name} already describes {existing.get('requestedTrackIds')} tracks, not "
+                f"{len(track_ids)}; pass --manifest-name to write a different subset")
+    manifest_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps({k: v for k, v in summary.items() if k != "requestedTrackIds"}, indent=2))
 
 

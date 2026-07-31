@@ -89,6 +89,29 @@ def _base_config_from_checkpoint(checkpoint: Path) -> dict:
     return json.loads(json.dumps(config))
 
 
+def _ordered_split_ids(root: Path, split: str, size: int) -> list[str]:
+    """First `size` compositions of a split, ordered by aligned-MIDI SHA-256.
+
+    One rendering per composition. This is the single selection rule used by the
+    extractor, the pilot subset and the development subset, so subsets of
+    different sizes nest instead of diverging.
+    """
+    tracks = json.loads((root / "manifests" / "slakh-tracks.json").read_text(encoding="utf-8"))
+    seen: set[str] = set()
+    chosen: list[str] = []
+    for entry in sorted(tracks, key=lambda t: (t.get("midiSha256") or "", t["trackId"])):
+        if entry.get("officialSplit") != split or entry.get("error"):
+            continue
+        digest = entry.get("midiSha256")
+        if not digest or digest in seen:
+            continue
+        seen.add(digest)
+        chosen.append(entry["trackId"])
+        if len(chosen) >= size:
+            break
+    return chosen
+
+
 def _dev_track_ids(root: Path) -> list[str]:
     manifest = root / "manifests" / "dev-extraction.json"
     if not manifest.exists():
@@ -180,8 +203,24 @@ def main() -> None:
             base_config, performers))
     print(f"  guitarset samples: {len(guitarset)}", flush=True)
 
-    prep = json.loads(Path(args.prep_report).read_text(encoding="utf-8"))
-    train_ids = list(prep["pilotSubset"]["trackIds"])
+    requested = sampling.get("slakhTrainCompositions")
+    if requested:
+        # Same deterministic ordering the pilot subset was drawn from, so a
+        # larger pool is a strict prefix-superset of the smaller one and the two
+        # studies are nested rather than disjoint samples.
+        train_ids = _ordered_split_ids(root, "train", int(requested))
+        if len(train_ids) < requested:
+            raise SystemExit(
+                f"only {len(train_ids)} train compositions available, {requested} requested")
+        prep = json.loads(Path(args.prep_report).read_text(encoding="utf-8"))
+        pilot_ids = list(prep["pilotSubset"]["trackIds"])
+        if train_ids[: len(pilot_ids)] != pilot_ids:
+            raise SystemExit(
+                "enlarged train pool is not a prefix-superset of the frozen pilot subset; "
+                "the selection rule has drifted")
+    else:
+        prep = json.loads(Path(args.prep_report).read_text(encoding="utf-8"))
+        train_ids = list(prep["pilotSubset"]["trackIds"])
     views = tuple(sampling["slakhViews"])
     print(f"extracting Slakh training features ({len(train_ids)} tracks x {len(views)} views)...",
           flush=True)

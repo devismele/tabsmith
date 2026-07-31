@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "full-band-pilot-v3-20260731",
+  "reportTitle": "Full-band scale study result",
+  "reportIntro": "The candidates were frozen before any v3 training run started. Only the size of the full-band training pool and the epoch budget vary; the domain ratio, objective, seed and initialisation are inherited unchanged from the rehearsal-heavy candidate that pilot v2 measured. The eligibility gates are the pilot-v1 set, reused unchanged for the fourth consecutive study. The Slakh test split was never used for selection.",
+  "frozenBefore": "any v3 training run was started",
+  "gateSet": "full-band-pilot-gates-20260727",
+  "predecessor": {
+    "pilotId": "full-band-pilot-v2-20260731",
+    "candidate": "rehearsal-heavy",
+    "outcome": "passed every accuracy gate on both domains; rejected on over-segmentation, which the decoder study then fixed with duration-viterbi",
+    "note": "rehearsal-heavy + duration-viterbi is the reference this study must beat. It is already measured under these gates and is NOT retrained."
+  },
+  "strategy": {
+    "id": "scale-the-full-band-training-pool",
+    "description": "Keep the rehearsal-heavy recipe exactly and enlarge the Slakh training pool from 120 to 600 compositions, then test whether a longer budget buys more on top.",
+    "rationale": [
+      "Measured: the pilot used 120 of 1289 available train-split compositions - 9 percent. Full-band capability is the axis that survived the p00 confirmation, so more full-band data targets the thing that is actually real.",
+      "Measured in pilot v2: every candidate was still improving when the frozen 12-epoch budget ended, so the budget was a binding constraint and its effect is worth separating from the data effect.",
+      "The 0.7/0.3 domain ratio is inherited unchanged because it is what preserved solo guitar in pilot v2. At that ratio GuitarSet remains the limiting domain, so per-epoch full-band exposure stays close to the pilot's while being drawn from a five times larger pool - more variety across the run, same rehearsal dominance per epoch.",
+      "p00 is spent. This study therefore cannot produce a new performer-level generalisation claim, and its primary axis is full-band accuracy on the held-out Slakh validation subset, which no candidate trains on."
+    ],
+    "rejectedAlternatives": [
+      {
+        "id": "raise-the-slakh-share-to-use-more-data-per-epoch",
+        "reason": "Changing the ratio and the pool size together would confound them, and the ratio is the one thing pilot v2 demonstrated to be load-bearing for preservation."
+      },
+      {
+        "id": "extract-all-1289-train-compositions",
+        "reason": "Roughly 63 GB of extraction for a first scaling point. 600 is a five-fold increase and answers whether scale helps at all before paying for more."
+      },
+      {
+        "id": "re-open-p00",
+        "reason": "It was spent under a single-measurement protocol. Measuring it again after seeing a new candidate is precisely what that protocol forbids."
+      }
+    ]
+  },
+  "domainSampling": {
+    "guitarSetFraction": 0.7,
+    "slakhFraction": 0.3,
+    "slakhTrainCompositions": 600,
+    "note": "Ratio inherited verbatim from the pilot-v2 rehearsal-heavy candidate. Only the pool size changes.",
+    "slakhViews": ["full-mix", "oracle-harmonic"],
+    "guitarSetPerformers": ["guitarset-p01", "guitarset-p02", "guitarset-p03", "guitarset-p04", "guitarset-p05"],
+    "guitarSetCaptures": ["audio_mono-mic", "audio_mono-pickup_mix"],
+    "selectionRule": "Train compositions are the first N of the deterministic ordering by aligned-MIDI SHA-256, one rendering per composition - the same rule that selected the original 120, so the pilot subset is a strict prefix and the comparison is nested rather than disjoint."
+  },
+  "sharedSchedule": {
+    "earlyStoppingPatience": 4,
+    "seed": 20260728,
+    "seedNote": "Same seed as pilots v1 and v2, so differences against rehearsal-heavy are data and budget rather than a different draw."
+  },
+  "candidates": [
+    {
+      "id": "scale-600",
+      "role": "primary",
+      "initFrom": "v1",
+      "domainSampling": {"guitarSetFraction": 0.7, "slakhFraction": 0.3},
+      "trainingOverrides": {"epochs": 12, "learningRate": 0.0005, "earlyStoppingPatience": 4},
+      "note": "Identical to pilot-v2 rehearsal-heavy in every respect except the training pool: 600 compositions instead of 120. Isolates data quantity."
+    },
+    {
+      "id": "scale-600-longer",
+      "role": "primary",
+      "initFrom": "v1",
+      "domainSampling": {"guitarSetFraction": 0.7, "slakhFraction": 0.3},
+      "trainingOverrides": {"epochs": 24, "learningRate": 0.0005, "earlyStoppingPatience": 6},
+      "note": "The same enlarged pool with double the budget. Isolates whether the 12-epoch ceiling was binding once more data is available. Patience is raised with the budget so early stopping stays proportionate rather than becoming stricter by accident."
+    }
+  ],
+  "evaluation": {
+    "decoder": "duration-viterbi",
+    "decoderNote": "The decoder selected by the frozen decoder study. Candidates are scored under it, with the production-parity penalty-4 decode reported alongside as a reference point.",
+    "fullBandDevelopment": "Slakh validation subset only; the untouched test split is never used for selection.",
+    "guitarSetPreservation": "p01-p05, both captures. This is a forgetting check and nothing more - see the limitation below."
+  },
+  "knownLimitations": [
+    "p00 IS SPENT. It was measured once under the confirmation protocol and can never again serve as a virgin performer holdout, so this study has no unbiased performer-level generalisation test available and does not claim one.",
+    "GuitarSet preservation is measured on p01-p05, which v1 trained on and which every candidate rehearses on. The p00 confirmation showed such gains are substantially a rehearsal effect, so GuitarSet accuracy movements here should be read as forgetting checks only.",
+    "Reference labels for Slakh are note-level, so the full-band fragmentation gate remains not-evaluable.",
+    "Slakh2100 is rendered from MIDI, so all full-band evidence remains synthetic-domain and does not establish production readiness.",
+    "The enlarged pool is a strict superset of the pilot's, so the two are nested rather than independent samples."
+  ]
+}
