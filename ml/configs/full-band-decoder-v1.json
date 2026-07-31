@@ -2,6 +2,8 @@
   "schemaVersion": 1,
   "pilotId": "full-band-decoder-v1-20260731",
   "frozenBefore": "any decoder was scored against the rehearsal-heavy model",
+  "reportTitle": "Full-band decoder study result",
+  "reportIntro": "The candidates were frozen before any decoder was scored. Only the decoder varies: the rehearsal-heavy weights from pilot v2 are used unchanged, and every candidate decodes the identical cached network response for each item. The eligibility gates are the pilot-v1 set, reused unchanged for the third consecutive study. p00 was never accessed and the Slakh test split was never used for selection.",
   "gateSet": "full-band-pilot-gates-20260727",
   "gateSetPolicy": "The eligibility gates are reused UNCHANGED for the third consecutive study. Pilot v2 failed on fragmentation and regions-per-minute; a decoder study that moved those bounds would be answering its own question.",
   "baseModel": {

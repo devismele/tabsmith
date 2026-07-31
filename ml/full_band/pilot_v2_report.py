@@ -35,16 +35,19 @@ def build_markdown(payload: dict[str, Any], pilot: dict[str, Any],
     models = _models(payload)
 
     lines = [
-        "# Full-band pilot v2 result",
+        f"# {pilot.get('reportTitle', 'Full-band pilot v2 result')}",
         "",
         ("**Decision: retain v1. No pilot-v2 candidate is eligible.**" if not eligible
          else f"**Decision: {eligible[0]} passed every evaluable gate.**"),
         "",
         f"Pilot `{payload['pilotId']}` under gate set `{payload['gateSetId']}`.",
-        f"Strategy `{pilot['strategy']['id']}` and its candidates were frozen before any",
-        "v2 training run started. The eligibility gates are the pilot-v1 set reused",
-        "unchanged - the gate v1 failed on was not allowed to move for v2. p00 was never",
-        "accessed and the Slakh test split was never used for selection.",
+        f"Strategy `{pilot['strategy']['id']}`.",
+        pilot.get(
+            "reportIntro",
+            "The candidates were frozen before any run started. The eligibility gates are "
+            "the pilot-v1 set reused unchanged - the gate v1 failed on was not allowed to "
+            "move. p00 was never accessed and the Slakh test split was never used for "
+            "selection."),
         "",
         "## Full-band development (Slakh validation subset, "
         f"{payload['developmentTracks']} compositions)",

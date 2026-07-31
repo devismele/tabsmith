@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "decision": "select-candidate",
+  "selectedCandidate": "duration-viterbi",
+  "eligibleCandidates": [
+    "duration-viterbi"
+  ],
+  "pilotId": "full-band-decoder-v1-20260731",
+  "gateSetId": "full-band-pilot-gates-20260727",
+  "gateSetReusedFromPilotV1": true,
+  "resultsChecksum": "4129915797630f1bac9de417df31883a1a0d5cb99b006dc99a422ea968cd94f9",
+  "pilotConfigChecksum": "695af537c849b7810c8f7f3fd58a0d7b9adf5da29c608a6fdca0c948b4d1e000",
+  "p00Accessed": false,
+  "slakhTestSplitUsed": false,
+  "productionWeightsReplaced": false,
+  "applicationDefaultsChanged": false,
+  "releaseGatingChanged": false,
+  "gateOutcomes": {
+    "viterbi-penalty-4-control": {
+      "passed": false,
+      "failedGates": [
+        "guitarSetFragmentationIncrease@audio_mono-mic",
+        "guitarSetRegionsPerMinuteIncrease@audio_mono-mic",
+        "guitarSetFragmentationIncrease@audio_mono-pickup_mix",
+        "guitarSetRegionsPerMinuteIncrease@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "guitarSetFragmentationIncrease on audio_mono-mic: measured 0.0568 vs required <= 0.015"
+    },
+    "duration-viterbi": {
+      "passed": true,
+      "failedGates": [],
+      "firstFailure": null
+    },
+    "duration-boundary-viterbi": {
+      "passed": false,
+      "failedGates": [
+        "guitarSetFragmentationIncrease@audio_mono-mic"
+      ],
+      "firstFailure": "guitarSetFragmentationIncrease on audio_mono-mic: measured 0.0326 vs required <= 0.015"
+    },
+    "segmental-full": {
+      "passed": false,
+      "failedGates": [
+        "guitarSetFragmentationIncrease@audio_mono-mic",
+        "guitarSetRegionsPerMinuteIncrease@audio_mono-mic",
+        "guitarSetFragmentationIncrease@audio_mono-pickup_mix"
+      ],
+      "firstFailure": "guitarSetFragmentationIncrease on audio_mono-mic: measured 0.0643 vs required <= 0.015"
+    }
+  },
+  "notEvaluableGates": [
+    "fullBandFragmentation",
+    "percussionOnlyNoChordRecall"
+  ]
+}

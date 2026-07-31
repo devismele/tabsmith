@@ -166,6 +166,49 @@ changing chord too often. `segmental-full` decoding cut fragmentation
 0.672 → 0.649 on full-v2 without costing accuracy and has never been applied to
 a model in this family that already clears the accuracy gates.
 
+## Decoder study: the first eligible candidate
+
+The pilot-v2 recommendation was carried out immediately. `duration-viterbi`
+applied to the frozen `rehearsal-heavy` weights **passes all thirteen evaluable
+gates** — the first eligible candidate in this workstream, against a gate set
+reused unchanged for the third consecutive study.
+
+| decoder (on rehearsal-heavy) | GS root mic | GS detailed mic | GS frag mic | GS rpm mic | full-mix detailed |
+|---|---|---|---|---|---|
+| v1 (baseline) | 0.5198 | 0.3258 | 0.6871 | 22.72 | 0.4961 |
+| `viterbi-penalty-4-control` | 0.5802 | 0.4417 | 0.7439 | 25.64 | 0.6178 |
+| **`duration-viterbi`** | **0.5784** | **0.4437** | **0.6873** | **22.17** | **0.6174** |
+| `duration-boundary-viterbi` | 0.5809 | 0.4458 | 0.7197 | 23.34 | 0.6194 |
+| `segmental-full` | 0.5806 | 0.4435 | 0.7514 | 23.81 | 0.6178 |
+
+The control reproduces the frozen pilot-v2 numbers exactly (fragmentation
++0.0568 on mic), which is what makes the other rows trustworthy: only the
+decoder moved.
+
+**The win is Pareto, not a trade.** Against the control, `duration-viterbi`
+gives up essentially no accuracy (root 0.5802 → 0.5784, detailed 0.4417 →
+0.4437) while removing the over-segmentation that rejected pilot v2
+(fragmentation 0.7439 → 0.6873, rpm 25.64 → 22.17). It is not degenerate: at
+22.17 regions/minute it segments like v1 (22.72) while labelling 11.79 pp
+better.
+
+**The simplest decoder won, contrary to expectation.** segmental-v3 favoured
+`segmental-full`; here it is the *worst* of the three (frag 0.7514, above the
+control). The two candidates that read the boundary head are exactly the two
+that failed, and the one that ignores it and constrains dwell time directly is
+the one that worked — consistent with boundary-v3's finding that this family's
+boundary channel contributes an order of magnitude less to decoded segmentation
+than the chord posterior.
+
+Nothing is promoted: this study selects a candidate, it does not ship one. Every
+preservation number remains measured on rehearsed performers p01–p05.
+
+```powershell
+.\.venv\Scripts\python.exe -m ml.full_band.decoder_study --root <slakh-root> `
+  --annotations <guitarset-annotation> `
+  --mic-audio <guitarset-mic> --pickup-audio <guitarset-pickup>
+```
+
 ### Running and resuming
 
 Training is resumable per candidate at epoch granularity, and both the extracted
