@@ -29,7 +29,7 @@ from ml.training.augmentation import (
     load_augmentation_manifest,
 )
 from ml.training.dataset import FrameSample, build_frame_targets, collate
-from ml.training.losses import combined_loss, predicted_switch_probability
+from ml.training.losses import combined_loss, focal_modulation, predicted_switch_probability
 from ml.training.train import fit_samples
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -108,6 +108,47 @@ class TemporalLossTests(unittest.TestCase):
         expected = parts["root"] + parts["quality"] + parts["nochord"] + 2.0 * parts["boundary"]
         self.assertAlmostEqual(float(total.detach()), expected, places=5)
         self.assertGreaterEqual(parts["durationConsistency"], 0.0)
+
+    def test_omitting_focal_gamma_leaves_the_objective_bit_identical(self):
+        """The new focal term must be inert unless a candidate opts in."""
+        model = TemporalBaseline(ModelConfig(channels=8, dilations=(1,), dropout=0.0))
+        batch = collate([_sample()])
+        outputs = model(batch["features"])
+        weights = {"root": torch.ones(12), "quality": torch.ones(3)}
+        without, parts_without = combined_loss(outputs, batch, weights, _loss_config())
+        explicit, parts_explicit = combined_loss(
+            outputs, batch, weights, _loss_config(boundaryFocalGamma=0.0))
+        self.assertEqual(float(without.detach()), float(explicit.detach()))
+        self.assertEqual(parts_without["boundary"], parts_explicit["boundary"])
+        self.assertEqual(parts_without["hardBoundary"], parts_explicit["hardBoundary"])
+
+    def test_focal_gamma_down_weights_confident_frames(self):
+        """Focal modulation must shrink the boundary term, not rescale it blindly."""
+        model = TemporalBaseline(ModelConfig(channels=8, dilations=(1,), dropout=0.0))
+        batch = collate([_sample()])
+        outputs = model(batch["features"])
+        weights = {"root": torch.ones(12), "quality": torch.ones(3)}
+        _, plain = combined_loss(outputs, batch, weights, _loss_config())
+        _, focal = combined_loss(outputs, batch, weights, _loss_config(boundaryFocalGamma=2.0))
+        self.assertLess(focal["boundary"], plain["boundary"])
+        self.assertGreater(focal["boundary"], 0.0)
+
+    def test_focal_modulation_bounds_and_shape(self):
+        logits = torch.tensor([[-4.0, 0.0, 4.0]])
+        targets = torch.tensor([[0.0, 0.5, 1.0]])
+        modulation = focal_modulation(logits, targets, 2.0)
+        self.assertEqual(modulation.shape, logits.shape)
+        self.assertTrue(bool((modulation >= 0.0).all()) and bool((modulation <= 1.0).all()))
+        # Confident-and-correct frames (index 0 and 2) are damped hardest; the
+        # ambiguous middle frame keeps most of its weight.
+        self.assertLess(float(modulation[0, 0]), float(modulation[0, 1]))
+        self.assertLess(float(modulation[0, 2]), float(modulation[0, 1]))
+
+    def test_focal_modulation_is_identity_at_zero_gamma(self):
+        logits = torch.randn(2, 5)
+        targets = torch.rand(2, 5)
+        torch.testing.assert_close(
+            focal_modulation(logits, targets, 0.0), torch.ones_like(logits))
 
     def test_switch_probability_detects_distribution_changes(self):
         stable = {
