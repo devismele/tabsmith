@@ -79,8 +79,43 @@ def guitarset_samples(annotation_dir: Path, audio_dirs: dict[str, Path],
 
 
 def slakh_samples(extracted_root: Path, track_ids: list[str], config: dict[str, Any],
-                  views: tuple[str, ...]) -> DomainSamples:
-    """Slakh full-band samples, one per (track, view)."""
+                  views: tuple[str, ...], per_track_cache: Path | None = None) -> DomainSamples:
+    """Slakh full-band samples, one per (track, view).
+
+    With ``per_track_cache`` each track's samples are written as they are built,
+    so an interrupted extraction resumes instead of restarting. At 600 tracks
+    this pass takes the better part of an hour, and caching only the finished
+    whole meant a stop near the end discarded all of it.
+    """
+    import pickle
+
+    def _cached_track(track_id: str, build):
+        if per_track_cache is None:
+            return build()
+        per_track_cache.mkdir(parents=True, exist_ok=True)
+        key = cache_key(pipeline=config["features"]["pipelineVersion"],
+                        tolerance=config["labels"]["boundaryToleranceSeconds"],
+                        views=list(views), track=track_id)
+        path = per_track_cache / f"{track_id}.pkl"
+        if path.exists():
+            try:
+                payload = pickle.loads(path.read_bytes())
+                if payload.get("key") == key:
+                    return payload["samples"]
+            except Exception:
+                pass  # a truncated or unreadable entry is simply rebuilt
+        samples = build()
+        tmp = path.with_suffix(".pkl.tmp")
+        tmp.write_bytes(pickle.dumps({"key": key, "samples": samples},
+                                     protocol=pickle.HIGHEST_PROTOCOL))
+        tmp.replace(path)
+        return samples
+
+    return _slakh_samples_impl(extracted_root, track_ids, config, views, _cached_track)
+
+
+def _slakh_samples_impl(extracted_root: Path, track_ids: list[str], config: dict[str, Any],
+                        views: tuple[str, ...], cached_track) -> DomainSamples:
     import yaml
 
     from ..preprocessing.app_features import extract_app_features
@@ -93,18 +128,19 @@ def slakh_samples(extracted_root: Path, track_ids: list[str], config: dict[str, 
 
     pipeline = config["features"]["pipelineVersion"]
     tolerance = float(config["labels"]["boundaryToleranceSeconds"])
-    samples = []
-    for track_id in track_ids:
+
+    def build_one(track_id: str) -> list[Any]:
         track_dir = Path(extracted_root) / track_id
         midi_path = track_dir / "all_src.mid"
         metadata_path = track_dir / "metadata.yaml"
         if not midi_path.exists() or not metadata_path.exists():
-            continue
+            return []
         events, duration = read_note_events(midi_path.read_bytes())
         if duration <= 0:
-            continue
+            return []
         regions = derive_chord_regions(events, duration)
         metadata = yaml.safe_load(metadata_path.read_text(encoding="utf-8", errors="replace"))
+        built_samples: list[Any] = []
         for view in views:
             built = build_view(track_dir, metadata, view, sample_rate=22050)
             if built is None:
@@ -117,7 +153,14 @@ def slakh_samples(extracted_root: Path, track_ids: list[str], config: dict[str, 
                           audio_availability="audio", chords=regions)
             sample = sample_from_features(track, frames, tolerance)
             if sample is not None:
-                samples.append(sample)
+                built_samples.append(sample)
+        return built_samples
+
+    samples: list[Any] = []
+    for position, track_id in enumerate(track_ids, start=1):
+        samples.extend(cached_track(track_id, lambda t=track_id: build_one(t)))
+        if position % 50 == 0:
+            print(f"    features: {position}/{len(track_ids)} tracks", flush=True)
     return DomainSamples("slakh", samples)
 
 

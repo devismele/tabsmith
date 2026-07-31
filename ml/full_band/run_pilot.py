@@ -224,11 +224,13 @@ def main() -> None:
     views = tuple(sampling["slakhViews"])
     print(f"extracting Slakh training features ({len(train_ids)} tracks x {len(views)} views)...",
           flush=True)
+    per_track = None if cache_dir is None else cache_dir / "slakh-tracks"
     slakh = cached_samples(
         cache_dir, "slakh-train",
         cache_key(pipeline=pipeline, tolerance=tolerance, views=list(views),
                   trackIds=train_ids, root=str(root)),
-        lambda: slakh_samples(root / "extracted", train_ids, base_config, views))
+        lambda: slakh_samples(root / "extracted", train_ids, base_config, views,
+                              per_track_cache=per_track))
     print(f"  slakh samples: {len(slakh)}", flush=True)
 
     dev_ids = _dev_track_ids(root)
@@ -238,7 +240,9 @@ def main() -> None:
         cache_dir, "slakh-dev",
         cache_key(pipeline=pipeline, tolerance=tolerance, views=["full-mix"],
                   trackIds=dev_ids, root=str(root)),
-        lambda: slakh_samples(root / "extracted", dev_ids, base_config, ("full-mix",)))
+        lambda: slakh_samples(root / "extracted", dev_ids, base_config, ("full-mix",),
+                              per_track_cache=None if cache_dir is None
+                              else cache_dir / "slakh-dev-tracks"))
     print(f"  development samples: {len(dev)}", flush=True)
     if not dev.samples:
         raise SystemExit("no development samples; cannot early-stop honestly")
