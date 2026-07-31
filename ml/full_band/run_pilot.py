@@ -17,15 +17,15 @@ than left for the reader to infer.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import pickle
 import time
 from pathlib import Path
 
 from ..evaluation.temporal_v2_ablation import _read_json, _resolve_data_path
 from .pilot import (
     DEFAULT_PILOT,
+    cache_key,
+    cached_samples,
     guitarset_samples,
     load_pilot_config,
     resolve_fractions,
@@ -37,45 +37,6 @@ ML_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = ML_ROOT.parent
 DEFAULT_BASE_CONFIG = ML_ROOT / "configs" / "temporal-harmony-v2.json"
 DEFAULT_RUN_DIR = ML_ROOT / "runs" / "full-band-pilot-v1"
-
-
-def cache_key(**fields) -> str:
-    """Identity of a feature set: everything that would change its contents."""
-    return hashlib.sha256(
-        json.dumps(fields, sort_keys=True, default=str).encode()).hexdigest()
-
-
-def cached_samples(cache_dir: Path | None, name: str, key: str, build):
-    """Extract once, reuse across restarts, and never reuse a stale cache.
-
-    Feature extraction costs about 13 minutes per run and is pure: the same
-    inputs give the same samples. An interrupted long CPU run should not have to
-    pay it again. The recorded key covers the feature pipeline, the boundary
-    tolerance and the exact track set, so a cache built for different inputs is
-    recomputed rather than silently reused - the same rule the training
-    checkpoints already follow.
-    """
-    if cache_dir is None:
-        return build()
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    blob = cache_dir / f"{name}.pkl"
-    sidecar = cache_dir / f"{name}.json"
-    if blob.exists() and sidecar.exists():
-        recorded = json.loads(sidecar.read_text(encoding="utf-8"))
-        if recorded.get("key") == key:
-            with blob.open("rb") as handle:
-                samples = pickle.load(handle)
-            print(f"  cache hit: {name} ({len(samples)} samples)", flush=True)
-            return samples
-        print(f"  cache stale: {name} (key changed); recomputing", flush=True)
-    samples = build()
-    tmp = blob.with_suffix(".pkl.tmp")
-    with tmp.open("wb") as handle:
-        pickle.dump(samples, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    tmp.replace(blob)
-    sidecar.write_text(json.dumps({"key": key, "count": len(samples)}, indent=2),
-                       encoding="utf-8")
-    return samples
 
 
 def merge_results(report_path: Path, fresh: list[dict], run_dir: Path) -> list[dict]:

@@ -153,6 +153,50 @@ def mix_epoch(domains: list[DomainSamples], fractions: dict[str, float],
 LEGACY_GUITARSET_ONLY_CONTROL = "guitarset-only-control"
 
 
+def cache_key(**fields) -> str:
+    """Identity of a cached artifact: everything that would change its contents."""
+    import hashlib
+
+    return hashlib.sha256(
+        json.dumps(fields, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def cached_samples(cache_dir: Path | None, name: str, key: str, build):
+    """Build once, reuse across restarts, and never reuse a stale artifact.
+
+    Feature extraction costs about 13 minutes per run and is pure: the same
+    inputs give the same output. An interrupted long CPU run should not have to
+    pay it again. The recorded key covers the feature pipeline, the boundary
+    tolerance and the exact track set, so a cache built for different inputs is
+    recomputed rather than silently reused - the same rule the training
+    checkpoints already follow.
+    """
+    import pickle
+
+    if cache_dir is None:
+        return build()
+    cache_dir = Path(cache_dir)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    blob = cache_dir / f"{name}.pkl"
+    sidecar = cache_dir / f"{name}.json"
+    if blob.exists() and sidecar.exists():
+        recorded = json.loads(sidecar.read_text(encoding="utf-8"))
+        if recorded.get("key") == key:
+            with blob.open("rb") as handle:
+                payload = pickle.load(handle)
+            print(f"  cache hit: {name} ({len(payload)} entries)", flush=True)
+            return payload
+        print(f"  cache stale: {name} (key changed); recomputing", flush=True)
+    payload = build()
+    tmp = blob.with_suffix(".pkl.tmp")
+    with tmp.open("wb") as handle:
+        pickle.dump(payload, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    tmp.replace(blob)
+    sidecar.write_text(json.dumps({"key": key, "count": len(payload)}, indent=2),
+                       encoding="utf-8")
+    return payload
+
+
 def resolve_fractions(config: dict[str, Any], candidate: dict[str, Any]) -> dict[str, float]:
     """Domain fractions for one candidate.
 

@@ -24,6 +24,7 @@ from typing import Any
 import yaml
 
 from ..evaluation.metrics import evaluate_regions
+from .pilot import cache_key, cached_samples
 from ..evaluation.temporal_v2_ablation import (
     _extract_feature_map,
     _load_tracks,
@@ -318,10 +319,14 @@ def main() -> None:
               if t.artist in performers]
     if any(t.artist == "guitarset-p00" for t in tracks):
         raise SystemExit("p00 must not enter pilot evaluation")
-    feature_map = _extract_feature_map(tracks, pipeline)
+    eval_cache = None if args.no_eval_cache else run_dir / "eval-cache"
+    feature_map = cached_samples(
+        eval_cache, "guitarset-features",
+        cache_key(pipeline=pipeline, trackIds=sorted(t.track_id for t in tracks)),
+        lambda: _extract_feature_map(tracks, pipeline))
 
     views = ("full-mix", "oracle-harmonic", "guitar-absent-harmonic")
-    cache_dir = None if args.no_eval_cache else run_dir / "eval-cache"
+    cache_dir = eval_cache
     shared = {"views": list(views), "pipeline": pipeline, "devTracks": chosen,
               "guitarSetTracks": sorted(t.track_id for t in tracks)}
 
