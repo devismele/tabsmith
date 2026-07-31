@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "full-band-decoder-v1-20260731",
+  "frozenBefore": "any decoder was scored against the rehearsal-heavy model",
+  "gateSet": "full-band-pilot-gates-20260727",
+  "gateSetPolicy": "The eligibility gates are reused UNCHANGED for the third consecutive study. Pilot v2 failed on fragmentation and regions-per-minute; a decoder study that moved those bounds would be answering its own question.",
+  "baseModel": {
+    "id": "rehearsal-heavy",
+    "checkpoint": "ml/runs/full-band-pilot-v2/rehearsal-heavy/model.pt",
+    "provenance": "full-band-pilot-v2-20260731",
+    "note": "Weights are NOT retrained or modified. This study varies only the decoder applied to a fixed set of network outputs."
+  },
+  "strategy": {
+    "id": "over-segmentation-control-on-a-rehearsal-heavy-mixed-domain-model",
+    "description": "Score the frozen rehearsal-heavy checkpoint under alternative decoders, applying the unchanged pilot gate set. One forward pass per item serves every candidate, so the decoder axis is isolated exactly.",
+    "rationale": [
+      "Measured in pilot v2: rehearsal-heavy passed every ACCURACY gate on both domains - GuitarSet root +6.04/+3.19 pp, GuitarSet detailed +11.59/+8.19 pp, full-mix detailed +12.17 pp - and failed only fragmentation (+0.0568/+0.0209 against 0.015) and regions per minute (+2.92/+1.46 against 0.75). Every gate it failed is a segmentation gate.",
+      "Measured in segmental-v3: segmental decoders cut fragmentation 0.672 -> 0.649 and regions/minute 22.2 -> 20.8 on the full-v2 model without costing accuracy. That study rejected them because they missed frozen bounds NARROWLY on a model whose accuracy was not gate-clearing; the decoders have never been applied to a model in this family that already clears the accuracy gates.",
+      "Measured across temporal-v2, segmental-v3 and boundary-v3: boundary-head interventions move fragmentation by about +/-0.014 while decoder changes move it by an order of magnitude more. Decoding is the lever with the demonstrated effect size.",
+      "A decoder study needs no training, so the full candidate set costs one forward pass over each item plus negligible decode time."
+    ],
+    "rejectedAlternatives": [
+      {
+        "id": "retrain-with-a-segmentation-loss",
+        "reason": "Pilot v2 already showed that objective-side interventions on this family move the chord posterior more than the segmentation behaviour, and retraining would confound the decoder question with a weights question."
+      },
+      {
+        "id": "retune-the-decoder-scalars-for-this-model",
+        "reason": "Tuning switch/duration/boundary dials against p01-p05 would fit the set the preservation gates score. The scalars are transferred verbatim from the segmental-v3 frozen configuration instead."
+      },
+      {
+        "id": "relax-the-fragmentation-bound",
+        "reason": "It was frozen before any full-band result existed and has now bound two consecutive studies. Moving it now would convert a real constraint into a formality."
+      }
+    ]
+  },
+  "parameterPolicy": "Scalar switch/duration/boundary dials are COPIED VERBATIM from segmental-harmony-v3-candidates.json and are not re-tuned here. Data-derived parameters (minimum dwell, segment minimum, confirmation frames, flicker thresholds) are computed via ml.evaluation.segmental.priors from data that is never the scored set: for GuitarSet, leave-one-performer-out over p01-p05, exactly the segmental-v3 policy; for full-band, from the 120 Slakh TRAINING compositions, never the development subset.",
+  "baseline": {
+    "model": "v1",
+    "source": "evaluation/reports/full-band-pilot-v2-results.json",
+    "note": "The gates compare against v1 as measured in pilot v2 under its production-parity decoder. v1 is the incumbent as it would actually run, so its baseline is not re-decoded."
+  },
+  "candidates": [
+    {
+      "id": "viterbi-penalty-4-control",
+      "kind": "existing",
+      "role": "control",
+      "knobs": {"transitionPenalty": 4.0},
+      "note": "The decoder pilot v2 actually used: uniform-penalty Viterbi at production parity, no smoothing. Must reproduce the frozen pilot-v2 rehearsal-heavy numbers exactly; if it does not, the harness is wrong and no other candidate in this study can be trusted.",
+      "verifies": "reproduces full-band-pilot-v2 rehearsal-heavy"
+    },
+    {
+      "id": "duration-viterbi",
+      "kind": "duration-viterbi",
+      "role": "candidate",
+      "knobs": {"transitionPenalty": 6.0, "useDuration": true, "durationPenalty": 4.0, "maxMinDwellSeconds": 1.0},
+      "note": "Stickier base cost plus a soft short-dwell penalty ramping to zero by the 25th-percentile reference chord duration."
+    },
+    {
+      "id": "duration-boundary-viterbi",
+      "kind": "duration-boundary-viterbi",
+      "role": "candidate",
+      "knobs": {"transitionPenalty": 6.0, "useDuration": true, "durationPenalty": 4.0, "maxMinDwellSeconds": 1.0, "useBoundary": true, "boundaryGain": 3.0, "switchCostFloor": 2.0},
+      "note": "Duration constraint plus boundary gating. The boundary head is read here even though the pilot decode never read it."
+    },
+    {
+      "id": "segmental-full",
+      "kind": "segmental-full",
+      "role": "candidate",
+      "knobs": {"segmentSwitchPenalty": 8.0, "maxSegmentFrames": 40, "useSegmentDuration": true, "segmentDurationPenalty": 4.0, "maxSegmentMinSeconds": 0.75, "useBoundary": true, "boundaryGain": 3.0, "switchCostFloor": 2.0, "useConfirm": true, "confirmMass": 2.0, "useFlicker": true},
+      "note": "Semi-Markov chord+boundary decode, chord-evidence confirmation and flicker reconciliation. The strongest over-segmentation control measured in segmental-v3."
+    }
+  ],
+  "evaluation": {
+    "fullBandDevelopment": "Slakh validation subset only; the untouched test split is never used for selection.",
+    "guitarSetPreservation": "p01-p05, both captures; p00 stays sealed.",
+    "decoderAxisIsolation": "Every candidate decodes the identical cached network response for each item, so differences are decoder-only by construction."
+  },
+  "ifACandidateIsEligible": "This would be the first eligible candidate in the workstream. Eligibility would justify unsealing p00 for a single confirmatory measurement, which is a separate frozen decision and is NOT part of this study.",
+  "knownLimitations": [
+    "GuitarSet preservation is measured on p01-p05, which v1 trained on and which the base model rehearsed on. It is a forgetting check, not a held-out generalisation claim.",
+    "Reference labels for Slakh are note-level, so the full-band fragmentation gate remains not-evaluable and full-band regions/minute is not comparable to GuitarSet.",
+    "Slakh2100 is rendered from MIDI, so full-band evidence here is synthetic-domain.",
+    "Decoder scalars were frozen in segmental-v3 against a different model (full-v2). Transferring them unchanged is the honest choice available without tuning on the scored set, but it means no candidate here is tuned for this model."
+  ]
+}
