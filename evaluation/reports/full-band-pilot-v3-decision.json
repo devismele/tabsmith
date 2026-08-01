@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "decision": "multiple-eligible-no-ranking-rule",
+  "selectedCandidate": null,
+  "eligibleCandidates": [
+    "rehearsal-heavy-120",
+    "scale-600"
+  ],
+  "pilotId": "full-band-pilot-v3-20260731",
+  "gateSetId": "full-band-pilot-gates-20260727",
+  "gateSetReusedFromPilotV1": true,
+  "resultsChecksum": "c85bb124b064e08c14ef6a6c352bde5e917e18149dc9fdd92408d092b41186c9",
+  "pilotConfigChecksum": "6f9c1d1d67d2c8a084a532b64b3439c25b3f7646989298deb2338b787ea9caff",
+  "p00Accessed": false,
+  "slakhTestSplitUsed": false,
+  "productionWeightsReplaced": false,
+  "applicationDefaultsChanged": false,
+  "releaseGatingChanged": false,
+  "gateOutcomes": {
+    "rehearsal-heavy-120": {
+      "passed": true,
+      "failedGates": [],
+      "firstFailure": null
+    },
+    "scale-600": {
+      "passed": true,
+      "failedGates": [],
+      "firstFailure": null
+    },
+    "scale-600-longer": {
+      "passed": false,
+      "failedGates": [
+        "guitarSetFragmentationIncrease@audio_mono-mic"
+      ],
+      "firstFailure": "guitarSetFragmentationIncrease on audio_mono-mic: measured 0.0155 vs required <= 0.015"
+    }
+  },
+  "notEvaluableGates": [
+    "fullBandFragmentation",
+    "percussionOnlyNoChordRecall"
+  ]
+}

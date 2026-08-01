@@ -240,6 +240,49 @@ cost on unseen solo guitar — not the +6 pp guitar improvement p01–p05 implie
 performer-level generalisation claims in GuitarSet no longer have an untouched
 set to appeal to.
 
+## Scale study (pilot v3): two eligible, and the best model is not one of them
+
+The pilot trained on 120 of 1289 available train-split compositions. v3 keeps the
+rehearsal-heavy recipe exactly and enlarges the pool to 600, then tests a longer
+budget on top. All rows below use the same frozen `duration-viterbi` decoder;
+only the weights differ.
+
+| model | pool | epochs | GS root mic | GS det mic | GS frag mic | full-mix det | eligible |
+|---|---|---|---|---|---|---|---|
+| v1 | — | — | 0.5198 | 0.3258 | 0.6871 | 0.4961 | baseline |
+| `rehearsal-heavy-120` | 120 | 12 | **0.5784** | **0.4437** | 0.6873 | 0.6174 | **yes** |
+| `scale-600` | 600 | 12 | 0.5581 | 0.3891 | **0.6723** | 0.6255 | **yes** |
+| `scale-600-longer` | 600 | 24 | **0.6120** | **0.4567** | 0.7026 | **0.6399** | no — frag by 0.0005 |
+
+**More data helps full-band and helps segmentation**, and costs solo-guitar
+accuracy at a fixed rehearsal share: `scale-600` improves full-mix detailed
+0.6174 → 0.6255 and cuts fragmentation on both captures, while giving up
+GuitarSet root and detailed against the 120-composition model. Both stay far
+above v1, so both clear preservation.
+
+**The longer budget produces the best model on every accuracy axis and is
+ineligible**, failing microphone fragmentation at 0.0155 against 0.015 — a miss
+of **0.0005**. The gate was not moved. It has now bound four consecutive studies,
+and boundary-v3 held the same line against a 0.0008 miss.
+
+Better frame-level fit with worse temporal stability is the mechanism: dev loss
+improved 3.9879 → 3.8706 while decoded output became less stable. A sharper
+posterior switches state more readily, and a duration constraint sufficient at 12
+epochs is not sufficient at 24.
+
+**Measured noise floor:** `scale-600` and `scale-600-longer` share seed, data and
+schedule for their first 12 epochs and still differ by 0.004 in dev loss (CPU
+reduction-order nondeterminism). Differences below ~0.004 are not meaningful, and
+the 0.0005 fragmentation miss sits well inside that band — an argument for
+treating that candidate as unresolved, not for admitting it.
+
+**Two eligible candidates, deliberately unranked.** `rehearsal-heavy-120` is
+better on solo guitar; `scale-600` is better on full-band and segmentation. The
+gates admit rather than order, and no ranking rule was frozen in advance.
+Inventing one with both results visible would be choosing the winner and then
+writing the rule that picks it. A ranking rule should be frozen first, and the
+weight to give guitar versus full-band is a product question, not a metric one.
+
 ### Running and resuming
 
 Training is resumable per candidate at epoch granularity, and both the extracted

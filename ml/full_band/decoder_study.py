@@ -175,6 +175,11 @@ def main() -> None:
     parser.add_argument("--pilot-results", default=str(
         REPORT_DIR / "full-band-pilot-v2-results.json"))
     parser.add_argument("--output", default=str(REPORT_DIR / "full-band-decoder-v1-results.json"))
+    parser.add_argument("--base-checkpoint", default=None,
+                        help="Score a different checkpoint under the same frozen decoders. The "
+                             "decoder axis and gates are unchanged; only the weights differ.")
+    parser.add_argument("--base-id", default=None,
+                        help="Name for the overridden base model, used in the results payload.")
     parser.add_argument("--annotations", default=None)
     parser.add_argument("--mic-audio", default=None)
     parser.add_argument("--pickup-audio", default=None)
@@ -193,13 +198,15 @@ def main() -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
     cache_dir = run_dir / "response-cache"
 
-    checkpoint = REPO_ROOT / study["baseModel"]["checkpoint"]
+    base_id = args.base_id or study["baseModel"]["id"]
+    checkpoint = (Path(args.base_checkpoint) if args.base_checkpoint
+                  else REPO_ROOT / study["baseModel"]["checkpoint"])
     if not checkpoint.exists():
         raise SystemExit(f"base model missing: {checkpoint}")
     digest = file_digest(checkpoint)
     model, meta = load_checkpoint(checkpoint)
     pipeline = meta.get("featureVersion", "numpy-chroma-v1")
-    print(f"base model: {study['baseModel']['id']} ({pipeline}, {digest[:12]})", flush=True)
+    print(f"base model: {base_id} ({pipeline}, {digest[:12]})", flush=True)
 
     annotations = _resolve_data_path(args.annotations, "TABSMITH_GUITARSET_ANNOTATIONS")
     mic = _resolve_data_path(args.mic_audio, "TABSMITH_GUITARSET_MIC_AUDIO")
@@ -271,7 +278,7 @@ def main() -> None:
         "developmentTracks": len(dev_ids),
         "guitarSetTracks": len(tracks),
         "featurePipeline": pipeline,
-        "baseModel": study["baseModel"]["id"],
+        "baseModel": base_id,
         "baseModelChecksum": digest,
         "weightsModified": False,
         "p00Accessed": False,

@@ -22,6 +22,24 @@ CAPTURES = ("audio_mono-mic", "audio_mono-pickup_mix")
 VIEWS = ("full-mix", "oracle-harmonic", "guitar-absent-harmonic")
 
 
+def headline(eligible: list[str]) -> str:
+    """The decision line.
+
+    With more than one eligible candidate the gates have admitted several and
+    ranked none - they are a filter, not an ordering. Naming the first as if it
+    were the selection would be choosing a winner the study never chose, so the
+    ambiguity is stated instead.
+    """
+    if not eligible:
+        return "**Decision: retain v1. No candidate is eligible.**"
+    if len(eligible) == 1:
+        return f"**Decision: {eligible[0]} passed every evaluable gate.**"
+    listed = ", ".join(f"`{name}`" for name in eligible)
+    return (f"**Decision: {len(eligible)} candidates passed every evaluable gate "
+            f"({listed}). The gates admit rather than rank, and no ranking rule was "
+            "frozen in advance, so this study does not select between them.**")
+
+
 def _models(payload: dict[str, Any]) -> list[str]:
     """Baseline first, then candidates in the order they were evaluated."""
     return ["v1"] + [cid for cid in payload["gateOutcomes"] if cid != "v1"]
@@ -37,8 +55,7 @@ def build_markdown(payload: dict[str, Any], pilot: dict[str, Any],
     lines = [
         f"# {pilot.get('reportTitle', 'Full-band pilot v2 result')}",
         "",
-        ("**Decision: retain v1. No pilot-v2 candidate is eligible.**" if not eligible
-         else f"**Decision: {eligible[0]} passed every evaluable gate.**"),
+        headline(eligible),
         "",
         f"Pilot `{payload['pilotId']}` under gate set `{payload['gateSetId']}`.",
         f"Strategy `{pilot['strategy']['id']}`.",
@@ -124,8 +141,13 @@ def main() -> None:
 
     decision = {
         "schemaVersion": 1,
-        "decision": "select-candidate" if eligible else "retain-v1",
-        "selectedCandidate": eligible[0] if eligible else None,
+        "decision": ("retain-v1" if not eligible
+                     else "select-candidate" if len(eligible) == 1
+                     else "multiple-eligible-no-ranking-rule"),
+        # Only a single eligible candidate is a selection. Several eligible
+        # candidates with no pre-frozen ranking rule is an unresolved choice, and
+        # recording one of them here would make it look decided.
+        "selectedCandidate": eligible[0] if len(eligible) == 1 else None,
         "eligibleCandidates": eligible,
         "pilotId": payload["pilotId"],
         "gateSetId": payload["gateSetId"],

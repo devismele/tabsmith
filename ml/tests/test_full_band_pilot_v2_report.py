@@ -76,6 +76,15 @@ class MarkdownTests(unittest.TestCase):
         self.assertIn("**Decision: rehearsal-heavy passed every evaluable gate.**", text)
         self.assertNotIn("retain v1.", text)
 
+    def test_several_eligible_candidates_are_not_silently_ranked(self):
+        """The gates admit rather than order; naming one would invent a choice."""
+        text = build_markdown(
+            _payload(eligible=["rehearsal-heavy", "low-lr"],
+                     candidates=("rehearsal-heavy", "low-lr")), PILOT)
+        self.assertIn("2 candidates passed", text)
+        self.assertIn("does not select between them", text)
+        self.assertNotIn("**Decision: rehearsal-heavy passed", text)
+
     def test_all_candidates_appear_in_the_tables(self):
         text = build_markdown(_payload(candidates=("rehearsal-heavy", "low-lr")), PILOT)
         self.assertIn("| rehearsal-heavy | full-mix |", text)
@@ -132,6 +141,16 @@ class DecisionTests(unittest.TestCase):
             self.assertFalse(decision["productionWeightsReplaced"])
             self.assertFalse(decision["p00Accessed"])
             self.assertFalse(decision["slakhTestSplitUsed"])
+
+    def test_several_eligible_candidates_leave_the_choice_open(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            decision, _ = self._run(
+                _payload(eligible=["rehearsal-heavy", "low-lr"],
+                         candidates=("rehearsal-heavy", "low-lr")), Path(tmp))
+            self.assertEqual(decision["decision"], "multiple-eligible-no-ranking-rule")
+            self.assertIsNone(decision["selectedCandidate"])
+            self.assertEqual(sorted(decision["eligibleCandidates"]),
+                             ["low-lr", "rehearsal-heavy"])
 
     def test_eligible_candidate_is_selected(self):
         with tempfile.TemporaryDirectory() as tmp:
